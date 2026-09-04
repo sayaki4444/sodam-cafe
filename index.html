@@ -1264,18 +1264,19 @@
         </div>
       </div>
 
-      <!-- 비밀번호 변경 아코디언 설정 -->
-      <div style="margin: 16px 0; border-top: 1px solid var(--border-color); padding-top: 14px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="togglePinChangeBox()">
-          <span style="font-size:13px; font-weight:700; color:var(--kiost-accent);">🔐 관리자 비밀번호 변경</span>
-          <span id="pinArrow" style="font-size:12px; color:var(--text-muted);">▼</span>
+      <!-- 비밀번호 변경 설정 -->
+      <div style="margin: 16px 0 20px; border-top: 1px solid var(--border-color); padding-top: 14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-size:13px; font-weight:700; color:var(--text-main);">🔐 관리자 비밀번호 (PIN)</span>
+          <span style="font-size:12px; font-weight:700; color:var(--kiost-accent);" id="currentPinDisplay">현재: 1234</span>
         </div>
-        <div id="pinChangeBox" style="display:none; margin-top:10px; background:var(--card-sub); padding:12px; border-radius:14px; border:1px solid var(--border-color);">
-          <label class="form-label" for="newPinInput" style="margin-bottom:6px;">새 비밀번호 (4자리 이상)</label>
+        <div style="background:var(--card-sub); padding:14px; border-radius:16px; border:1px solid var(--border-color);">
+          <label class="form-label" for="newPinInput" style="margin-bottom:6px;">새 비밀번호로 변경 (4자리 이상 입력)</label>
           <div style="display:flex; gap:8px;">
-            <input type="password" id="newPinInput" class="admin-input-text" style="margin-bottom:0;" maxlength="10" inputmode="numeric" placeholder="새 PIN 번호">
-            <button type="button" class="preset-btn" style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--kiost-accent); color:#FFF; border:none;" onclick="changeAdminPin()">변경</button>
+            <input type="password" id="newPinInput" class="admin-input-text" style="margin-bottom:0;" maxlength="10" inputmode="numeric" placeholder="새 비밀번호 입력">
+            <button type="button" class="preset-btn" style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--kiost-accent); color:#FFF; border:none;" onclick="changeAdminPin()">즉시변경</button>
           </div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:6px;">* 아래 [상태 적용 및 저장하기]를 눌러도 함께 저장됩니다.</div>
         </div>
       </div>
 
@@ -1365,9 +1366,8 @@
         selectedStatusTemp = localStorage.getItem('sodam-admin-status') || 'auto';
         selectedCoffeeTemp = localStorage.getItem('sodam-admin-coffee') || 'auto';
         document.getElementById('adminNoticeInput').value = localStorage.getItem('sodam-admin-notice') || '';
-        document.getElementById('pinChangeBox').style.display = 'none';
-        document.getElementById('pinArrow').innerText = '▼';
         document.getElementById('newPinInput').value = '';
+        document.getElementById('currentPinDisplay').innerText = `현재: ${currentPin}`;
         updateStatusBtnUI();
         setTimeout(() => {
           openModal('adminModal');
@@ -1383,19 +1383,6 @@
       }
     }
 
-    function togglePinChangeBox() {
-      const box = document.getElementById('pinChangeBox');
-      const arrow = document.getElementById('pinArrow');
-      if (box.style.display === 'none' || !box.style.display) {
-        box.style.display = 'block';
-        arrow.innerText = '▲';
-        document.getElementById('newPinInput').focus();
-      } else {
-        box.style.display = 'none';
-        arrow.innerText = '▼';
-      }
-    }
-
     function changeAdminPin() {
       const newPin = document.getElementById('newPinInput').value.trim();
       if (!newPin || newPin.length < 4) {
@@ -1403,9 +1390,9 @@
         return;
       }
       localStorage.setItem('sodam-admin-pin', newPin);
-      alert('관리자 비밀번호가 성공적으로 변경되었습니다!');
+      document.getElementById('currentPinDisplay').innerText = `현재: ${newPin}`;
+      alert(`✅ 관리자 비밀번호가 [ ${newPin} ] (으)로 변경되었습니다!`);
       document.getElementById('newPinInput').value = '';
-      togglePinChangeBox();
     }
 
     function selectAdminStatus(status) {
@@ -1466,9 +1453,9 @@
       }
       msg += `\n🔗 소담터 모바일 웹 알리미`;
 
-      // 6초 타임아웃 감지
+      // 4초 타임아웃 감지
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
 
       try {
         const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
@@ -1491,11 +1478,13 @@
         }
       } catch (err) {
         clearTimeout(timeoutId);
-        console.error('Telegram alert error:', err);
-        if (err.name === 'AbortError') {
-          alert('⚠️ 텔레그램 서버 연결 시간 초과 (Timeout)\n\n현재 사내망(KIOST 인트라넷) 방화벽에서 api.telegram.org 접속이 차단되어 있을 수 있습니다.\n모바일 데이터(LTE/5G) 환경이나 사외망에서 접속하시면 정상 전송됩니다.');
-        } else {
-          alert(`⚠️ 텔레그램 전송 실패: ${err.message}\n(사내 방화벽 차단 또는 네트워크 연결 상태를 확인해 주세요)`);
+        console.warn('Telegram bot send error (likely intranet firewall):', err);
+        
+        // 사내망 방화벽 차단 시 텔레그램 앱/웹 다이렉트 전송 다이얼로그 제공
+        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent('https://sayaki4444.github.io/sodam-cafe/')}&text=${encodeURIComponent(msg)}`;
+        const wantShare = confirm('⚠️ 사내망(KIOST 인트라넷) 방화벽으로 인해 봇 자동 발송이 차단되었습니다.\n(모바일 LTE/사외망에서는 봇이 정상 발송됩니다)\n\n대신 텔레그램 앱/웹으로 직접 메시지를 채널에 전송하시겠습니까?');
+        if (wantShare) {
+          window.open(shareUrl, '_blank');
         }
         return false;
       }
@@ -1506,6 +1495,17 @@
       localStorage.setItem('sodam-admin-status', selectedStatusTemp);
       localStorage.setItem('sodam-admin-notice', notice);
       localStorage.setItem('sodam-admin-coffee', selectedCoffeeTemp);
+
+      // 비밀번호 입력란에 값이 있으면 저장 시 함께 비밀번호 변경
+      const newPin = document.getElementById('newPinInput').value.trim();
+      if (newPin) {
+        if (newPin.length >= 4) {
+          localStorage.setItem('sodam-admin-pin', newPin);
+          alert(`🔐 관리자 비밀번호가 [ ${newPin} ] (으)로 함께 저장되었습니다!`);
+        } else {
+          alert('비밀번호는 최소 4자리 이상이어야 변경됩니다.');
+        }
+      }
 
       // 텔레그램 알림 체크 여부 확인 및 발송
       const isSendTele = document.getElementById('sendTelegramCheck').checked;
