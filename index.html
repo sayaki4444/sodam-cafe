@@ -4,41 +4,79 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>소담터 - KIOST 사내 카페</title>
+  <!-- 웹 폰트: Pretendard & Gaegu -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@700&family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@700&display=swap" rel="stylesheet">
   
   <style>
     :root {
-      /* ☀️ 라이트 모드 (KIOST 오션 테마) */
-      --bg-app: #F4F7FB;
+      /* ☀️ 라이트 모드 (KIOST 오션 & 모던 클린 테마) */
+      --bg-app: #F3F6FA;
       --card-bg: #FFFFFF;
       --card-sub: #F8FAFD;
+      --card-highlight: #EEF4FC;
       --text-main: #0F172A;
-      --text-sub: #475569;
+      --text-sub: #64748B;
+      --text-muted: #94A3B8;
       --kiost-blue: #003876;
-      --kiost-light-blue: #0072CE;
+      --kiost-light-blue: #0284C7;
+      --kiost-accent: #0284C7;
       --border-color: #E2E8F0;
-      --modal-overlay: rgba(15, 23, 42, 0.45);
-      --shadow-sm: 0 4px 12px rgba(0, 56, 118, 0.06);
-      --shadow-md: 0 10px 25px rgba(0, 56, 118, 0.1);
+      --border-light: #EDF2F7;
+      --modal-overlay: rgba(15, 23, 42, 0.55);
+      --shadow-xs: 0 1px 3px rgba(0, 56, 118, 0.05);
+      --shadow-sm: 0 4px 14px rgba(0, 56, 118, 0.07);
+      --shadow-md: 0 10px 28px rgba(0, 56, 118, 0.1);
+      --shadow-bottom-sheet: 0 -12px 36px rgba(15, 23, 42, 0.2);
       --cup-stroke: #003876;
+      --cup-steam: rgba(2, 132, 199, 0.4);
+      --coffee-liquid: #795548;
+      
+      /* 식판 색상 */
+      --tray-bg: #F8FAFD;
+      --tray-border: #E2E8F0;
+      --tray-main-bg: #EFF6FF;
+      --tray-main-border: #93C5FD;
+      --tray-main-text: #1D4ED8;
+      --tray-dessert-bg: #FFF7ED;
+      --tray-dessert-border: #FDBA74;
+      --tray-dessert-text: #C2410C;
     }
 
     [data-theme="dark"] {
-      /* 🌙 다크 모드 (심해 딥네이비) */
-      --bg-app: #080E1A;
-      --card-bg: #111C2E;
-      --card-sub: #19263D;
+      /* 🌙 다크 모드 (심해 딥네이비 & 세련된 나이트 테마) */
+      --bg-app: #0A1120;
+      --card-bg: #131E32;
+      --card-sub: #1A2842;
+      --card-highlight: #213252;
       --text-main: #F8FAFC;
       --text-sub: #94A3B8;
+      --text-muted: #64748B;
       --kiost-blue: #38BDF8;
       --kiost-light-blue: #0EA5E9;
+      --kiost-accent: #38BDF8;
       --border-color: #22344D;
-      --modal-overlay: rgba(0, 0, 0, 0.7);
-      --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.4);
-      --shadow-md: 0 12px 28px rgba(0, 0, 0, 0.6);
+      --border-light: #1E2D44;
+      --modal-overlay: rgba(0, 0, 0, 0.75);
+      --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.3);
+      --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.4);
+      --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.55);
+      --shadow-bottom-sheet: 0 -12px 40px rgba(0, 0, 0, 0.7);
       --cup-stroke: #38BDF8;
+      --cup-steam: rgba(56, 189, 248, 0.45);
+      --coffee-liquid: #A1887F;
+
+      /* 식판 색상 (다크 모드 눈부심 방지) */
+      --tray-bg: #1A2842;
+      --tray-border: #2B3D5E;
+      --tray-main-bg: rgba(56, 189, 248, 0.12);
+      --tray-main-border: rgba(56, 189, 248, 0.4);
+      --tray-main-text: #7DD3FC;
+      --tray-dessert-bg: rgba(249, 115, 22, 0.12);
+      --tray-dessert-border: rgba(249, 115, 22, 0.4);
+      --tray-dessert-text: #FB923C;
     }
 
     * {
@@ -51,20 +89,24 @@
     body {
       background-color: var(--bg-app);
       color: var(--text-main);
-      font-family: 'Pretendard', -apple-system, sans-serif;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       display: flex;
       justify-content: center;
       min-height: 100vh;
+      min-height: 100dvh;
       transition: background-color 0.25s ease, color 0.25s ease;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
     }
 
     /* 모바일 프레임 컨테이너 */
     .app-container {
       width: 100%;
-      max-width: 420px;
-      padding: 16px 18px 36px;
+      max-width: 430px;
+      padding: 16px 20px calc(32px + env(safe-area-inset-bottom, 16px));
       display: flex;
       flex-direction: column;
+      margin: 0 auto;
     }
 
     /* 1. 상단 헤더 */
@@ -72,21 +114,30 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
+      padding-top: env(safe-area-inset-top, 4px);
+    }
+    .header-left-title {
+      display: flex;
+      flex-direction: column;
     }
     .header-tag {
       font-size: 11px;
       font-weight: 800;
-      color: var(--kiost-light-blue);
-      letter-spacing: 0.5px;
+      color: var(--kiost-accent);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
     }
     .header-title {
-      font-family: 'Gaegu', cursive;
-      font-size: 26px;
+      font-family: 'Gaegu', 'Pretendard', cursive, sans-serif;
+      font-size: 27px;
       font-weight: 700;
       color: var(--text-main);
-      line-height: 1.1;
-      margin-top: -2px;
+      line-height: 1.15;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
     .header-actions {
       display: flex;
@@ -97,19 +148,25 @@
       background: var(--card-bg);
       border: 1.5px solid var(--border-color);
       color: var(--text-main);
-      border-radius: 20px;
-      padding: 6px 12px;
-      font-size: 12px;
+      border-radius: 22px;
+      min-height: 40px;
+      padding: 0 14px;
+      font-size: 13px;
       font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 4px;
-      box-shadow: var(--shadow-sm);
+      gap: 6px;
+      box-shadow: var(--shadow-xs);
+      transition: all 0.15s ease;
+    }
+    .theme-toggle-btn:active {
+      transform: scale(0.95);
+      background: var(--card-sub);
     }
     .telegram-btn {
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       background: var(--card-bg);
       border: 1.5px solid var(--border-color);
@@ -117,58 +174,149 @@
       align-items: center;
       justify-content: center;
       text-decoration: none;
-      font-size: 16px;
-      box-shadow: var(--shadow-sm);
+      font-size: 18px;
+      box-shadow: var(--shadow-xs);
+      transition: all 0.15s ease;
+    }
+    .telegram-btn:active {
+      transform: scale(0.95);
+      background: var(--card-sub);
     }
 
     /* 2. 커피잔 상태 카드 */
     .status-card {
       background: var(--card-bg);
       border: 1.5px solid var(--border-color);
-      border-radius: 26px;
-      padding: 24px 20px 20px;
+      border-radius: 28px;
+      padding: 24px 20px 22px;
       text-align: center;
       box-shadow: var(--shadow-md);
       margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+    .status-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #0284C7, #38BDF8, #003876);
+      opacity: 0.85;
+    }
+    .status-card:active {
+      transform: scale(0.99);
+    }
+
+    /* SVG 커피잔 및 스팀 애니메이션 */
+    .mug-container {
+      position: relative;
+      width: 120px;
+      height: 125px;
+      margin: 0 auto 10px;
     }
     .mug-svg {
-      width: 110px;
-      height: 115px;
-      margin: 0 auto 6px;
+      width: 100%;
+      height: 100%;
       display: block;
     }
+    .steam-path {
+      stroke: var(--cup-steam);
+      stroke-width: 3.5;
+      stroke-linecap: round;
+      fill: none;
+      animation: steamAnim 2.8s infinite ease-in-out;
+    }
+    .steam-2 {
+      animation-delay: 1.2s;
+    }
+    @keyframes steamAnim {
+      0% { opacity: 0; transform: translateY(0) scaleY(0.7); }
+      50% { opacity: 0.8; transform: translateY(-5px) scaleY(1); }
+      100% { opacity: 0; transform: translateY(-12px) scaleY(1.2); }
+    }
+
     .status-title {
-      font-family: 'Gaegu', cursive;
-      font-size: 30px;
+      font-family: 'Gaegu', 'Pretendard', cursive, sans-serif;
+      font-size: 32px;
       font-weight: 700;
-      color: var(--kiost-blue);
+      color: var(--kiost-accent);
+      line-height: 1.1;
+      margin-bottom: 4px;
     }
     .status-hours {
       font-size: 13px;
       font-weight: 600;
       color: var(--text-sub);
-      margin-bottom: 12px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
     }
     .badge-pill {
-      display: inline-block;
-      padding: 6px 18px;
-      border-radius: 14px;
-      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 20px;
+      border-radius: 20px;
+      font-size: 13.5px;
       font-weight: 800;
+      letter-spacing: -0.2px;
+      transition: all 0.2s ease;
     }
-    .badge-green { background: rgba(34, 197, 94, 0.15); color: #16A34A; border: 1.5px solid #16A34A; }
-    .badge-yellow { background: rgba(234, 179, 8, 0.15); color: #CA8A04; border: 1.5px solid #CA8A04; }
-    .badge-red { background: rgba(239, 68, 68, 0.15); color: #DC2626; border: 1.5px solid #DC2626; }
-
-    /* 3. 편의 서비스 영역 (정사각형 1:1 그리드) */
-    .section-title {
-      font-size: 14px;
-      font-weight: 800;
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+    .badge-green { 
+      background: rgba(34, 197, 94, 0.14); 
+      color: #16A34A; 
+      border: 1.5px solid rgba(22, 163, 74, 0.4); 
+    }
+    .badge-yellow { 
+      background: rgba(234, 179, 8, 0.14); 
+      color: #CA8A04; 
+      border: 1.5px solid rgba(202, 138, 4, 0.4); 
+    }
+    .badge-red { 
+      background: rgba(239, 68, 68, 0.14); 
+      color: #DC2626; 
+      border: 1.5px solid rgba(220, 38, 38, 0.4); 
+    }
+    .badge-gray { 
+      background: rgba(148, 163, 184, 0.14); 
+      color: #64748B; 
+      border: 1.5px solid rgba(100, 116, 139, 0.35); 
+    }
+    .status-desc {
+      font-size: 12px;
+      font-weight: 600;
       color: var(--text-sub);
+      margin-top: 10px;
+    }
+
+    /* 3. 편의 서비스 영역 (모바일 최적화 버튼 비율) */
+    .section-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: var(--text-main);
       margin-bottom: 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 0 2px;
+    }
+    .section-subtitle {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
     }
     .quick-grid {
       display: grid;
@@ -177,6 +325,7 @@
     }
     .quick-item {
       aspect-ratio: 1 / 1;
+      min-height: 100px;
       background: var(--card-bg);
       border: 1.5px solid var(--border-color);
       border-radius: 22px;
@@ -186,75 +335,96 @@
       justify-content: center;
       cursor: pointer;
       position: relative;
-      box-shadow: var(--shadow-sm);
-      transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.15s ease;
+      box-shadow: var(--shadow-xs);
+      transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.15s ease, box-shadow 0.15s ease;
+      padding: 8px 6px;
     }
     .quick-item:active {
-      transform: scale(0.94);
-      border-color: var(--kiost-light-blue);
+      transform: scale(0.93);
+      border-color: var(--kiost-accent);
+      background: var(--card-sub);
+      box-shadow: none;
     }
     .quick-badge {
       position: absolute;
-      top: -5px;
-      right: -4px;
-      font-size: 10px;
+      top: -6px;
+      right: 4px;
+      font-size: 10.5px;
       font-weight: 800;
       color: #FFFFFF;
-      padding: 2px 7px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+      padding: 2.5px 8px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      line-height: 1.1;
     }
     .bg-red { background: #EF4444; }
     .bg-green { background: #10B981; }
     .bg-blue { background: #0284C7; }
 
     .quick-icon {
-      font-size: 30px;
+      font-size: 32px;
       margin-bottom: 6px;
       line-height: 1;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));
     }
     .quick-label {
       font-size: 13px;
       font-weight: 800;
       color: var(--text-main);
+      text-align: center;
+      letter-spacing: -0.3px;
     }
 
-    /* 4. 부드러운 네이티브 바텀시트 팝업 */
+    /* 4. 부드러운 네이티브 바텀시트 팝업 모달 */
     .modal-overlay {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0; 
+      left: 0; 
+      right: 0; 
+      bottom: 0;
       background: var(--modal-overlay);
-      backdrop-filter: blur(4px);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
       z-index: 1000;
-      display: none;
+      visibility: hidden;
+      opacity: 0;
+      display: flex;
       align-items: flex-end;
       justify-content: center;
+      transition: opacity 0.24s ease, visibility 0.24s ease;
     }
     .modal-overlay.active {
-      display: flex;
+      visibility: visible;
+      opacity: 1;
     }
     .bottom-sheet {
       width: 100%;
-      max-width: 420px;
+      max-width: 430px;
       background: var(--card-bg);
-      border-top-left-radius: 28px;
-      border-top-right-radius: 28px;
-      padding: 22px 20px 36px;
-      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.18);
+      border-top-left-radius: 30px;
+      border-top-right-radius: 30px;
+      padding: 16px 20px calc(28px + env(safe-area-inset-bottom, 16px));
+      box-shadow: var(--shadow-bottom-sheet);
       transform: translateY(100%);
-      transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
-      max-height: 85vh;
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      max-height: 86vh;
       overflow-y: auto;
+      overscroll-behavior: contain;
     }
     .modal-overlay.active .bottom-sheet {
       transform: translateY(0);
     }
+    .sheet-handle-area {
+      padding: 4px 0 14px;
+      display: flex;
+      justify-content: center;
+      cursor: pointer;
+    }
     .sheet-handle {
-      width: 40px;
-      height: 4px;
+      width: 44px;
+      height: 4.5px;
       background: var(--border-color);
       border-radius: 4px;
-      margin: 0 auto 16px;
     }
     .sheet-header {
       display: flex;
@@ -263,34 +433,43 @@
       margin-bottom: 16px;
     }
     .sheet-title {
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 800;
       color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: -0.4px;
     }
     .sheet-close-btn {
       background: var(--card-sub);
-      border: none;
-      width: 32px;
-      height: 32px;
+      border: 1px solid var(--border-color);
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      font-size: 14px;
+      font-size: 15px;
       color: var(--text-sub);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
+      transition: all 0.15s ease;
+    }
+    .sheet-close-btn:active {
+      transform: scale(0.92);
+      background: var(--card-highlight);
     }
 
     /* 계산기 폼 요소 */
     .form-group {
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
     .form-label {
-      font-size: 12.5px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--text-sub);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       display: block;
     }
     .form-row {
@@ -298,117 +477,456 @@
       grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
-    input[type="number"], input[type="time"] {
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-wrapper input {
       width: 100%;
-      padding: 12px;
-      border-radius: 14px;
+      padding: 13px 38px 13px 14px;
+      border-radius: 16px;
       border: 1.5px solid var(--border-color);
       background: var(--card-sub);
       color: var(--text-main);
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 700;
       outline: none;
+      transition: border-color 0.15s ease;
+      -moz-appearance: textfield;
     }
-    input:focus {
-      border-color: var(--kiost-light-blue);
+    .input-wrapper input::-webkit-outer-spin-button,
+    .input-wrapper input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
     }
-    .calc-btn {
+    .input-wrapper input:focus {
+      border-color: var(--kiost-accent);
+      background: var(--card-bg);
+    }
+    .input-unit {
+      position: absolute;
+      right: 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+    .time-input {
       width: 100%;
-      padding: 14px;
+      padding: 13px 14px;
       border-radius: 16px;
-      background: var(--kiost-blue);
-      color: #FFFFFF;
-      font-size: 15px;
-      font-weight: 800;
-      border: none;
-      cursor: pointer;
-      margin-top: 10px;
-      box-shadow: var(--shadow-sm);
-    }
-    .calc-result-box {
-      margin-top: 16px;
+      border: 1.5px solid var(--border-color);
       background: var(--card-sub);
-      border: 2px solid var(--kiost-blue);
-      border-radius: 18px;
-      padding: 16px;
-      text-align: center;
-      display: none;
+      color: var(--text-main);
+      font-size: 16px;
+      font-weight: 700;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .time-input:focus {
+      border-color: var(--kiost-accent);
+      background: var(--card-bg);
     }
 
-    /* 식판 UI */
-    .tray-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 12px;
+    /* 퀵 프리셋 버튼 */
+    .preset-chips {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      flex-wrap: wrap;
     }
-    .tray-cell {
+    .preset-btn {
       background: var(--card-sub);
       border: 1px solid var(--border-color);
+      color: var(--text-sub);
       border-radius: 12px;
-      padding: 12px 10px;
-      text-align: center;
+      padding: 5px 10px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+    .preset-btn:active {
+      transform: scale(0.95);
+      border-color: var(--kiost-accent);
+      color: var(--kiost-accent);
+    }
+
+    /* 체크박스 커스텀 */
+    .custom-check-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 14px 0 18px;
+      cursor: pointer;
+      padding: 10px 12px;
+      background: var(--card-sub);
+      border-radius: 14px;
+      border: 1px solid var(--border-color);
+    }
+    .custom-check-label input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: #0284C7;
+      cursor: pointer;
+    }
+    .custom-check-text {
       font-size: 13.5px;
       font-weight: 700;
       color: var(--text-main);
     }
-    .tray-main {
-      grid-column: span 2;
-      background: rgba(0, 114, 206, 0.1);
-      border: 1.5px solid var(--kiost-light-blue);
-      color: var(--kiost-blue);
-      font-size: 15px;
-      font-weight: 900;
+
+    .calc-btn {
+      width: 100%;
+      padding: 15px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #0284C7, #003876);
+      color: #FFFFFF;
+      font-size: 16px;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
-    .tray-dessert {
-      grid-column: span 2;
-      background: #FFF7ED;
-      border: 1.5px solid #FDBA74;
-      color: #C2410C;
+    [data-theme="dark"] .calc-btn {
+      background: linear-gradient(135deg, #0284C7, #0369A1);
+    }
+    .calc-btn:active {
+      transform: scale(0.97);
+      opacity: 0.9;
+    }
+
+    .calc-result-box {
+      margin-top: 18px;
+      background: var(--card-sub);
+      border: 2px solid var(--kiost-accent);
+      border-radius: 20px;
+      padding: 18px 16px;
+      text-align: center;
+      display: none;
+      animation: fadeIn 0.25s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     /* 맛집 리스트 탭 & 카드 */
     .filter-pills {
       display: flex;
-      gap: 6px;
+      gap: 7px;
       overflow-x: auto;
-      padding-bottom: 8px;
-      margin-bottom: 12px;
+      padding: 2px 2px 10px;
+      margin-bottom: 14px;
       scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
     }
     .filter-pills::-webkit-scrollbar { display: none; }
     .pill-btn {
-      padding: 6px 14px;
-      border-radius: 20px;
+      padding: 7px 15px;
+      border-radius: 22px;
       border: 1.5px solid var(--border-color);
       background: var(--card-sub);
       color: var(--text-sub);
-      font-size: 12.5px;
+      font-size: 13px;
       font-weight: 700;
       white-space: nowrap;
       cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .pill-btn:active {
+      transform: scale(0.95);
     }
     .pill-btn.active {
-      background: var(--kiost-blue);
+      background: var(--kiost-accent);
       color: #FFFFFF;
-      border-color: var(--kiost-blue);
+      border-color: var(--kiost-accent);
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
     }
     .res-card {
       background: var(--card-sub);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 12px 14px;
-      margin-bottom: 8px;
-    }
-    .res-header {
+      border: 1.5px solid var(--border-color);
+      border-radius: 18px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      transition: all 0.15s ease;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 4px;
     }
-    .res-name { font-size: 15px; font-weight: 800; color: var(--text-main); }
-    .res-rating { font-size: 12.5px; font-weight: 800; color: #EAB308; }
-    .res-detail { font-size: 12px; color: var(--text-sub); font-weight: 600; }
+    .res-card:active {
+      border-color: var(--kiost-accent);
+      transform: scale(0.98);
+    }
+    .res-info {
+      flex: 1;
+      padding-right: 10px;
+    }
+    .res-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+    .res-name { 
+      font-size: 15.5px; 
+      font-weight: 800; 
+      color: var(--text-main); 
+    }
+    .res-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--kiost-accent);
+      background: var(--tray-main-bg);
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+    .res-detail { 
+      font-size: 12.5px; 
+      color: var(--text-sub); 
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .res-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .res-dist { color: var(--kiost-accent); }
+    .res-rating { color: #EAB308; }
+    .res-map-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-sub);
+      text-decoration: none;
+      font-size: 16px;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-xs);
+    }
+
+    /* 구내식당 식판 UI (한국 급식 식판 스타일) */
+    .diet-day-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      background: var(--card-sub);
+      padding: 4px;
+      border-radius: 14px;
+      border: 1px solid var(--border-color);
+    }
+    .day-tab-btn {
+      flex: 1;
+      padding: 7px 0;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-sub);
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .day-tab-btn.active {
+      background: var(--card-bg);
+      color: var(--kiost-accent);
+      font-weight: 800;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .tray-container {
+      background: var(--card-sub);
+      border: 2px solid var(--border-color);
+      border-radius: 24px;
+      padding: 14px;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.04);
+    }
+    .tray-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+    }
+    .tray-cell {
+      background: var(--tray-bg);
+      border: 1.5px solid var(--tray-border);
+      border-radius: 16px;
+      padding: 12px 6px;
+      text-align: center;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 64px;
+      box-shadow: var(--shadow-xs);
+    }
+    .tray-cell .cell-label {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+    .tray-cell .cell-name {
+      font-size: 13.5px;
+      font-weight: 800;
+    }
+
+    /* 메인 요리 (넓은 칸) */
+    .tray-main {
+      grid-column: span 3;
+      background: var(--tray-main-bg);
+      border: 1.5px solid var(--tray-main-border);
+      color: var(--tray-main-text);
+      padding: 14px 10px;
+      min-height: 72px;
+    }
+    .tray-main .cell-label {
+      color: var(--kiost-accent);
+      font-weight: 800;
+    }
+    .tray-main .cell-name {
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    /* 밥과 국 (하단 2분할 칸) */
+    .tray-rice {
+      grid-column: span 1;
+      min-height: 75px;
+    }
+    .tray-soup {
+      grid-column: span 2;
+      min-height: 75px;
+    }
+
+    /* 후식 칸 */
+    .tray-dessert {
+      background: var(--tray-dessert-bg);
+      border: 1.5px solid var(--tray-dessert-border);
+      color: var(--tray-dessert-text);
+    }
+    .tray-dessert .cell-label {
+      color: var(--tray-dessert-text);
+    }
+
+    .diet-calories {
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-sub);
+    }
+
+    /* 관리자 모달 및 버튼 */
+    .admin-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      border: 1.5px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      color: var(--text-sub);
+      cursor: pointer;
+      box-shadow: var(--shadow-xs);
+      transition: all 0.15s ease;
+    }
+    .admin-toggle-btn:active {
+      transform: scale(0.95);
+      background: var(--card-sub);
+    }
+    .status-select-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .status-opt-btn {
+      padding: 12px 10px;
+      border-radius: 14px;
+      border: 2px solid var(--border-color);
+      background: var(--card-sub);
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .status-opt-btn.selected {
+      border-color: var(--kiost-accent);
+      background: var(--tray-main-bg);
+      color: var(--kiost-accent);
+      box-shadow: 0 0 0 1px var(--kiost-accent);
+    }
+    .admin-input-text {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 16px;
+      border: 1.5px solid var(--border-color);
+      background: var(--card-sub);
+      color: var(--text-main);
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+      margin-bottom: 14px;
+      transition: border-color 0.15s ease;
+    }
+    .admin-input-text:focus {
+      border-color: var(--kiost-accent);
+      background: var(--card-bg);
+    }
+    .admin-save-btn {
+      width: 100%;
+      padding: 15px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #0284C7, #003876);
+      color: #FFF;
+      font-size: 15px;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+      transition: all 0.15s ease;
+    }
+    .admin-save-btn:active {
+      transform: scale(0.97);
+    }
+    .admin-badge-tag {
+      font-size: 10px;
+      font-weight: 800;
+      background: var(--kiost-accent);
+      color: #FFFFFF;
+      padding: 2px 6px;
+      border-radius: 6px;
+      margin-left: 6px;
+      vertical-align: middle;
+      letter-spacing: 0;
+    }
   </style>
 </head>
 <body>
@@ -421,57 +939,79 @@
         <h1 class="header-title">소담터 알리미 ☕</h1>
       </div>
       <div class="header-actions">
-        <button class="theme-toggle-btn" id="themeBtn" onclick="toggleTheme()">
+        <button class="theme-toggle-btn" id="themeBtn" onclick="toggleTheme()" aria-label="테마 전환">
           <span id="themeIcon">🌙</span> <span id="themeText">다크</span>
         </button>
-        <a href="https://t.me/+n5J-xg8BI4tkYmE1" target="_blank" class="telegram-btn" title="텔레그램 채널">✈️</a>
+        <button class="admin-toggle-btn" onclick="openAdminModal()" title="카페 관리자 설정" aria-label="카페 관리자 설정">⚙️</button>
+        <a href="https://t.me/+n5J-xg8BI4tkYmE1" target="_blank" rel="noopener noreferrer" class="telegram-btn" title="텔레그램 공지 채널" aria-label="텔레그램 공지 채널">✈️</a>
       </div>
     </header>
 
     <!-- 2. 시그니처 커피잔 카드 -->
-    <section class="status-card">
-      <svg class="mug-svg" viewBox="0 0 160 170" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <clipPath id="mugClip">
-          <path d="M25,40 L135,40 L127,132 Q127,140 119,140 L41,140 Q33,140 33,132 Z" />
-        </clipPath>
-        <!-- 커피 차오름 상태 -->
-        <rect id="coffeeFill" x="20" y="55" width="120" height="85" fill="var(--kiost-light-blue)" clip-path="url(#mugClip)" />
-        <!-- 잔 및 손잡이 외곽선 -->
-        <path d="M25,40 L135,40 L127,132 Q127,140 119,140 L41,140 Q33,140 33,132 Z" stroke="var(--cup-stroke)" stroke-width="5" stroke-linejoin="round" />
-        <path d="M135,55 C165,55 165,105 135,105" stroke="var(--cup-stroke)" stroke-width="6" stroke-linecap="round" />
-      </svg>
+    <section class="status-card" id="statusCard" onclick="refreshCafeStatus()">
+      <div class="mug-container">
+        <svg class="mug-svg" viewBox="0 0 160 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- 모락모락 올라오는 커피 스팀 효과 -->
+          <path id="steam1" class="steam-path" d="M60,32 C55,24 68,14 62,6" />
+          <path id="steam2" class="steam-path steam-2" d="M85,30 C80,20 93,12 88,4" />
+
+          <!-- 클립패스: 머그잔 내부 -->
+          <clipPath id="mugClip">
+            <path d="M25,40 L135,40 L127,132 Q127,140 119,140 L41,140 Q33,140 33,132 Z" />
+          </clipPath>
+
+          <!-- 커피 원두 액상 차오름 상태 -->
+          <rect id="coffeeFill" x="20" y="60" width="120" height="85" fill="var(--coffee-liquid)" clip-path="url(#mugClip)" />
+          
+          <!-- 커피 표면 거품/라떼 라인 -->
+          <ellipse cx="80" cy="62" rx="46" ry="6" fill="rgba(255,255,255,0.2)" clip-path="url(#mugClip)" />
+
+          <!-- 머그잔 본체 및 손잡이 외곽선 -->
+          <path d="M25,40 L135,40 L127,132 Q127,140 119,140 L41,140 Q33,140 33,132 Z" stroke="var(--cup-stroke)" stroke-width="5" stroke-linejoin="round" />
+          <path d="M135,55 C165,55 165,105 135,105" stroke="var(--cup-stroke)" stroke-width="6" stroke-linecap="round" />
+        </svg>
+      </div>
+
       <div class="status-title">소담터</div>
-      <div class="status-hours">운영시간 10:00 - 16:00</div>
-      <div class="badge-pill badge-green" id="stockBadge">🟢 이용가능</div>
+      <div class="status-hours">
+        <span>🕒 운영시간 10:00 - 16:00 (월~금)</span>
+      </div>
+      
+      <!-- 실시간 자동 계산 뱃지 -->
+      <div class="badge-pill badge-green" id="stockBadge">
+        <span class="badge-dot"></span>
+        <span id="stockBadgeText">주문 가능</span>
+      </div>
+      <div class="status-desc" id="statusDescText">따뜻하고 시원한 커피로 힐링하세요!</div>
     </section>
 
-    <!-- 3. 하단 편의 서비스 (완벽한 정사각형 그리드) -->
+    <!-- 3. 하단 편의 서비스 (모바일 최적화 원클릭 그리드) -->
     <div class="section-title">
       <span>KIOST 편의 서비스</span>
-      <span style="font-size:11px; font-weight:600;">원클릭 메뉴</span>
+      <span class="section-subtitle">원클릭 메뉴</span>
     </div>
 
     <div class="quick-grid">
       <!-- 1) 칼퇴 계산기 -->
-      <div class="quick-item" onclick="openModal('workModal')">
+      <button class="quick-item" onclick="openModal('workModal')" aria-label="주 40시간 칼퇴 계산기 열기">
         <span class="quick-badge bg-red">칼퇴</span>
         <div class="quick-icon">⏰</div>
         <div class="quick-label">근무 계산</div>
-      </div>
+      </button>
 
       <!-- 2) 주변 맛집 -->
-      <div class="quick-item" onclick="openModal('resModal')">
+      <button class="quick-item" onclick="openModal('resModal')" aria-label="근처 맛집 목록 열기">
         <span class="quick-badge bg-green">PICK</span>
         <div class="quick-icon">🍽️</div>
         <div class="quick-label">근처 맛집</div>
-      </div>
+      </button>
 
       <!-- 3) 구내식당 -->
-      <div class="quick-item" onclick="openModal('dietModal')">
+      <button class="quick-item" onclick="openModal('dietModal')" aria-label="구내식당 식단표 열기">
         <span class="quick-badge bg-blue">오늘</span>
         <div class="quick-icon">🍱</div>
         <div class="quick-label">구내 식당</div>
-      </div>
+      </button>
     </div>
   </div>
 
@@ -480,37 +1020,56 @@
   <!-- 1) 근무 계산기 바텀시트 -->
   <div class="modal-overlay" id="workModal" onclick="closeOnBackdrop(event, 'workModal')">
     <div class="bottom-sheet">
-      <div class="sheet-handle"></div>
+      <div class="sheet-handle-area" onclick="closeModal('workModal')">
+        <div class="sheet-handle"></div>
+      </div>
       <div class="sheet-header">
         <div class="sheet-title">⏰ 주 40시간 칼퇴 계산기</div>
-        <button class="sheet-close-btn" onclick="closeModal('workModal')">✕</button>
+        <button class="sheet-close-btn" onclick="closeModal('workModal')" aria-label="닫기">✕</button>
       </div>
-      <p style="font-size:12.5px; color:var(--text-sub); margin-bottom:16px; font-weight:600;">목요일까지 누적된 근무시간을 입력하면 오늘 정시 퇴근 시간을 계산합니다.</p>
+      <p style="font-size:13px; color:var(--text-sub); margin-bottom:18px; font-weight:600; line-height:1.4;">
+        목요일까지의 누적 근무시간과 오늘 출근시각을 입력하면 정시 퇴근 시각을 알려드립니다.
+      </p>
       
       <div class="form-group">
-        <label class="form-label">목요일까지 누적 근무시간</label>
+        <label class="form-label" for="prevHours">목요일까지 누적 근무시간</label>
         <div class="form-row">
-          <input type="number" id="prevHours" value="32" placeholder="시간">
-          <input type="number" id="prevMinutes" value="0" placeholder="분">
+          <div class="input-wrapper">
+            <input type="number" id="prevHours" value="32" min="0" max="40" inputmode="numeric" placeholder="32">
+            <span class="input-unit">시간</span>
+          </div>
+          <div class="input-wrapper">
+            <input type="number" id="prevMinutes" value="0" min="0" max="59" inputmode="numeric" placeholder="00">
+            <span class="input-unit">분</span>
+          </div>
+        </div>
+        <!-- 간편 프리셋 칩 -->
+        <div class="preset-chips">
+          <button type="button" class="preset-btn" onclick="setPresetWork(32, 0)">정량 (32h)</button>
+          <button type="button" class="preset-btn" onclick="setPresetWork(30, 0)">야근적음 (30h)</button>
+          <button type="button" class="preset-btn" onclick="setPresetWork(34, 0)">초과근무 (34h)</button>
         </div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">금요일 출근 시각</label>
-        <input type="time" id="startTime" value="09:00">
+        <label class="form-label" for="startTime">오늘 출근 시각</label>
+        <input type="time" class="time-input" id="startTime" value="09:00">
       </div>
 
-      <div style="display:flex; align-items:center; gap:8px; margin: 12px 0 16px;">
-        <input type="checkbox" id="lunchDeduct" checked style="width:18px; height:18px;">
-        <label for="lunchDeduct" style="font-size:13.5px; font-weight:700;">점심시간 1시간 제외</label>
-      </div>
+      <label class="custom-check-label" for="lunchDeduct">
+        <input type="checkbox" id="lunchDeduct" checked>
+        <span class="custom-check-text">점심시간 1시간 제외 (기본 휴게시간)</span>
+      </label>
 
-      <button class="calc-btn" onclick="calculateLeaveTime()">퇴근 시간 계산하기</button>
+      <button class="calc-btn" onclick="calculateLeaveTime()">
+        <span>퇴근 시간 계산하기 🚀</span>
+      </button>
 
       <div class="calc-result-box" id="calcResultBox">
-        <div style="font-size:12px; color:var(--text-sub); font-weight:700;" id="remainWorkText">오늘 필요한 순 근무시간: 8시간 0분</div>
-        <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-top:4px;">금요일 퇴근 가능 시간</div>
-        <div style="font-size:28px; font-weight:900; color:var(--kiost-blue); margin-top:2px;" id="leaveTimeResult">18:00</div>
+        <div style="font-size:12.5px; color:var(--text-sub); font-weight:700;" id="remainWorkText">오늘 필요한 순 근무시간: 8시간 0분</div>
+        <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-top:6px;">권장 퇴근 시각</div>
+        <div style="font-size:32px; font-weight:900; color:var(--kiost-accent); margin:4px 0 2px; letter-spacing:-0.5px;" id="leaveTimeResult">18:00</div>
+        <div style="font-size:11.5px; color:var(--text-muted); font-weight:600;" id="remainCountdownText">퇴근까지 약 2시간 30분 남음</div>
       </div>
     </div>
   </div>
@@ -518,19 +1077,21 @@
   <!-- 2) 맛집 리스트 바텀시트 -->
   <div class="modal-overlay" id="resModal" onclick="closeOnBackdrop(event, 'resModal')">
     <div class="bottom-sheet">
-      <div class="sheet-handle"></div>
+      <div class="sheet-handle-area" onclick="closeModal('resModal')">
+        <div class="sheet-handle"></div>
+      </div>
       <div class="sheet-header">
         <div class="sheet-title">🍽️ KIOST 근처 맛집</div>
-        <button class="sheet-close-btn" onclick="closeModal('resModal')">✕</button>
+        <button class="sheet-close-btn" onclick="closeModal('resModal')" aria-label="닫기">✕</button>
       </div>
       
       <div class="filter-pills">
-        <button class="pill-btn active" onclick="filterCategory('전체', this)">전체</button>
-        <button class="pill-btn" onclick="filterCategory('한식', this)">한식</button>
-        <button class="pill-btn" onclick="filterCategory('중식', this)">중식</button>
-        <button class="pill-btn" onclick="filterCategory('일식', this)">일식</button>
-        <button class="pill-btn" onclick="filterCategory('분식', this)">분식</button>
-        <button class="pill-btn" onclick="filterCategory('샐러드', this)">샐러드</button>
+        <button class="pill-btn active" onclick="filterCategory('전체', this)">🌟 전체</button>
+        <button class="pill-btn" onclick="filterCategory('한식', this)">🍚 한식</button>
+        <button class="pill-btn" onclick="filterCategory('중식', this)">🥟 중식</button>
+        <button class="pill-btn" onclick="filterCategory('일식', this)">🍣 일식</button>
+        <button class="pill-btn" onclick="filterCategory('분식', this)">🍢 분식</button>
+        <button class="pill-btn" onclick="filterCategory('샐러드', this)">🥗 샐러드</button>
       </div>
 
       <div id="restaurantList"></div>
@@ -540,24 +1101,187 @@
   <!-- 3) 구내식당 식판 바텀시트 -->
   <div class="modal-overlay" id="dietModal" onclick="closeOnBackdrop(event, 'dietModal')">
     <div class="bottom-sheet">
-      <div class="sheet-handle"></div>
+      <div class="sheet-handle-area" onclick="closeModal('dietModal')">
+        <div class="sheet-handle"></div>
+      </div>
       <div class="sheet-header">
         <div>
-          <div class="sheet-title">🍱 오늘 구내식당 점심</div>
-          <div style="font-size:12px; font-weight:700; color:var(--text-sub); margin-top:2px;" id="dietDateText">중식 11:30 ~ 13:00</div>
+          <div class="sheet-title">🍱 KIOST 구내식당 식단</div>
+          <div style="font-size:12px; font-weight:700; color:var(--text-sub); margin-top:2px;" id="dietDateText">중식 운영 11:30 ~ 13:00</div>
         </div>
-        <button class="sheet-close-btn" onclick="closeModal('dietModal')">✕</button>
+        <button class="sheet-close-btn" onclick="closeModal('dietModal')" aria-label="닫기">✕</button>
       </div>
 
-      <div class="tray-grid" id="dietTrayContent">
-        <!-- 엑셀 데이터 연동 시 자동 렌더링 영역 -->
-        <div class="tray-cell tray-main">🍲 제육볶음 (메인)</div>
-        <div class="tray-cell">🍚 흑미밥</div>
-        <div class="tray-cell">🥣 콩나물국</div>
-        <div class="tray-cell">🥢 계란찜</div>
-        <div class="tray-cell">🥬 깍두기</div>
-        <div class="tray-cell tray-dessert">🍦 후식: 요구르트</div>
+      <!-- 요일 탭 선택 -->
+      <div class="diet-day-tabs">
+        <button class="day-tab-btn" onclick="selectDietDay('월', this)">월</button>
+        <button class="day-tab-btn" onclick="selectDietDay('화', this)">화</button>
+        <button class="day-tab-btn" onclick="selectDietDay('수', this)">수</button>
+        <button class="day-tab-btn" onclick="selectDietDay('목', this)">목</button>
+        <button class="day-tab-btn active" onclick="selectDietDay('금', this)">금(오늘)</button>
       </div>
+
+      <!-- 실물 급식 식판 형태의 UI 컨테이너 -->
+      <div class="tray-container">
+        <div class="tray-grid" id="dietTrayContent">
+          <!-- 상단 3찬: 반찬 1, 반찬 2, 후식 -->
+          <div class="tray-cell">
+            <span class="cell-label">반찬 1</span>
+            <span class="cell-name" id="side1">계란찜</span>
+          </div>
+          <div class="tray-cell">
+            <span class="cell-label">김치</span>
+            <span class="cell-name" id="side2">깍두기</span>
+          </div>
+          <div class="tray-cell tray-dessert">
+            <span class="cell-label">후식</span>
+            <span class="cell-name" id="dessert">요구르트 🍦</span>
+          </div>
+
+          <!-- 메인 요리 (전체 너비 강조) -->
+          <div class="tray-cell tray-main">
+            <span class="cell-label">★ 오늘의 메인</span>
+            <span class="cell-name" id="mainDish">제육볶음 🍲</span>
+          </div>
+
+          <!-- 하단 2분할: 밥과 국 -->
+          <div class="tray-cell tray-rice">
+            <span class="cell-label">밥</span>
+            <span class="cell-name" id="riceDish">흑미밥 🍚</span>
+          </div>
+          <div class="tray-cell tray-soup">
+            <span class="cell-label">국 / 찌개</span>
+            <span class="cell-name" id="soupDish">얼큰 콩나물국 🥣</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="diet-calories">
+        <span>🔥 칼로리: 약 820 kcal</span>
+        <span style="color:var(--kiost-accent);">식권 5,500원</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4-1) 관리자 비밀번호 확인 바텀시트 -->
+  <div class="modal-overlay" id="adminAuthModal" onclick="closeOnBackdrop(event, 'adminAuthModal')">
+    <div class="bottom-sheet">
+      <div class="sheet-handle-area" onclick="closeModal('adminAuthModal')">
+        <div class="sheet-handle"></div>
+      </div>
+      <div class="sheet-header">
+        <div class="sheet-title">🔒 관리자 비밀번호 확인</div>
+        <button class="sheet-close-btn" onclick="closeModal('adminAuthModal')" aria-label="닫기">✕</button>
+      </div>
+      <p style="font-size:13px; color:var(--text-sub); margin-bottom:16px; font-weight:600; line-height:1.4;">
+        카페 관리자 권한을 인증하기 위해 비밀번호를 입력해 주세요.<br>
+        <span style="font-size:11.5px; color:var(--kiost-accent); font-weight:700;">(초기 기본 비밀번호: 1234)</span>
+      </p>
+
+      <div class="form-group">
+        <label class="form-label" for="adminPinInput">관리자 PIN 번호</label>
+        <input type="password" id="adminPinInput" class="admin-input-text" style="margin-bottom:0; letter-spacing:6px; font-size:20px; text-align:center;" maxlength="10" inputmode="numeric" placeholder="••••" onkeydown="if(event.key==='Enter') checkAdminPin()">
+        <div id="pinErrorMsg" style="color:#EF4444; font-size:12px; font-weight:700; margin-top:8px; display:none;">비밀번호가 일치하지 않습니다.</div>
+      </div>
+
+      <button class="admin-save-btn" style="margin-top:12px;" onclick="checkAdminPin()">
+        <span>인증하고 관리자 모드 열기 🔓</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 4-2) 카페 관리자 상태 설정 바텀시트 -->
+  <div class="modal-overlay" id="adminModal" onclick="closeOnBackdrop(event, 'adminModal')">
+    <div class="bottom-sheet">
+      <div class="sheet-handle-area" onclick="closeModal('adminModal')">
+        <div class="sheet-handle"></div>
+      </div>
+      <div class="sheet-header">
+        <div class="sheet-title">⚙️ 카페 운영 상태 관리자</div>
+        <button class="sheet-close-btn" onclick="closeModal('adminModal')" aria-label="닫기">✕</button>
+      </div>
+      <p style="font-size:13px; color:var(--text-sub); margin-bottom:16px; font-weight:600; line-height:1.4;">
+        사내 카페 운영 상태와 실시간 공지 문구를 직접 변경할 수 있습니다.
+      </p>
+
+      <div class="form-group">
+        <label class="form-label">운영 상태 선택</label>
+        <div class="status-select-grid">
+          <button type="button" class="status-opt-btn" id="opt-available" onclick="selectAdminStatus('available')">
+            <span>🟢</span> <span>주문 가능 (여유)</span>
+          </button>
+          <button type="button" class="status-opt-btn" id="opt-busy" onclick="selectAdminStatus('busy')">
+            <span>🟡</span> <span>혼잡 / 대기 발생</span>
+          </button>
+          <button type="button" class="status-opt-btn" id="opt-preparing" onclick="selectAdminStatus('preparing')">
+            <span>🟠</span> <span>재료 준비중</span>
+          </button>
+          <button type="button" class="status-opt-btn" id="opt-closed" onclick="selectAdminStatus('closed')">
+            <span>🔴</span> <span>영업 마감</span>
+          </button>
+          <button type="button" class="status-opt-btn" id="opt-auto" style="grid-column: span 2;" onclick="selectAdminStatus('auto')">
+            <span>🔄</span> <span>자동 시간표 모드 (운영시간 자동 연동)</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="adminNoticeInput">한 줄 알림 문구 (메인 화면 표시)</label>
+        <input type="text" class="admin-input-text" id="adminNoticeInput" placeholder="예: 시원한 콜드브루와 딸기라떼 주문 가능! ☕" maxlength="50">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">원두 / 커피잔 잔여 수준</label>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="preset-btn" style="flex:1; padding:9px 0;" onclick="selectCoffeeLevel('high')">가득 참 (100%)</button>
+          <button type="button" class="preset-btn" style="flex:1; padding:9px 0;" onclick="selectCoffeeLevel('mid')">보통 (50%)</button>
+          <button type="button" class="preset-btn" style="flex:1; padding:9px 0;" onclick="selectCoffeeLevel('low')">바닥 (소진)</button>
+        </div>
+      </div>
+
+      <!-- 텔레그램 알림 발송 체크박스 -->
+      <label class="custom-check-label" for="sendTelegramCheck" style="margin: 12px 0 14px;">
+        <input type="checkbox" id="sendTelegramCheck">
+        <span class="custom-check-text">✈️ 변경 상태를 텔레그램 채널로 즉시 전송</span>
+      </label>
+
+      <!-- 텔레그램 봇 연동 설정 아코디언 -->
+      <div style="margin: 12px 0 16px; border-top: 1px solid var(--border-color); padding-top: 12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleTelegramConfigBox()">
+          <span style="font-size:13px; font-weight:700; color:var(--kiost-accent);">🤖 텔레그램 봇 연동 설정 (Bot Token & Chat ID)</span>
+          <span id="teleArrow" style="font-size:12px; color:var(--text-muted);">▼</span>
+        </div>
+        <div id="teleConfigBox" style="display:none; margin-top:10px; background:var(--card-sub); padding:12px; border-radius:14px; border:1px solid var(--border-color);">
+          <div style="margin-bottom:8px;">
+            <label class="form-label" for="teleBotTokenInput" style="margin-bottom:4px; font-size:11.5px;">텔레그램 Bot Token</label>
+            <input type="text" id="teleBotTokenInput" class="admin-input-text" style="margin-bottom:0; font-size:12px;" placeholder="예: 123456789:ABCdefGhI...">
+          </div>
+          <div style="margin-bottom:8px;">
+            <label class="form-label" for="teleChatIdInput" style="margin-bottom:4px; font-size:11.5px;">채널/채팅방 Chat ID</label>
+            <input type="text" id="teleChatIdInput" class="admin-input-text" style="margin-bottom:0; font-size:12px;" placeholder="예: @kiost_sodam 또는 -100123456789">
+          </div>
+          <button type="button" class="preset-btn" style="width:100%; padding:8px; font-weight:800; background:var(--kiost-accent); color:#FFF; border:none; margin-top:4px;" onclick="saveTelegramConfig()">봇 연동 정보 저장</button>
+        </div>
+      </div>
+
+      <!-- 비밀번호 변경 아코디언 설정 -->
+      <div style="margin: 16px 0; border-top: 1px solid var(--border-color); padding-top: 14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="togglePinChangeBox()">
+          <span style="font-size:13px; font-weight:700; color:var(--kiost-accent);">🔐 관리자 비밀번호 변경</span>
+          <span id="pinArrow" style="font-size:12px; color:var(--text-muted);">▼</span>
+        </div>
+        <div id="pinChangeBox" style="display:none; margin-top:10px; background:var(--card-sub); padding:12px; border-radius:14px; border:1px solid var(--border-color);">
+          <label class="form-label" for="newPinInput" style="margin-bottom:6px;">새 비밀번호 (4자리 이상)</label>
+          <div style="display:flex; gap:8px;">
+            <input type="password" id="newPinInput" class="admin-input-text" style="margin-bottom:0;" maxlength="10" inputmode="numeric" placeholder="새 PIN 번호">
+            <button type="button" class="preset-btn" style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--kiost-accent); color:#FFF; border:none;" onclick="changeAdminPin()">변경</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="admin-save-btn" onclick="saveAdminSettings()">
+        <span>상태 적용 및 저장하기 💾</span>
+      </button>
     </div>
   </div>
 
@@ -569,31 +1293,348 @@
         document.body.removeAttribute('data-theme');
         document.getElementById('themeIcon').innerText = '🌙';
         document.getElementById('themeText').innerText = '다크';
+        localStorage.setItem('sodam-theme', 'light');
       } else {
         document.body.setAttribute('data-theme', 'dark');
         document.getElementById('themeIcon').innerText = '☀️';
         document.getElementById('themeText').innerText = '라이트';
+        localStorage.setItem('sodam-theme', 'dark');
       }
+    }
+
+    // 저장된 테마 불러오기
+    if (localStorage.getItem('sodam-theme') === 'dark' || 
+        (!localStorage.getItem('sodam-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.body.setAttribute('data-theme', 'dark');
+      document.getElementById('themeIcon').innerText = '☀️';
+      document.getElementById('themeText').innerText = '라이트';
     }
 
     // 2. 바텀시트 모달 열기 / 닫기
     function openModal(id) {
-      document.getElementById(id).classList.add('active');
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      modal.classList.add('active');
       document.body.style.overflow = 'hidden';
     }
     function closeModal(id) {
-      document.getElementById(id).classList.remove('active');
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      modal.classList.remove('active');
       document.body.style.overflow = '';
     }
     function closeOnBackdrop(e, id) {
       if (e.target.id === id) closeModal(id);
     }
 
-    // 3. 주 40시간 퇴근 계산기 로직
+    // ESC 키 모달 닫기 지원
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+        document.body.style.overflow = '';
+      }
+    });
+
+    // 3. 소담터 카페 운영 상태 로직 (관리자 수동 설정 + 자동 시간표)
+    let selectedStatusTemp = localStorage.getItem('sodam-admin-status') || 'auto';
+    let selectedCoffeeTemp = localStorage.getItem('sodam-admin-coffee') || 'auto';
+
+    // 관리자 비밀번호 및 인증 로직
+    function getAdminPin() {
+      return localStorage.getItem('sodam-admin-pin') || '1234';
+    }
+
+    function openAdminModal() {
+      const pinInput = document.getElementById('adminPinInput');
+      pinInput.value = '';
+      pinInput.style.borderColor = 'var(--border-color)';
+      document.getElementById('pinErrorMsg').style.display = 'none';
+      openModal('adminAuthModal');
+      setTimeout(() => {
+        pinInput.focus();
+      }, 250);
+    }
+
+    function checkAdminPin() {
+      const inputPin = document.getElementById('adminPinInput').value.trim();
+      const currentPin = getAdminPin();
+
+      if (inputPin === currentPin) {
+        closeModal('adminAuthModal');
+        // 인증 통과: 관리자 제어 패널 열기
+        selectedStatusTemp = localStorage.getItem('sodam-admin-status') || 'auto';
+        selectedCoffeeTemp = localStorage.getItem('sodam-admin-coffee') || 'auto';
+        document.getElementById('adminNoticeInput').value = localStorage.getItem('sodam-admin-notice') || '';
+        document.getElementById('pinChangeBox').style.display = 'none';
+        document.getElementById('pinArrow').innerText = '▼';
+        document.getElementById('newPinInput').value = '';
+        updateStatusBtnUI();
+        setTimeout(() => {
+          openModal('adminModal');
+        }, 180);
+      } else {
+        const errorEl = document.getElementById('pinErrorMsg');
+        errorEl.innerText = '비밀번호가 일치하지 않습니다. 다시 입력해 주세요.';
+        errorEl.style.display = 'block';
+        const inputEl = document.getElementById('adminPinInput');
+        inputEl.style.borderColor = '#EF4444';
+        inputEl.value = '';
+        inputEl.focus();
+      }
+    }
+
+    function togglePinChangeBox() {
+      const box = document.getElementById('pinChangeBox');
+      const arrow = document.getElementById('pinArrow');
+      if (box.style.display === 'none' || !box.style.display) {
+        box.style.display = 'block';
+        arrow.innerText = '▲';
+        document.getElementById('newPinInput').focus();
+      } else {
+        box.style.display = 'none';
+        arrow.innerText = '▼';
+      }
+    }
+
+    function changeAdminPin() {
+      const newPin = document.getElementById('newPinInput').value.trim();
+      if (!newPin || newPin.length < 4) {
+        alert('비밀번호는 최소 4자리 이상으로 설정해 주세요.');
+        return;
+      }
+      localStorage.setItem('sodam-admin-pin', newPin);
+      alert('관리자 비밀번호가 성공적으로 변경되었습니다!');
+      document.getElementById('newPinInput').value = '';
+      togglePinChangeBox();
+    }
+
+    function selectAdminStatus(status) {
+      selectedStatusTemp = status;
+      updateStatusBtnUI();
+    }
+
+    function selectCoffeeLevel(level) {
+      selectedCoffeeTemp = level;
+    }
+
+    function updateStatusBtnUI() {
+      document.querySelectorAll('.status-opt-btn').forEach(btn => btn.classList.remove('selected'));
+      const activeBtn = document.getElementById(`opt-${selectedStatusTemp}`);
+      if (activeBtn) activeBtn.classList.add('selected');
+    }
+
+    // KIOST 텔레그램 봇 기본 설정값
+    const DEFAULT_BOT_TOKEN = "8965055722:AAGxvP5K8paXcFI5ZYS3PH7w8Ny0LR0AOfc";
+    const DEFAULT_CHAT_ID = "-1004310072968";
+
+    function toggleTelegramConfigBox() {
+      const box = document.getElementById('teleConfigBox');
+      const arrow = document.getElementById('teleArrow');
+      if (box.style.display === 'none' || !box.style.display) {
+        box.style.display = 'block';
+        arrow.innerText = '▲';
+        document.getElementById('teleBotTokenInput').value = localStorage.getItem('sodam-tele-token') || DEFAULT_BOT_TOKEN;
+        document.getElementById('teleChatIdInput').value = localStorage.getItem('sodam-tele-chatid') || DEFAULT_CHAT_ID;
+        document.getElementById('teleBotTokenInput').focus();
+      } else {
+        box.style.display = 'none';
+        arrow.innerText = '▼';
+      }
+    }
+
+    function saveTelegramConfig() {
+      const token = document.getElementById('teleBotTokenInput').value.trim() || DEFAULT_BOT_TOKEN;
+      const chatId = document.getElementById('teleChatIdInput').value.trim() || DEFAULT_CHAT_ID;
+      localStorage.setItem('sodam-tele-token', token);
+      localStorage.setItem('sodam-tele-chatid', chatId);
+      alert('✅ 텔레그램 봇 연동 정보가 저장되었습니다!');
+      toggleTelegramConfigBox();
+    }
+
+    async function sendTelegramAlert(statusText, noticeText) {
+      const token = localStorage.getItem('sodam-tele-token') || DEFAULT_BOT_TOKEN;
+      const chatId = localStorage.getItem('sodam-tele-chatid') || DEFAULT_CHAT_ID;
+
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+      
+      let msg = `☕ [KIOST 소담터 카페 상태 알림]\n`;
+      msg += `⏰ 갱신시각: ${timeStr}\n\n`;
+      msg += `📌 상태: ${statusText}\n`;
+      if (noticeText) {
+        msg += `📢 공지: ${noticeText}\n`;
+      }
+      msg += `\n🔗 소담터 모바일 웹 알리미`;
+
+      // 6초 타임아웃 감지
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+      try {
+        const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: msg
+          }),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        const data = await res.json();
+        if (data.ok) {
+          alert('✈️ 텔레그램 채널로 상태 알림 메시지를 성공적으로 전송했습니다!');
+          return true;
+        } else {
+          alert(`⚠️ 텔레그램 API 오류: ${data.description}`);
+          return false;
+        }
+      } catch (err) {
+        clearTimeout(timeoutId);
+        console.error('Telegram alert error:', err);
+        if (err.name === 'AbortError') {
+          alert('⚠️ 텔레그램 서버 연결 시간 초과 (Timeout)\n\n현재 사내망(KIOST 인트라넷) 방화벽에서 api.telegram.org 접속이 차단되어 있을 수 있습니다.\n모바일 데이터(LTE/5G) 환경이나 사외망에서 접속하시면 정상 전송됩니다.');
+        } else {
+          alert(`⚠️ 텔레그램 전송 실패: ${err.message}\n(사내 방화벽 차단 또는 네트워크 연결 상태를 확인해 주세요)`);
+        }
+        return false;
+      }
+    }
+
+    async function saveAdminSettings() {
+      const notice = document.getElementById('adminNoticeInput').value.trim();
+      localStorage.setItem('sodam-admin-status', selectedStatusTemp);
+      localStorage.setItem('sodam-admin-notice', notice);
+      localStorage.setItem('sodam-admin-coffee', selectedCoffeeTemp);
+
+      // 텔레그램 알림 체크 여부 확인 및 발송
+      const isSendTele = document.getElementById('sendTelegramCheck').checked;
+      if (isSendTele) {
+        let label = '🟢 주문 가능 (여유)';
+        if (selectedStatusTemp === 'busy') label = '🟡 혼잡 / 대기 발생';
+        else if (selectedStatusTemp === 'preparing') label = '🟠 재료 준비중';
+        else if (selectedStatusTemp === 'closed') label = '🔴 금일 영업 마감';
+        else if (selectedStatusTemp === 'auto') label = '🔄 자동 시간표 모드';
+
+        await sendTelegramAlert(label, notice);
+      }
+
+      refreshCafeStatus();
+      closeModal('adminModal');
+    }
+
+    function refreshCafeStatus() {
+      const badge = document.getElementById('stockBadge');
+      const badgeText = document.getElementById('stockBadgeText');
+      const descText = document.getElementById('statusDescText');
+      const fillRect = document.getElementById('coffeeFill');
+      const steam1 = document.getElementById('steam1');
+      const steam2 = document.getElementById('steam2');
+
+      // 리셋
+      badge.className = 'badge-pill';
+
+      const statusMode = localStorage.getItem('sodam-admin-status') || 'auto';
+      const customNotice = localStorage.getItem('sodam-admin-notice');
+      const coffeeLevel = localStorage.getItem('sodam-admin-coffee') || 'auto';
+
+      if (statusMode === 'available') {
+        badge.classList.add('badge-green');
+        badgeText.innerText = '주문 가능 (여유)';
+        descText.innerText = customNotice || '따뜻하고 시원한 커피로 힐링하세요! (관리자 설정)';
+        fillRect.setAttribute('y', '60');
+        steam1.style.display = 'block';
+        steam2.style.display = 'block';
+      } else if (statusMode === 'busy') {
+        badge.classList.add('badge-yellow');
+        badgeText.innerText = '혼잡 (대기 발생)';
+        descText.innerText = customNotice || '현재 주문이 밀려 대기 시간이 발생하고 있습니다.';
+        fillRect.setAttribute('y', '50');
+        steam1.style.display = 'block';
+        steam2.style.display = 'block';
+      } else if (statusMode === 'preparing') {
+        badge.classList.add('badge-yellow');
+        badgeText.innerText = '재료 준비중';
+        descText.innerText = customNotice || '원두 교체 및 재료 준비 중입니다. 잠시 후 찾아주세요.';
+        fillRect.setAttribute('y', '95');
+        steam1.style.display = 'none';
+        steam2.style.display = 'none';
+      } else if (statusMode === 'closed') {
+        badge.classList.add('badge-red');
+        badgeText.innerText = '금일 영업 마감';
+        descText.innerText = customNotice || '오늘 준비된 재료가 모두 소진되었습니다. 내일 만나요!';
+        fillRect.setAttribute('y', '125');
+        steam1.style.display = 'none';
+        steam2.style.display = 'none';
+      } else {
+        // 🔄 자동 시간표 모드
+        const now = new Date();
+        const day = now.getDay();
+        const timeNum = now.getHours() * 60 + now.getMinutes();
+
+        if (day === 0 || day === 6) {
+          badge.classList.add('badge-gray');
+          badgeText.innerText = '주말 휴무';
+          descText.innerText = customNotice || '평일 오전 10시에 다시 만나요!';
+          fillRect.setAttribute('y', '120');
+          steam1.style.display = 'none';
+          steam2.style.display = 'none';
+        } else if (timeNum < 10 * 60) {
+          badge.classList.add('badge-yellow');
+          badgeText.innerText = '영업 준비 중 (10:00 오픈)';
+          descText.innerText = customNotice || '신선한 원두로 오늘의 커피를 준비하고 있어요.';
+          fillRect.setAttribute('y', '95');
+          steam1.style.display = 'block';
+          steam2.style.display = 'none';
+        } else if (timeNum >= 10 * 60 && timeNum < 11 * 60 + 30) {
+          badge.classList.add('badge-green');
+          badgeText.innerText = '주문 가능 (여유)';
+          descText.innerText = customNotice || '대기 없이 바로 맛있는 음료를 받을 수 있어요!';
+          fillRect.setAttribute('y', '60');
+          steam1.style.display = 'block';
+          steam2.style.display = 'block';
+        } else if (timeNum >= 11 * 60 + 30 && timeNum < 13 * 60 + 30) {
+          badge.classList.add('badge-yellow');
+          badgeText.innerText = '점심 피크 (대기 5~10분)';
+          descText.innerText = customNotice || '점심 식사 후 주문이 몰리는 시간대입니다.';
+          fillRect.setAttribute('y', '50');
+          steam1.style.display = 'block';
+          steam2.style.display = 'block';
+        } else if (timeNum >= 13 * 60 + 30 && timeNum < 16 * 60) {
+          badge.classList.add('badge-green');
+          badgeText.innerText = '주문 가능 (오후 여유)';
+          descText.innerText = customNotice || '오후 나른함을 깨우는 카페인 한 잔의 여유!';
+          fillRect.setAttribute('y', '65');
+          steam1.style.display = 'block';
+          steam2.style.display = 'block';
+        } else {
+          badge.classList.add('badge-red');
+          badgeText.innerText = '금일 영업 마감';
+          descText.innerText = customNotice || '오늘 하루도 수고 많으셨습니다. 내일 10시에 만나요!';
+          fillRect.setAttribute('y', '125');
+          steam1.style.display = 'none';
+          steam2.style.display = 'none';
+        }
+      }
+
+      // 커피잔 수동 잔여량 오버라이드
+      if (coffeeLevel === 'high') fillRect.setAttribute('y', '50');
+      else if (coffeeLevel === 'mid') fillRect.setAttribute('y', '85');
+      else if (coffeeLevel === 'low') fillRect.setAttribute('y', '120');
+    }
+    refreshCafeStatus();
+
+    // 4. 주 40시간 퇴근 계산기 로직
+    function setPresetWork(h, m) {
+      document.getElementById('prevHours').value = h;
+      document.getElementById('prevMinutes').value = m;
+      calculateLeaveTime();
+    }
+
     function calculateLeaveTime() {
       const prevHours = parseInt(document.getElementById('prevHours').value) || 0;
       const prevMinutes = parseInt(document.getElementById('prevMinutes').value) || 0;
-      const startTime = document.getElementById('startTime').value;
+      const startTime = document.getElementById('startTime').value || "09:00";
       const lunchDeduct = document.getElementById('lunchDeduct').checked;
 
       const totalDoneMinutes = (prevHours * 60) + prevMinutes;
@@ -613,16 +1654,32 @@
 
       document.getElementById('remainWorkText').innerText = `오늘 채울 순 근무시간: ${remainH}시간 ${remainM}분`;
       document.getElementById('leaveTimeResult').innerText = formatTime;
+
+      // 현재 시각 기준 남은 시간 계산
+      const now = new Date();
+      const currentTotalMin = now.getHours() * 60 + now.getMinutes();
+      const diffMin = finalLeaveTotalMinutes - currentTotalMin;
+      const countBox = document.getElementById('remainCountdownText');
+
+      if (diffMin > 0) {
+        const diffH = Math.floor(diffMin / 60);
+        const diffM = diffMin % 60;
+        countBox.innerText = `현재 시각 기준 퇴근까지 약 ${diffH}시간 ${diffM}분 남음 ✨`;
+      } else {
+        countBox.innerText = `🎉 목표 근무시간을 이미 달성했습니다! 칼퇴하세요!`;
+      }
+
       document.getElementById('calcResultBox').style.display = 'block';
     }
 
-    // 4. 근처 맛집 데이터 및 필터 렌더링
+    // 5. 근처 맛집 데이터 및 필터 렌더링
     const restaurants = [
-      { name: "소담 한식뷔페", category: "한식", rating: "⭐ 4.8", dist: "도보 3분", menu: "제육볶음, 된장찌개" },
-      { name: "동화루 중화요리", category: "중식", rating: "⭐ 4.5", dist: "도보 5분", menu: "짬뽕, 간짜장, 탕수육" },
-      { name: "스시도담", category: "일식", rating: "⭐ 4.7", dist: "도보 7분", menu: "모듬초밥, 히레카츠" },
-      { name: "우리동네 떡볶이", category: "분식", rating: "⭐ 4.6", dist: "도보 4분", menu: "가래떡떡볶이, 모둠튀김" },
-      { name: "그린샐러드랩", category: "샐러드", rating: "⭐ 4.9", dist: "도보 2분", menu: "우삼겹 보울, 연어 샐러드" }
+      { name: "소담 한식뷔페", category: "한식", rating: "⭐ 4.8", dist: "도보 3분", menu: "제육볶음, 가마솥된장찌개" },
+      { name: "동화루 중화요리", category: "중식", rating: "⭐ 4.5", dist: "도보 5분", menu: "해물짬뽕, 간짜장, 찹쌀탕수육" },
+      { name: "스시도담", category: "일식", rating: "⭐ 4.7", dist: "도보 7분", menu: "모듬초밥세트, 생등심히레카츠" },
+      { name: "우리동네 분식", category: "분식", rating: "⭐ 4.6", dist: "도보 4분", menu: "쌀떡볶이, 모둠수제튀김, 순대" },
+      { name: "그린샐러드랩", category: "샐러드", rating: "⭐ 4.9", dist: "도보 2분", menu: "우삼겹 웜보울, 생연어 샐러드" },
+      { name: "바다향기 뚝배기", category: "한식", rating: "⭐ 4.7", dist: "도보 6분", menu: "해물뚝배기, 순두부찌개" }
     ];
 
     function renderRestaurants(category = '전체') {
@@ -631,28 +1688,72 @@
       const filtered = category === '전체' ? restaurants : restaurants.filter(r => r.category === category);
 
       filtered.forEach(r => {
+        const mapQuery = encodeURIComponent(r.name);
         container.innerHTML += `
           <div class="res-card">
-            <div class="res-header">
-              <span class="res-name">${r.name}</span>
-              <span class="res-rating">${r.rating}</span>
+            <div class="res-info">
+              <div class="res-header">
+                <span class="res-name">${r.name}</span>
+                <span class="res-tag">${r.category}</span>
+              </div>
+              <div class="res-detail">${r.menu}</div>
+              <div class="res-meta">
+                <span class="res-dist">📍 ${r.dist}</span>
+                <span class="res-rating">${r.rating}</span>
+              </div>
             </div>
-            <div class="res-detail">${r.dist} · ${r.menu}</div>
+            <a href="https://map.naver.com/v5/search/${mapQuery}" target="_blank" rel="noopener noreferrer" class="res-map-btn" title="지도 검색" aria-label="${r.name} 지도 위치 보기">
+              🗺️
+            </a>
           </div>
         `;
       });
     }
     function filterCategory(cat, btn) {
-      document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.filter-pills .pill-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       renderRestaurants(cat);
     }
     renderRestaurants();
 
-    // 5. 오늘 날짜 헤더 자동 세팅
+    // 6. 구내식당 요일별 식단 데이터
+    const dietWeekly = {
+      '월': { main: '닭볶음탕 🍗', rice: '기장밥 🍚', soup: '쇠고기미역국 🥣', side1: '두부부침', side2: '배추김치', dessert: '방울토마토 🍅', cal: '810 kcal' },
+      '화': { main: '소불고기 버섯볶음 🥩', rice: '현미밥 🍚', soup: '얼큰순두부찌개 🥣', side1: '계란말이', side2: '깍두기', dessert: '매실차 🍵', cal: '840 kcal' },
+      '수': { main: '수제 돈까스 🍛', rice: '흰쌀밥 🍚', soup: '팽이버섯장국 🥣', side1: '마카로니샐러드', side2: '단무지/김치', dessert: '감귤주스 🍊', cal: '890 kcal' },
+      '목': { main: '오삼불고기 🦑', rice: '잡곡밥 🍚', soup: '시래기된장국 🥣', side1: '어묵볶음', side2: '열무김치', dessert: '바나나 🍌', cal: '820 kcal' },
+      '금': { main: '직화 제육볶음 🍲', rice: '흑미밥 🍚', soup: '얼큰 콩나물국 🥣', side1: '치즈계란찜', side2: '아삭 깍두기', dessert: '요구르트 🍦', cal: '820 kcal' }
+    };
+
+    function selectDietDay(day, btn) {
+      document.querySelectorAll('.day-tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const menu = dietWeekly[day];
+      if (!menu) return;
+
+      document.getElementById('mainDish').innerText = menu.main;
+      document.getElementById('riceDish').innerText = menu.rice;
+      document.getElementById('soupDish').innerText = menu.soup;
+      document.getElementById('side1').innerText = menu.side1;
+      document.getElementById('side2').innerText = menu.side2;
+      document.getElementById('dessert').innerText = menu.dessert;
+      document.querySelector('.diet-calories span').innerText = `🔥 칼로리: 약 ${menu.cal}`;
+    }
+
+    // 7. 오늘 날짜 헤더 자동 세팅
     const today = new Date();
     const days = ['일', '월', '화', '수', '목', '금', '토'];
-    document.getElementById('dietDateText').innerText = `📅 ${today.getMonth() + 1}월 ${today.getDate()}일 (${days[today.getDay()]}) 11:30 ~ 13:00`;
+    const currentDayName = days[today.getDay()];
+    document.getElementById('dietDateText').innerText = `📅 ${today.getMonth() + 1}월 ${today.getDate()}일 (${currentDayName}) 중식 11:30 ~ 13:00`;
+
+    // 오늘 요일에 맞는 식단 탭 자동 선택 (평일이면 해당 요일, 주말이면 금요일)
+    const activeDay = ['월','화','수','목','금'].includes(currentDayName) ? currentDayName : '금';
+    const dayBtns = document.querySelectorAll('.day-tab-btn');
+    dayBtns.forEach(btn => {
+      if (btn.innerText.includes(activeDay)) {
+        selectDietDay(activeDay, btn);
+      }
+    });
   </script>
 </body>
 </html>
