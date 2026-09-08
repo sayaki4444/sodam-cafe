@@ -2,19 +2,34 @@
 <html lang="ko">
 
 <head>
+  <!-- 1. 기본 인코딩 및 뷰포트 -->
   <meta charset="UTF-8" />
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>소담터 - KIOST 사내 카페</title>
-  
-  <!-- 웹 폰트: Pretendard & Gaegu -->
+
+  <!-- 2. PWA 메타태그 및 매니페스트 -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#003876" />
+
+  <!-- 모바일 전체화면 설정 (Android / iOS) -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="소담터" />
+
+  <!-- iOS & 모바일 홈 화면 아이콘 -->
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <!-- 3. 웹 폰트: Pretendard & Gaegu -->
   <link rel="stylesheet" as="style" crossorigin
     href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@700&display=swap" rel="stylesheet">
 
-  <!-- 분리된 외부 스타일시트 -->
+  <!-- 4. 분리된 외부 스타일시트 -->
   <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -45,10 +60,13 @@
           <clipPath id="mugClip">
             <path d="M25,40 L135,40 L127,132 Q127,140 119,140 L41,140 Q33,140 33,132 Z" />
           </clipPath>
-          <rect id="coffeeFill" x="20" y="60" width="120" height="85" fill="var(--coffee-liquid)" clip-path="url(#mugClip)" />
+          <rect id="coffeeFill" x="20" y="60" width="120" height="85" fill="var(--coffee-liquid)"
+            clip-path="url(#mugClip)" />
           <ellipse cx="80" cy="62" rx="46" ry="6" fill="rgba(255,255,255,0.2)" clip-path="url(#mugClip)" />
-          <path d="M25,40 L135,40 L127,132 Q127,140 119,140 L41,140 Q33,140 33,132 Z" stroke="var(--cup-stroke)" stroke-width="5" stroke-linejoin="round" />
-          <path d="M135,55 C165,55 165,105 135,105" stroke="var(--cup-stroke)" stroke-width="6" stroke-linecap="round" />
+          <path d="M25,40 L135,40 L127,132 Q127,140 119,140 L41,140 Q33,140 33,132 Z" stroke="var(--cup-stroke)"
+            stroke-width="5" stroke-linejoin="round" />
+          <path d="M135,55 C165,55 165,105 135,105" stroke="var(--cup-stroke)" stroke-width="6"
+            stroke-linecap="round" />
         </svg>
       </div>
 
@@ -93,13 +111,16 @@
   <!-- 1) 근무 시간 계산기 바텀시트 -->
   <div class="modal-overlay" id="workModal" onclick="closeOnBackdrop(event, 'workModal')">
     <div class="bottom-sheet">
-      <div class="sheet-handle-area" onclick="closeModal('workModal')"><div class="sheet-handle"></div></div>
+      <div class="sheet-handle-area" onclick="closeModal('workModal')">
+        <div class="sheet-handle"></div>
+      </div>
       <div class="sheet-header">
         <div class="sheet-title">⏰ 근무 시간 계산기</div>
         <button class="sheet-close-btn" onclick="closeModal('workModal')" aria-label="닫기">✕</button>
       </div>
       <p style="font-size:12.5px; color:var(--text-sub); margin-bottom:14px; font-weight:600; line-height:1.4;">
-        근태 프로그램에 찍힌 <strong>누적 근무시간</strong>과 <strong>기준시간</strong>(오늘 출근/시작 시각)을 입력하면 오늘 퇴근 가능 시각을 즉시 계산합니다. (중식 1시간 의무 휴게 자동 적용)
+        근태 프로그램에 찍힌 <strong>누적 근무시간</strong>과 <strong>기준시간</strong>(오늘 출근/시작 시각)을 입력하면 오늘 퇴근 가능 시각을 즉시 계산합니다. (중식 1시간 의무
+        휴게 자동 적용)
       </p>
 
       <div class="form-group">
@@ -109,11 +130,13 @@
         </div>
         <div class="form-row">
           <div class="input-wrapper">
-            <input type="number" id="prevHours" value="32" min="0" max="40" inputmode="numeric" placeholder="32" oninput="calculateLeaveTime()">
+            <input type="number" id="prevHours" value="32" min="0" max="40" inputmode="numeric" placeholder="32"
+              oninput="calculateLeaveTime()">
             <span class="input-unit">시간</span>
           </div>
           <div class="input-wrapper">
-            <input type="number" id="prevMinutes" value="0" min="0" max="59" inputmode="numeric" placeholder="00" oninput="calculateLeaveTime()">
+            <input type="number" id="prevMinutes" value="0" min="0" max="59" inputmode="numeric" placeholder="00"
+              oninput="calculateLeaveTime()">
             <span class="input-unit">분</span>
           </div>
         </div>
@@ -130,19 +153,26 @@
       <div class="form-group" style="margin-bottom: 20px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
           <label class="form-label" for="startTime" style="margin-bottom:0;">⏰ 기준시간 (오늘 출근 / 시작 시각)</label>
-          <button type="button" onclick="setNowAsStartTime()" style="background:none; border:none; color:var(--kiost-accent); font-size:11.5px; font-weight:800; cursor:pointer;">🕒 현재 시각</button>
+          <button type="button" onclick="setNowAsStartTime()"
+            style="background:none; border:none; color:var(--kiost-accent); font-size:11.5px; font-weight:800; cursor:pointer;">🕒
+            현재 시각</button>
         </div>
-        <input type="time" class="time-input" id="startTime" value="09:00" min="07:00" max="22:00" onchange="calculateLeaveTime()">
+        <input type="time" class="time-input" id="startTime" value="09:00" min="07:00" max="22:00"
+          onchange="calculateLeaveTime()">
       </div>
 
       <button class="calc-btn" onclick="calculateLeaveTime()"><span>오늘 퇴근 가능 시각 계산 🚀</span></button>
 
       <div class="calc-result-box" id="calcResultBox" style="display:block;">
-        <div style="font-size:12.5px; color:var(--text-sub); font-weight:700;" id="remainWorkText">오늘 필요한 순 근무시간: 8시간 0분</div>
+        <div style="font-size:12.5px; color:var(--text-sub); font-weight:700;" id="remainWorkText">오늘 필요한 순 근무시간: 8시간 0분
+        </div>
         <div style="font-size:13.5px; font-weight:800; color:var(--text-main); margin-top:6px;">오늘 칼퇴 가능 시각</div>
-        <div style="font-size:34px; font-weight:900; color:var(--kiost-accent); margin:4px 0 6px; letter-spacing:-0.5px;" id="leaveTimeResult">18:00</div>
+        <div
+          style="font-size:34px; font-weight:900; color:var(--kiost-accent); margin:4px 0 6px; letter-spacing:-0.5px;"
+          id="leaveTimeResult">18:00</div>
         <div id="ruleNoticeBox" style="margin: 8px 0;"></div>
-        <div style="font-size:12px; color:var(--text-sub); font-weight:600; margin-top:6px;" id="remainCountdownText">퇴근까지 약 2시간 30분 남음 ✨</div>
+        <div style="font-size:12px; color:var(--text-sub); font-weight:600; margin-top:6px;" id="remainCountdownText">
+          퇴근까지 약 2시간 30분 남음 ✨</div>
       </div>
     </div>
   </div>
@@ -150,21 +180,29 @@
   <!-- 2) 맛집 리스트 바텀시트 -->
   <div class="modal-overlay" id="resModal" onclick="closeOnBackdrop(event, 'resModal')">
     <div class="bottom-sheet">
-      <div class="sheet-handle-area" onclick="closeModal('resModal')"><div class="sheet-handle"></div></div>
+      <div class="sheet-handle-area" onclick="closeModal('resModal')">
+        <div class="sheet-handle"></div>
+      </div>
       <div class="sheet-header">
         <div>
           <div class="sheet-title">🍽️ KIOST 영도 본원 맛집</div>
-          <div style="font-size:11.5px; font-weight:700; color:var(--kiost-accent); margin-top:2px;">⭐ 네이버 평점 3.5+ 엄선 (반경 3.5km 이내)</div>
+          <div style="font-size:11.5px; font-weight:700; color:var(--kiost-accent); margin-top:2px;">⭐ 네이버 평점 3.5+ 엄선
+            (반경 3.5km 이내)</div>
         </div>
         <button class="sheet-close-btn" onclick="closeModal('resModal')" aria-label="닫기">✕</button>
       </div>
 
       <div style="margin-bottom: 12px; display:flex; flex-direction:column; gap:8px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-sub); padding:9px 12px; border-radius:12px; border:1px solid var(--border-color);">
-          <span style="font-size:12px; font-weight:700; color:var(--text-sub);" id="gpsStatusText">📍 기준: 부산 영도구 해양로 385 (KIOST 본원)</span>
-          <span style="font-size:11px; font-weight:800; color:var(--kiost-accent); background:var(--tray-main-bg); padding:2px 7px; border-radius:8px;">반경 3.5km 고정</span>
+        <div
+          style="display:flex; justify-content:space-between; align-items:center; background:var(--card-sub); padding:9px 12px; border-radius:12px; border:1px solid var(--border-color);">
+          <span style="font-size:12px; font-weight:700; color:var(--text-sub);" id="gpsStatusText">📍 기준: 부산 영도구 해양로 385
+            (KIOST 본원)</span>
+          <span
+            style="font-size:11px; font-weight:800; color:var(--kiost-accent); background:var(--tray-main-bg); padding:2px 7px; border-radius:8px;">반경
+            3.5km 고정</span>
         </div>
-        <a href="https://m.map.naver.com/search2/search.naver?query=%EB%B6%80%EC%82%B0+%EC%98%81%EB%8F%84%EA%B5%AC+%ED%95%B4%EC%96%91%EB%A1%9C+385+%EB%A7%9B%EC%A7%91&sm=clk" target="_blank" rel="noopener noreferrer" style="text-decoration:none;" class="naver-search-btn">
+        <a href="https://m.map.naver.com/search2/search.naver?query=%EB%B6%80%EC%82%B0+%EC%98%81%EB%8F%84%EA%B5%AC+%ED%95%B4%EC%96%91%EB%A1%9C+385+%EB%A7%9B%EC%A7%91&sm=clk"
+          target="_blank" rel="noopener noreferrer" style="text-decoration:none;" class="naver-search-btn">
           <span>🟢 네이버 지도에서 KIOST 주변 맛집 검색 ↗</span>
         </a>
       </div>
@@ -188,18 +226,24 @@
   <!-- 3) 구내식당 식판 바텀시트 -->
   <div class="modal-overlay" id="dietModal" onclick="closeOnBackdrop(event, 'dietModal')">
     <div class="bottom-sheet">
-      <div class="sheet-handle-area" onclick="closeModal('dietModal')"><div class="sheet-handle"></div></div>
+      <div class="sheet-handle-area" onclick="closeModal('dietModal')">
+        <div class="sheet-handle"></div>
+      </div>
       <div class="sheet-header">
         <div>
           <div class="sheet-title">🍱 KIOST 구내식당 식단</div>
-          <div style="font-size:12px; font-weight:700; color:var(--text-sub); margin-top:2px;" id="dietDateText">중식 운영 11:30 ~ 13:00</div>
+          <div style="font-size:12px; font-weight:700; color:var(--text-sub); margin-top:2px;" id="dietDateText">중식 운영
+            11:30 ~ 13:00</div>
         </div>
         <button class="sheet-close-btn" onclick="closeModal('dietModal')" aria-label="닫기">✕</button>
       </div>
 
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding:0 2px;">
-        <span style="font-size:11.5px; font-weight:700; color:var(--kiost-accent);" id="sheetSyncStatus">● 구글 스프레드시트 실시간 연동됨</span>
-        <button type="button" onclick="loadDietFromGoogleSheet(true)" style="background:var(--card-sub); border:1px solid var(--border-color); border-radius:10px; padding:4px 8px; font-size:11px; font-weight:700; color:var(--text-sub); cursor:pointer;">🔄 식단 새로고침</button>
+        <span style="font-size:11.5px; font-weight:700; color:var(--kiost-accent);" id="sheetSyncStatus">● 구글 스프레드시트 실시간
+          연동됨</span>
+        <button type="button" onclick="loadDietFromGoogleSheet(true)"
+          style="background:var(--card-sub); border:1px solid var(--border-color); border-radius:10px; padding:4px 8px; font-size:11px; font-weight:700; color:var(--text-sub); cursor:pointer;">🔄
+          식단 새로고침</button>
       </div>
 
       <div class="diet-day-tabs">
@@ -211,18 +255,24 @@
       </div>
 
       <div class="diet-type-tabs" id="dietTypeTabs" style="display:none; margin-bottom:12px; gap:8px;">
-        <button type="button" class="diet-type-btn active" id="btnTypeHansik" onclick="selectDietType('한식')">🍚 한식 코너</button>
+        <button type="button" class="diet-type-btn active" id="btnTypeHansik" onclick="selectDietType('한식')">🍚 한식
+          코너</button>
         <button type="button" class="diet-type-btn" id="btnTypeIlpum" onclick="selectDietType('일품')">🍛 일품 코너</button>
       </div>
 
       <div class="tray-container">
         <div class="tray-grid" id="dietTrayContent">
           <div class="tray-cell"><span class="cell-label">반찬 1</span><span class="cell-name" id="side1">계란찜</span></div>
-          <div class="tray-cell"><span class="cell-label">김치 / 반찬2</span><span class="cell-name" id="side2">깍두기</span></div>
-          <div class="tray-cell tray-dessert"><span class="cell-label">후식</span><span class="cell-name" id="dessert">요구르트 🍦</span></div>
-          <div class="tray-cell tray-main"><span class="cell-label" id="mainLabel">★ 오늘의 메인 요리</span><span class="cell-name" id="mainDish">제육볶음 🍲</span></div>
-          <div class="tray-cell tray-rice"><span class="cell-label">밥</span><span class="cell-name" id="riceDish">흑미밥 🍚</span></div>
-          <div class="tray-cell tray-soup"><span class="cell-label">국 / 찌개</span><span class="cell-name" id="soupDish">얼큰 콩나물국 🥣</span></div>
+          <div class="tray-cell"><span class="cell-label">김치 / 반찬2</span><span class="cell-name" id="side2">깍두기</span>
+          </div>
+          <div class="tray-cell tray-dessert"><span class="cell-label">후식</span><span class="cell-name"
+              id="dessert">요구르트 🍦</span></div>
+          <div class="tray-cell tray-main"><span class="cell-label" id="mainLabel">★ 오늘의 메인 요리</span><span
+              class="cell-name" id="mainDish">제육볶음 🍲</span></div>
+          <div class="tray-cell tray-rice"><span class="cell-label">밥</span><span class="cell-name" id="riceDish">흑미밥
+              🍚</span></div>
+          <div class="tray-cell tray-soup"><span class="cell-label">국 / 찌개</span><span class="cell-name"
+              id="soupDish">얼큰 콩나물국 🥣</span></div>
         </div>
       </div>
 
@@ -236,7 +286,9 @@
   <!-- 4-1) 관리자 비밀번호 확인 모달 -->
   <div class="modal-overlay" id="adminAuthModal" onclick="closeOnBackdrop(event, 'adminAuthModal')">
     <div class="bottom-sheet">
-      <div class="sheet-handle-area" onclick="closeModal('adminAuthModal')"><div class="sheet-handle"></div></div>
+      <div class="sheet-handle-area" onclick="closeModal('adminAuthModal')">
+        <div class="sheet-handle"></div>
+      </div>
       <div class="sheet-header">
         <div class="sheet-title">🔒 관리자 비밀번호 확인</div>
         <button class="sheet-close-btn" onclick="closeModal('adminAuthModal')" aria-label="닫기">✕</button>
@@ -248,25 +300,34 @@
       <div class="form-group">
         <label class="form-label" for="adminPinInput">관리자 PIN 번호</label>
         <div style="position:relative; display:flex; align-items:center;">
-          <input type="password" id="adminPinInput" class="admin-input-text" style="margin-bottom:0; letter-spacing:6px; font-size:20px; text-align:center; padding-right:42px;" maxlength="10" inputmode="numeric" placeholder="••••" onkeydown="if(event.key==='Enter') checkAdminPin()">
-          <button type="button" onclick="togglePinVisibility('adminPinInput', this)" style="position:absolute; right:12px; background:none; border:none; font-size:18px; cursor:pointer; padding:4px; line-height:1;" title="비밀번호 표시/숨김">👁️</button>
+          <input type="password" id="adminPinInput" class="admin-input-text"
+            style="margin-bottom:0; letter-spacing:6px; font-size:20px; text-align:center; padding-right:42px;"
+            maxlength="10" inputmode="numeric" placeholder="••••" onkeydown="if(event.key==='Enter') checkAdminPin()">
+          <button type="button" onclick="togglePinVisibility('adminPinInput', this)"
+            style="position:absolute; right:12px; background:none; border:none; font-size:18px; cursor:pointer; padding:4px; line-height:1;"
+            title="비밀번호 표시/숨김">👁️</button>
         </div>
-        <div id="pinErrorMsg" style="color:#EF4444; font-size:12px; font-weight:700; margin-top:8px; display:none;">비밀번호가 일치하지 않습니다.</div>
+        <div id="pinErrorMsg" style="color:#EF4444; font-size:12px; font-weight:700; margin-top:8px; display:none;">
+          비밀번호가 일치하지 않습니다.</div>
       </div>
-      <button class="admin-save-btn" style="margin-top:12px;" onclick="checkAdminPin()"><span>인증하고 관리자 모드 열기 🔓</span></button>
+      <button class="admin-save-btn" style="margin-top:12px;" onclick="checkAdminPin()"><span>인증하고 관리자 모드 열기
+          🔓</span></button>
     </div>
   </div>
 
   <!-- 4-2) 카페 관리자 상태 설정 모달 -->
   <div class="modal-overlay" id="adminModal" onclick="closeOnBackdrop(event, 'adminModal')">
     <div class="bottom-sheet">
-      <div class="sheet-handle-area" onclick="closeModal('adminModal')"><div class="sheet-handle"></div></div>
+      <div class="sheet-handle-area" onclick="closeModal('adminModal')">
+        <div class="sheet-handle"></div>
+      </div>
       <div class="sheet-header">
         <div class="sheet-title">⚙️ 카페 운영 상태 관리자</div>
         <button class="sheet-close-btn" onclick="closeModal('adminModal')" aria-label="닫기">✕</button>
       </div>
       <p style="font-size:13px; color:var(--text-sub); margin-bottom:16px; font-weight:600; line-height:1.4;">
-        상태를 터치하면 <strong style="color:var(--kiost-accent);">메인 화면에 즉시 적용</strong>되며 <strong style="color:var(--kiost-accent);">텔레그램 채널로 자동 전송</strong>됩니다.
+        상태를 터치하면 <strong style="color:var(--kiost-accent);">메인 화면에 즉시 적용</strong>되며 <strong
+          style="color:var(--kiost-accent);">텔레그램 채널로 자동 전송</strong>됩니다.
       </p>
       <div class="form-group">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -274,38 +335,58 @@
           <span style="font-size:11.5px; color:var(--kiost-accent); font-weight:700;">* 터치 시 텔레그램 즉시 발송</span>
         </div>
         <div class="status-select-grid">
-          <button type="button" class="status-opt-btn" id="opt-available" onclick="selectAdminStatus('available')"><span>🟢</span> <span>주문 가능 (여유)</span></button>
-          <button type="button" class="status-opt-btn" id="opt-busy" onclick="selectAdminStatus('busy')"><span>🟡</span> <span>혼잡 / 대기 발생</span></button>
-          <button type="button" class="status-opt-btn" id="opt-preparing" onclick="selectAdminStatus('preparing')"><span>🟠</span> <span>재료 준비중</span></button>
-          <button type="button" class="status-opt-btn" id="opt-closed" onclick="selectAdminStatus('closed')"><span>🔴</span> <span>영업 마감</span></button>
-          <button type="button" class="status-opt-btn" id="opt-auto" style="grid-column: span 2;" onclick="selectAdminStatus('auto')"><span>🔄</span> <span>자동 시간표 모드 (10:00~15:30 자동 연동)</span></button>
+          <button type="button" class="status-opt-btn" id="opt-available"
+            onclick="selectAdminStatus('available')"><span>🟢</span> <span>주문 가능 (여유)</span></button>
+          <button type="button" class="status-opt-btn" id="opt-busy" onclick="selectAdminStatus('busy')"><span>🟡</span>
+            <span>혼잡 / 대기 발생</span></button>
+          <button type="button" class="status-opt-btn" id="opt-preparing"
+            onclick="selectAdminStatus('preparing')"><span>🟠</span> <span>재료 준비중</span></button>
+          <button type="button" class="status-opt-btn" id="opt-closed"
+            onclick="selectAdminStatus('closed')"><span>🔴</span> <span>영업 마감</span></button>
+          <button type="button" class="status-opt-btn" id="opt-auto" style="grid-column: span 2;"
+            onclick="selectAdminStatus('auto')"><span>🔄</span> <span>자동 시간표 모드 (10:00~15:30 자동 연동)</span></button>
         </div>
       </div>
       <div class="form-group">
         <label class="form-label" for="adminNoticeInput">한 줄 알림 문구 (메인 화면 및 텔레그램 공지)</label>
         <div style="display:flex; gap:8px;">
-          <input type="text" class="admin-input-text" id="adminNoticeInput" placeholder="예: 시원한 콜드브루와 딸기라떼 주문 가능! ☕" maxlength="50" style="margin-bottom:0;">
-          <button type="button" class="preset-btn" style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--kiost-accent); color:#FFF; border:none;" onclick="saveNoticeOnly()">공지 저장</button>
+          <input type="text" class="admin-input-text" id="adminNoticeInput" placeholder="예: 시원한 콜드브루와 딸기라떼 주문 가능! ☕"
+            maxlength="50" style="margin-bottom:0;">
+          <button type="button" class="preset-btn"
+            style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--kiost-accent); color:#FFF; border:none;"
+            onclick="saveNoticeOnly()">공지 저장</button>
         </div>
       </div>
-      <div style="margin: 14px 0 16px; border-top: 1px solid var(--border-color); padding-top: 12px; display:flex; justify-content:space-between; align-items:center;">
+      <div
+        style="margin: 14px 0 16px; border-top: 1px solid var(--border-color); padding-top: 12px; display:flex; justify-content:space-between; align-items:center;">
         <div style="display:flex; align-items:center; gap:6px;">
           <span style="font-size:12.5px; font-weight:700; color:var(--kiost-accent);">✈️ KIOST 텔레그램 연동 중</span>
-          <span style="font-size:11px; background:rgba(2, 132, 199, 0.1); color:var(--kiost-accent); padding:2px 7px; border-radius:10px; font-weight:700;">자동 발송</span>
+          <span
+            style="font-size:11px; background:rgba(2, 132, 199, 0.1); color:var(--kiost-accent); padding:2px 7px; border-radius:10px; font-weight:700;">자동
+            발송</span>
         </div>
-        <button type="button" onclick="openMasterAuthModal()" style="background:none; border:none; color:var(--text-muted); font-size:11.5px; cursor:pointer; text-decoration:underline; padding:4px;">🔒 봇 설정 변경</button>
+        <button type="button" onclick="openMasterAuthModal()"
+          style="background:none; border:none; color:var(--text-muted); font-size:11.5px; cursor:pointer; text-decoration:underline; padding:4px;">🔒
+          봇 설정 변경</button>
       </div>
       <div style="margin: 16px 0 20px; border-top: 1px solid var(--border-color); padding-top: 14px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <span style="font-size:13px; font-weight:700; color:var(--text-main);">🔐 관리자 비밀번호 (PIN)</span>
-          <span style="font-size:12px; font-weight:700; color:var(--kiost-accent);" id="currentPinDisplay">현재: 1234</span>
+          <span style="font-size:12px; font-weight:700; color:var(--kiost-accent);" id="currentPinDisplay">현재:
+            1234</span>
         </div>
-        <div style="background:var(--card-sub); padding:14px; border-radius:16px; border:1px solid var(--border-color);">
+        <div
+          style="background:var(--card-sub); padding:14px; border-radius:16px; border:1px solid var(--border-color);">
           <label class="form-label" for="newPinInput" style="margin-bottom:6px;">새 비밀번호로 변경 (4자리 이상)</label>
           <div style="display:flex; gap:8px; position:relative; align-items:center;">
-            <input type="password" id="newPinInput" class="admin-input-text" style="margin-bottom:0; padding-right:40px;" maxlength="10" inputmode="numeric" placeholder="새 비밀번호 입력">
-            <button type="button" onclick="togglePinVisibility('newPinInput', this)" style="position:absolute; right:82px; background:none; border:none; font-size:16px; cursor:pointer; padding:4px; line-height:1;" title="비밀번호 표시/숨김">👁️</button>
-            <button type="button" class="preset-btn" style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--kiost-accent); color:#FFF; border:none;" onclick="changeAdminPin()">즉시변경</button>
+            <input type="password" id="newPinInput" class="admin-input-text"
+              style="margin-bottom:0; padding-right:40px;" maxlength="10" inputmode="numeric" placeholder="새 비밀번호 입력">
+            <button type="button" onclick="togglePinVisibility('newPinInput', this)"
+              style="position:absolute; right:82px; background:none; border:none; font-size:16px; cursor:pointer; padding:4px; line-height:1;"
+              title="비밀번호 표시/숨김">👁️</button>
+            <button type="button" class="preset-btn"
+              style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--kiost-accent); color:#FFF; border:none;"
+              onclick="changeAdminPin()">즉시변경</button>
           </div>
         </div>
       </div>
@@ -316,7 +397,9 @@
   <!-- 4-3) 최고 관리자(마스터) 비밀번호 확인 모달 -->
   <div class="modal-overlay" id="masterAuthModal" onclick="closeOnBackdrop(event, 'masterAuthModal')">
     <div class="bottom-sheet">
-      <div class="sheet-handle-area" onclick="closeModal('masterAuthModal')"><div class="sheet-handle"></div></div>
+      <div class="sheet-handle-area" onclick="closeModal('masterAuthModal')">
+        <div class="sheet-handle"></div>
+      </div>
       <div class="sheet-header">
         <div class="sheet-title">🔑 최고 관리자 권한 인증</div>
         <button class="sheet-close-btn" onclick="closeModal('masterAuthModal')" aria-label="닫기">✕</button>
@@ -328,19 +411,28 @@
       <div class="form-group">
         <label class="form-label" for="masterPinInput">마스터 PIN 번호</label>
         <div style="position:relative; display:flex; align-items:center;">
-          <input type="password" id="masterPinInput" class="admin-input-text" style="margin-bottom:0; letter-spacing:6px; font-size:20px; text-align:center; padding-right:42px;" maxlength="10" inputmode="numeric" placeholder="••••" onkeydown="if(event.key==='Enter') checkMasterPin()">
-          <button type="button" onclick="togglePinVisibility('masterPinInput', this)" style="position:absolute; right:12px; background:none; border:none; font-size:18px; cursor:pointer; padding:4px; line-height:1;" title="비밀번호 표시/숨김">👁️</button>
+          <input type="password" id="masterPinInput" class="admin-input-text"
+            style="margin-bottom:0; letter-spacing:6px; font-size:20px; text-align:center; padding-right:42px;"
+            maxlength="10" inputmode="numeric" placeholder="••••" onkeydown="if(event.key==='Enter') checkMasterPin()">
+          <button type="button" onclick="togglePinVisibility('masterPinInput', this)"
+            style="position:absolute; right:12px; background:none; border:none; font-size:18px; cursor:pointer; padding:4px; line-height:1;"
+            title="비밀번호 표시/숨김">👁️</button>
         </div>
-        <div id="masterPinErrorMsg" style="color:#EF4444; font-size:12px; font-weight:700; margin-top:8px; display:none;">마스터 비밀번호가 일치하지 않습니다.</div>
+        <div id="masterPinErrorMsg"
+          style="color:#EF4444; font-size:12px; font-weight:700; margin-top:8px; display:none;">마스터 비밀번호가 일치하지 않습니다.
+        </div>
       </div>
-      <button class="admin-save-btn" style="margin-top:12px;" onclick="checkMasterPin()"><span>마스터 인증 및 설정 열기 🔓</span></button>
+      <button class="admin-save-btn" style="margin-top:12px;" onclick="checkMasterPin()"><span>마스터 인증 및 설정 열기
+          🔓</span></button>
     </div>
   </div>
 
   <!-- 4-4) 텔레그램 봇 고급 설정 모달 -->
   <div class="modal-overlay" id="masterConfigModal" onclick="closeOnBackdrop(event, 'masterConfigModal')">
     <div class="bottom-sheet">
-      <div class="sheet-handle-area" onclick="closeModal('masterConfigModal')"><div class="sheet-handle"></div></div>
+      <div class="sheet-handle-area" onclick="closeModal('masterConfigModal')">
+        <div class="sheet-handle"></div>
+      </div>
       <div class="sheet-header">
         <div class="sheet-title">⚙️ 텔레그램 봇 고급 연동 설정</div>
         <button class="sheet-close-btn" onclick="closeModal('masterConfigModal')" aria-label="닫기">✕</button>
@@ -350,23 +442,33 @@
       </p>
       <div class="form-group">
         <label class="form-label" for="teleBotTokenInput">텔레그램 Bot Token</label>
-        <input type="text" id="teleBotTokenInput" class="admin-input-text" style="font-size:12px;" placeholder="예: 123456789:ABCdefGhI...">
+        <input type="text" id="teleBotTokenInput" class="admin-input-text" style="font-size:12px;"
+          placeholder="예: 123456789:ABCdefGhI...">
       </div>
       <div class="form-group">
         <label class="form-label" for="teleChatIdInput">채널/채팅방 Chat ID</label>
-        <input type="text" id="teleChatIdInput" class="admin-input-text" style="font-size:12px;" placeholder="예: -100123456789">
+        <input type="text" id="teleChatIdInput" class="admin-input-text" style="font-size:12px;"
+          placeholder="예: -100123456789">
       </div>
       <div style="margin: 16px 0 16px; border-top: 1px solid var(--border-color); padding-top: 14px;">
         <label class="form-label" for="newMasterPinInput">마스터 PIN 번호 변경 (4자리 이상)</label>
         <div style="display:flex; gap:8px; position:relative; align-items:center;">
-          <input type="password" id="newMasterPinInput" class="admin-input-text" style="margin-bottom:0; padding-right:40px;" maxlength="10" inputmode="numeric" placeholder="새 마스터 PIN 입력">
-          <button type="button" onclick="togglePinVisibility('newMasterPinInput', this)" style="position:absolute; right:82px; background:none; border:none; font-size:16px; cursor:pointer; padding:4px; line-height:1;" title="비밀번호 표시/숨김">👁️</button>
-          <button type="button" class="preset-btn" style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--kiost-accent); color:#FFF; border:none;" onclick="changeMasterPin()">PIN 변경</button>
+          <input type="password" id="newMasterPinInput" class="admin-input-text"
+            style="margin-bottom:0; padding-right:40px;" maxlength="10" inputmode="numeric" placeholder="새 마스터 PIN 입력">
+          <button type="button" onclick="togglePinVisibility('newMasterPinInput', this)"
+            style="position:absolute; right:82px; background:none; border:none; font-size:16px; cursor:pointer; padding:4px; line-height:1;"
+            title="비밀번호 표시/숨김">👁️</button>
+          <button type="button" class="preset-btn"
+            style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--kiost-accent); color:#FFF; border:none;"
+            onclick="changeMasterPin()">PIN 변경</button>
         </div>
       </div>
       <div style="display:flex; gap:8px; margin-top:16px;">
-        <button type="button" class="preset-btn" style="flex:1; padding:12px; font-weight:700; background:var(--card-sub); border:1px solid var(--border-color); color:var(--text-sub);" onclick="resetTelegramConfigDefault()">기본값 복원</button>
-        <button type="button" class="admin-save-btn" style="flex:2; margin:0;" onclick="saveTelegramConfig()"><span>설정 저장 💾</span></button>
+        <button type="button" class="preset-btn"
+          style="flex:1; padding:12px; font-weight:700; background:var(--card-sub); border:1px solid var(--border-color); color:var(--text-sub);"
+          onclick="resetTelegramConfigDefault()">기본값 복원</button>
+        <button type="button" class="admin-save-btn" style="flex:2; margin:0;" onclick="saveTelegramConfig()"><span>설정
+            저장 💾</span></button>
       </div>
     </div>
   </div>
@@ -376,6 +478,17 @@
   <script src="js/work.js"></script>
   <script src="js/restaurants.js"></script>
   <script src="js/diet.js"></script>
+
+  <script>
+    // PWA 서비스 워커 등록
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('PWA Service Worker registered:', reg.scope))
+          .catch(err => console.log('Service Worker registration failed:', err));
+      });
+    }
+  </script>
 </body>
 
 </html>

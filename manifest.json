@@ -1,24 +1,22 @@
 {
   "name": "소담터 - KIOST 사내 카페",
   "short_name": "소담터",
-  "description": "KIOST 사내 카페 소담터 운영 상태, 근무시간 계산기, 영도 본원 맛집, 구내식당 식단",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#003876",
+  "background_color": "#ffffff",
   "theme_color": "#003876",
-  "orientation": "portrait",
   "icons": [
     {
-      "src": "icons/icon-192.png",
+      "src": "apple-touch-icon.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "apple-touch-icon.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
