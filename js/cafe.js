@@ -126,15 +126,26 @@ const STATUS_DATA = {
   }
 };
 
+function updateButtonsUI(activeMode) {
+  const allBtns = document.querySelectorAll('.status-opt-btn');
+  allBtns.forEach(btn => {
+    btn.classList.remove('active');
+    btn.style.border = '1px solid var(--border-color)';
+    btn.style.boxShadow = 'none';
+  });
+
+  const selectedBtn = document.getElementById(`opt-${activeMode}`);
+  if (selectedBtn) {
+    selectedBtn.classList.add('active');
+    selectedBtn.style.border = '2px solid var(--kiost-accent)';
+    selectedBtn.style.boxShadow = '0 0 8px rgba(0, 150, 255, 0.4)';
+  }
+}
+
 function refreshCafeStatus() {
   const adminMode = localStorage.getItem('sodam_admin_mode') || 'auto';
+  updateButtonsUI(adminMode);
 
-  // 버튼 활성화 클래스 갱신
-  document.querySelectorAll('.status-opt-btn').forEach(btn => btn.classList.remove('active'));
-  const currentBtn = document.getElementById(`opt-${adminMode}`);
-  if (currentBtn) currentBtn.classList.add('active');
-
-  // 강제 설정 모드일 때
   if (adminMode !== 'auto' && STATUS_DATA[adminMode]) {
     renderStatus(adminMode, localStorage.getItem('sodam_custom_notice') || STATUS_DATA[adminMode].desc);
     return;
@@ -147,8 +158,8 @@ function refreshCafeStatus() {
   const minutes = now.getMinutes();
   const currentTimeVal = hours * 60 + minutes;
 
-  const openTime = 10 * 60; // 10:00
-  const closeTime = 15 * 60 + 30; // 15:30
+  const openTime = 10 * 60;
+  const closeTime = 15 * 60 + 30;
 
   let autoStatus = 'closed';
   if (day >= 1 && day <= 5) {
@@ -202,11 +213,8 @@ function checkAdminPin() {
     const noticeInput = document.getElementById('adminNoticeInput');
     if (noticeInput) noticeInput.value = localStorage.getItem('sodam_custom_notice') || '';
 
-    // 모달을 열 때 현재 상태 버튼 하이라이트 반영
-    const activeOpt = localStorage.getItem('sodam_admin_mode') || 'auto';
-    document.querySelectorAll('.status-opt-btn').forEach(btn => btn.classList.remove('active'));
-    const currentBtn = document.getElementById(`opt-${activeOpt}`);
-    if (currentBtn) currentBtn.classList.add('active');
+    const currentMode = localStorage.getItem('sodam_admin_mode') || 'auto';
+    updateButtonsUI(currentMode);
 
     openModal('adminModal');
   } else {
@@ -229,19 +237,19 @@ function changeAdminPin() {
   alert('관리자 비밀번호가 변경되었습니다.');
 }
 
-// 상태 선택 함수 보강 (즉시 active 클래스 토글 및 안전한 비동기 호출)
+// 상태 선택 함수 (실행 즉시 UI 변경 및 알림 피드백)
 function selectAdminStatus(statusKey) {
-  localStorage.setItem('sodam_admin_mode', statusKey);
+  try {
+    localStorage.setItem('sodam_admin_mode', statusKey);
+    updateButtonsUI(statusKey);
+    refreshCafeStatus();
 
-  // 즉시 버튼 선택 UI 변경
-  document.querySelectorAll('.status-opt-btn').forEach(btn => btn.classList.remove('active'));
-  const targetBtn = document.getElementById(`opt-${statusKey}`);
-  if (targetBtn) targetBtn.classList.add('active');
-
-  refreshCafeStatus();
-
-  const notice = localStorage.getItem('sodam_custom_notice') || '';
-  sendTelegramCafeStatus(statusKey, notice);
+    const notice = localStorage.getItem('sodam_custom_notice') || '';
+    sendTelegramCafeStatus(statusKey, notice);
+  } catch (err) {
+    console.error('상태 선택 처리 중 오류:', err);
+    alert('상태 변경 중 오류가 발생했습니다: ' + err.message);
+  }
 }
 
 function saveNoticeOnly() {
@@ -329,7 +337,7 @@ function resetTelegramConfigDefault() {
   }
 }
 
-// 8. 텔레그램 메시지 발송 기능 (토큰/채팅ID 부재 시 조용히 통과)
+// 8. 텔레그램 메시지 발송 기능
 function sendTelegramCafeStatus(statusKey, noticeText) {
   try {
     const conf = getTelegramConfig();

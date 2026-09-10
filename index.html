@@ -315,9 +315,9 @@
     </div>
   </div>
 
-  <!-- 4-2) 카페 관리자 상태 설정 모달 -->
+  <!-- 4-2) 카페 관리자 상태 설정 모달 (클릭 방해 요소 원천 차단 스타일 적용) -->
   <div class="modal-overlay" id="adminModal" onclick="closeOnBackdrop(event, 'adminModal')">
-    <div class="bottom-sheet">
+    <div class="bottom-sheet" style="position:relative; z-index:1001; pointer-events:auto;">
       <div class="sheet-handle-area" onclick="closeModal('adminModal')">
         <div class="sheet-handle"></div>
       </div>
@@ -326,25 +326,30 @@
         <button class="sheet-close-btn" onclick="closeModal('adminModal')" aria-label="닫기">✕</button>
       </div>
       <p style="font-size:13px; color:var(--text-sub); margin-bottom:16px; font-weight:600; line-height:1.4;">
-        상태를 터치하면 <strong style="color:var(--kiost-accent);">메인 화면에 즉시 적용</strong>되며 <strong
-          style="color:var(--kiost-accent);">텔레그램 채널로 자동 전송</strong>됩니다.
+        상태를 터치하면 <strong style="color:var(--kiost-accent);">메인 화면에 즉시 적용</strong>됩니다.
       </p>
       <div class="form-group">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <label class="form-label" style="margin-bottom:0;">운영 상태 선택</label>
-          <span style="font-size:11.5px; color:var(--kiost-accent); font-weight:700;">* 터치 시 텔레그램 즉시 발송</span>
         </div>
-        <div class="status-select-grid">
-          <button type="button" class="status-opt-btn" id="opt-available"
-            onclick="selectAdminStatus('available')"><span>🟢</span> <span>주문 가능 (여유)</span></button>
-          <button type="button" class="status-opt-btn" id="opt-busy" onclick="selectAdminStatus('busy')"><span>🟡</span>
-            <span>혼잡 / 대기 발생</span></button>
-          <button type="button" class="status-opt-btn" id="opt-preparing"
-            onclick="selectAdminStatus('preparing')"><span>🟠</span> <span>재료 준비중</span></button>
-          <button type="button" class="status-opt-btn" id="opt-closed"
-            onclick="selectAdminStatus('closed')"><span>🔴</span> <span>영업 마감</span></button>
-          <button type="button" class="status-opt-btn" id="opt-auto" style="grid-column: span 2;"
-            onclick="selectAdminStatus('auto')"><span>🔄</span> <span>자동 시간표 모드 (10:00~15:30 자동 연동)</span></button>
+        <!-- 터치 및 클릭 전달 강제 보장 스타일 추가 -->
+        <div class="status-select-grid" style="position:relative; z-index:10; pointer-events:auto;">
+          <button type="button" class="status-opt-btn" id="opt-available" style="cursor:pointer; pointer-events:auto;"
+            onclick="selectAdminStatus('available')"><span style="pointer-events:none;">🟢</span> <span
+              style="pointer-events:none;">주문 가능 (여유)</span></button>
+          <button type="button" class="status-opt-btn" id="opt-busy" style="cursor:pointer; pointer-events:auto;"
+            onclick="selectAdminStatus('busy')"><span style="pointer-events:none;">🟡</span> <span
+              style="pointer-events:none;">혼잡 / 대기 발생</span></button>
+          <button type="button" class="status-opt-btn" id="opt-preparing" style="cursor:pointer; pointer-events:auto;"
+            onclick="selectAdminStatus('preparing')"><span style="pointer-events:none;">🟠</span> <span
+              style="pointer-events:none;">재료 준비중</span></button>
+          <button type="button" class="status-opt-btn" id="opt-closed" style="cursor:pointer; pointer-events:auto;"
+            onclick="selectAdminStatus('closed')"><span style="pointer-events:none;">🔴</span> <span
+              style="pointer-events:none;">영업 마감</span></button>
+          <button type="button" class="status-opt-btn" id="opt-auto"
+            style="grid-column: span 2; cursor:pointer; pointer-events:auto;" onclick="selectAdminStatus('auto')"><span
+              style="pointer-events:none;">🔄</span> <span style="pointer-events:none;">자동 시간표 모드
+              (10:00~15:30)</span></button>
         </div>
       </div>
       <div class="form-group">
@@ -360,10 +365,7 @@
       <div
         style="margin: 14px 0 16px; border-top: 1px solid var(--border-color); padding-top: 12px; display:flex; justify-content:space-between; align-items:center;">
         <div style="display:flex; align-items:center; gap:6px;">
-          <span style="font-size:12.5px; font-weight:700; color:var(--kiost-accent);">✈️ KIOST 텔레그램 연동 중</span>
-          <span
-            style="font-size:11px; background:rgba(2, 132, 199, 0.1); color:var(--kiost-accent); padding:2px 7px; border-radius:10px; font-weight:700;">자동
-            발송</span>
+          <span style="font-size:12.5px; font-weight:700; color:var(--kiost-accent);">✈️ KIOST 텔레그램 연동</span>
         </div>
         <button type="button" onclick="openMasterAuthModal()"
           style="background:none; border:none; color:var(--text-muted); font-size:11.5px; cursor:pointer; text-decoration:underline; padding:4px;">🔒
