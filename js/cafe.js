@@ -10,13 +10,17 @@ const DEFAULT_MASTER_PIN = '316497';
 const DEFAULT_TELEGRAM_BOT_TOKEN = ''; // 필요 시 기본 Bot Token 입력
 const DEFAULT_TELEGRAM_CHAT_ID = '';   // 필요 시 기본 Chat ID 입력
 
+// 저장소 키 버전 관리 (기존 남아있던 1234 캐시 강제 무효화)
+const KEY_ADMIN_PIN = 'sodam_admin_pin_v2';
+const KEY_MASTER_PIN = 'sodam_master_pin_v2';
+
 // 2. PIN 및 설정 저장소 제어 함수
 function getAdminPin() {
-  return localStorage.getItem('sodam_admin_pin') || DEFAULT_ADMIN_PIN;
+  return localStorage.getItem(KEY_ADMIN_PIN) || DEFAULT_ADMIN_PIN;
 }
 
 function getMasterPin() {
-  return localStorage.getItem('sodam_master_pin') || DEFAULT_MASTER_PIN;
+  return localStorage.getItem(KEY_MASTER_PIN) || DEFAULT_MASTER_PIN;
 }
 
 function getTelegramConfig() {
@@ -194,9 +198,6 @@ function checkAdminPin() {
     if (errMsg) errMsg.style.display = 'none';
     closeModal('adminAuthModal');
 
-    const pinDisplay = document.getElementById('currentPinDisplay');
-    if (pinDisplay) pinDisplay.textContent = `현재: ${getAdminPin()}`;
-
     const noticeInput = document.getElementById('adminNoticeInput');
     if (noticeInput) noticeInput.value = localStorage.getItem('sodam_custom_notice') || '';
 
@@ -216,9 +217,7 @@ function changeAdminPin() {
     return;
   }
 
-  localStorage.setItem('sodam_admin_pin', newPin);
-  const pinDisplay = document.getElementById('currentPinDisplay');
-  if (pinDisplay) pinDisplay.textContent = `현재: ${newPin}`;
+  localStorage.setItem(KEY_ADMIN_PIN, newPin);
   newPinInput.value = '';
   alert('관리자 비밀번호가 변경되었습니다.');
 }
@@ -282,7 +281,7 @@ function changeMasterPin() {
     return;
   }
 
-  localStorage.setItem('sodam_master_pin', newPin);
+  localStorage.setItem(KEY_MASTER_PIN, newPin);
   input.value = '';
   alert('최고 관리자 PIN이 성공적으로 변경되었습니다.');
 }
