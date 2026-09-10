@@ -7,10 +7,10 @@
 const DEFAULT_ADMIN_PIN = '00000000';
 const DEFAULT_MASTER_PIN = '316497';
 
-const DEFAULT_TELEGRAM_BOT_TOKEN = ''; // 필요 시 기본 Bot Token 입력
-const DEFAULT_TELEGRAM_CHAT_ID = '';   // 필요 시 기본 Chat ID 입력
+const DEFAULT_TELEGRAM_BOT_TOKEN = '';
+const DEFAULT_TELEGRAM_CHAT_ID = '';
 
-// 저장소 키 버전 관리 (기존 남아있던 1234 캐시 강제 무효화)
+// 저장소 키 버전 관리
 const KEY_ADMIN_PIN = 'sodam_admin_pin_v2';
 const KEY_MASTER_PIN = 'sodam_master_pin_v2';
 
@@ -128,6 +128,13 @@ const STATUS_DATA = {
 
 function refreshCafeStatus() {
   const adminMode = localStorage.getItem('sodam_admin_mode') || 'auto';
+
+  // 버튼 활성화 클래스 갱신
+  document.querySelectorAll('.status-opt-btn').forEach(btn => btn.classList.remove('active'));
+  const currentBtn = document.getElementById(`opt-${adminMode}`);
+  if (currentBtn) currentBtn.classList.add('active');
+
+  // 강제 설정 모드일 때
   if (adminMode !== 'auto' && STATUS_DATA[adminMode]) {
     renderStatus(adminMode, localStorage.getItem('sodam_custom_notice') || STATUS_DATA[adminMode].desc);
     return;
@@ -172,12 +179,6 @@ function renderStatus(statusKey, descText) {
   if (coffeeFill) coffeeFill.setAttribute('height', data.coffeeHeight);
   if (steam1) steam1.style.display = data.steam ? 'block' : 'none';
   if (steam2) steam2.style.display = data.steam ? 'block' : 'none';
-
-  // 관리자 선택 그리드 하이라이트 동기화
-  const activeOpt = localStorage.getItem('sodam_admin_mode') || 'auto';
-  document.querySelectorAll('.status-opt-btn').forEach(btn => btn.classList.remove('active'));
-  const currentBtn = document.getElementById(`opt-${activeOpt}`);
-  if (currentBtn) currentBtn.classList.add('active');
 }
 
 // 6. 관리자 인증 & 권한 제어
@@ -201,6 +202,12 @@ function checkAdminPin() {
     const noticeInput = document.getElementById('adminNoticeInput');
     if (noticeInput) noticeInput.value = localStorage.getItem('sodam_custom_notice') || '';
 
+    // 모달을 열 때 현재 상태 버튼 하이라이트 반영
+    const activeOpt = localStorage.getItem('sodam_admin_mode') || 'auto';
+    document.querySelectorAll('.status-opt-btn').forEach(btn => btn.classList.remove('active'));
+    const currentBtn = document.getElementById(`opt-${activeOpt}`);
+    if (currentBtn) currentBtn.classList.add('active');
+
     openModal('adminModal');
   } else {
     if (errMsg) errMsg.style.display = 'block';
@@ -222,8 +229,15 @@ function changeAdminPin() {
   alert('관리자 비밀번호가 변경되었습니다.');
 }
 
+// 상태 선택 함수 보강 (즉시 active 클래스 토글 및 안전한 비동기 호출)
 function selectAdminStatus(statusKey) {
   localStorage.setItem('sodam_admin_mode', statusKey);
+
+  // 즉시 버튼 선택 UI 변경
+  document.querySelectorAll('.status-opt-btn').forEach(btn => btn.classList.remove('active'));
+  const targetBtn = document.getElementById(`opt-${statusKey}`);
+  if (targetBtn) targetBtn.classList.add('active');
+
   refreshCafeStatus();
 
   const notice = localStorage.getItem('sodam_custom_notice') || '';
@@ -238,7 +252,7 @@ function saveNoticeOnly() {
 
   const currentMode = localStorage.getItem('sodam_admin_mode') || 'auto';
   sendTelegramCafeStatus(currentMode, val);
-  alert('한 줄 공지가 저장 및 발송되었습니다.');
+  alert('한 줄 공지가 저장되었습니다.');
 }
 
 // 7. 마스터 관리자 인증 및 텔레그램 연동 설정
@@ -315,43 +329,49 @@ function resetTelegramConfigDefault() {
   }
 }
 
-// 8. 텔레그램 메시지 발송 기능
+// 8. 텔레그램 메시지 발송 기능 (토큰/채팅ID 부재 시 조용히 통과)
 function sendTelegramCafeStatus(statusKey, noticeText) {
-  const conf = getTelegramConfig();
-  if (!conf.botToken || !conf.chatId) return;
+  try {
+    const conf = getTelegramConfig();
+    if (!conf.botToken || !conf.chatId || conf.botToken.trim() === '' || conf.chatId.trim() === '') {
+      return;
+    }
 
-  const statusLabelMap = {
-    available: '🟢 주문 가능 (여유)',
-    busy: '🟡 혼잡 / 대기 발생',
-    preparing: '🟠 재료 준비중',
-    closed: '🔴 영업 마감',
-    auto: '🔄 자동 시간표 모드 운영 중'
-  };
+    const statusLabelMap = {
+      available: '🟢 주문 가능 (여유)',
+      busy: '🟡 혼잡 / 대기 발생',
+      preparing: '🟠 재료 준비중',
+      closed: '🔴 영업 마감',
+      auto: '🔄 자동 시간표 모드 운영 중'
+    };
 
-  const statusName = statusLabelMap[statusKey] || '상태 알 수 없음';
-  const timeStr = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+    const statusName = statusLabelMap[statusKey] || '상태 알 수 없음';
+    const timeStr = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
 
-  let text = `[KIOST 소담터 알리미] ☕\n\n`;
-  text += `⏰ 현재 상태: ${statusName}\n`;
-  text += `🕒 갱신 시각: ${timeStr}\n`;
-  if (noticeText) {
-    text += `📢 전달 사항: ${noticeText}\n`;
+    let text = `[KIOST 소담터 알리미] ☕\n\n`;
+    text += `⏰ 현재 상태: ${statusName}\n`;
+    text += `🕒 갱신 시각: ${timeStr}\n`;
+    if (noticeText) {
+      text += `📢 전달 사항: ${noticeText}\n`;
+    }
+
+    const endpoint = `https://api.telegram.org/bot${conf.botToken}/sendMessage`;
+    fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: conf.chatId,
+        text: text
+      })
+    }).catch(err => console.warn('Telegram notification failed:', err));
+  } catch (e) {
+    console.warn('Telegram send failed safely:', e);
   }
-
-  const endpoint = `https://api.telegram.org/bot${conf.botToken}/sendMessage`;
-  fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: conf.chatId,
-      text: text
-    })
-  }).catch(err => console.error('Telegram notification error:', err));
 }
 
 // 9. 페이지 로드 초기화
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   refreshCafeStatus();
-  setInterval(refreshCafeStatus, 60000); // 1분 주기 갱신
+  setInterval(refreshCafeStatus, 60000);
 });
