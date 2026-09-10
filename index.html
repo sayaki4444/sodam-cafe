@@ -22,6 +22,7 @@
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png" />
   <link rel="icon" type="image/png" href="/favicon.png" />
+
   <!-- 3. 웹 폰트: Pretendard & Gaegu -->
   <link rel="stylesheet" as="style" crossorigin
     href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -29,7 +30,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@700&display=swap" rel="stylesheet">
 
-  <!-- 4. 분리된 외부 스타일시트 -->
+  <!-- 4. Firebase SDK 로드 -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- 5. 분리된 외부 스타일시트 -->
   <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -315,7 +320,7 @@
     </div>
   </div>
 
-  <!-- 4-2) 카페 관리자 상태 설정 모달 (클릭 방해 요소 원천 차단 스타일 적용) -->
+  <!-- 4-2) 카페 관리자 상태 설정 모달 -->
   <div class="modal-overlay" id="adminModal" onclick="closeOnBackdrop(event, 'adminModal')">
     <div class="bottom-sheet" style="position:relative; z-index:1001; pointer-events:auto;">
       <div class="sheet-handle-area" onclick="closeModal('adminModal')">
@@ -326,34 +331,30 @@
         <button class="sheet-close-btn" onclick="closeModal('adminModal')" aria-label="닫기">✕</button>
       </div>
       <p style="font-size:13px; color:var(--text-sub); margin-bottom:16px; font-weight:600; line-height:1.4;">
-        상태를 터치하면 <strong style="color:var(--kiost-accent);">메인 화면에 즉시 적용</strong>됩니다.
+        상태를 터치하면 <strong style="color:var(--kiost-accent);">전체 사용자 화면에 실시간 적용</strong>됩니다.
       </p>
       <div class="form-group">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <label class="form-label" style="margin-bottom:0;">운영 상태 선택</label>
-        </div>
-        <!-- 터치 및 클릭 전달 강제 보장 스타일 추가 -->
+        <label class="form-label" style="margin-bottom:8px;">운영 상태 선택</label>
         <div class="status-select-grid" style="position:relative; z-index:10; pointer-events:auto;">
-          <button type="button" class="status-opt-btn" id="opt-available" style="cursor:pointer; pointer-events:auto;"
+          <button type="button" class="status-opt-btn" id="opt-available" style="cursor:pointer;"
             onclick="selectAdminStatus('available')"><span style="pointer-events:none;">🟢</span> <span
               style="pointer-events:none;">주문 가능 (여유)</span></button>
-          <button type="button" class="status-opt-btn" id="opt-busy" style="cursor:pointer; pointer-events:auto;"
+          <button type="button" class="status-opt-btn" id="opt-busy" style="cursor:pointer;"
             onclick="selectAdminStatus('busy')"><span style="pointer-events:none;">🟡</span> <span
               style="pointer-events:none;">혼잡 / 대기 발생</span></button>
-          <button type="button" class="status-opt-btn" id="opt-preparing" style="cursor:pointer; pointer-events:auto;"
+          <button type="button" class="status-opt-btn" id="opt-preparing" style="cursor:pointer;"
             onclick="selectAdminStatus('preparing')"><span style="pointer-events:none;">🟠</span> <span
               style="pointer-events:none;">재료 준비중</span></button>
-          <button type="button" class="status-opt-btn" id="opt-closed" style="cursor:pointer; pointer-events:auto;"
+          <button type="button" class="status-opt-btn" id="opt-closed" style="cursor:pointer;"
             onclick="selectAdminStatus('closed')"><span style="pointer-events:none;">🔴</span> <span
               style="pointer-events:none;">영업 마감</span></button>
-          <button type="button" class="status-opt-btn" id="opt-auto"
-            style="grid-column: span 2; cursor:pointer; pointer-events:auto;" onclick="selectAdminStatus('auto')"><span
-              style="pointer-events:none;">🔄</span> <span style="pointer-events:none;">자동 시간표 모드
-              (10:00~15:30)</span></button>
+          <button type="button" class="status-opt-btn" id="opt-auto" style="grid-column: span 2; cursor:pointer;"
+            onclick="selectAdminStatus('auto')"><span style="pointer-events:none;">🔄</span> <span
+              style="pointer-events:none;">자동 시간표 모드 (10:00~15:30)</span></button>
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label" for="adminNoticeInput">한 줄 알림 문구 (메인 화면 및 텔레그램 공지)</label>
+        <label class="form-label" for="adminNoticeInput">한 줄 알림 문구 (실시간 공지)</label>
         <div style="display:flex; gap:8px;">
           <input type="text" class="admin-input-text" id="adminNoticeInput" placeholder="예: 시원한 콜드브루와 딸기라떼 주문 가능! ☕"
             maxlength="50" style="margin-bottom:0;">
