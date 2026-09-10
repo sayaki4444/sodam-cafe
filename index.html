@@ -295,14 +295,15 @@
       </div>
       <p style="font-size:13px; color:var(--text-sub); margin-bottom:16px; font-weight:600; line-height:1.4;">
         카페 관리자 권한을 인증하기 위해 비밀번호를 입력해 주세요.<br>
-        <span style="font-size:11.5px; color:var(--kiost-accent); font-weight:700;">(초기 기본 비밀번호: 1234)</span>
+        <span style="font-size:11.5px; color:var(--kiost-accent); font-weight:700;">(초기 기본 비밀번호: 00000000)</span>
       </p>
       <div class="form-group">
         <label class="form-label" for="adminPinInput">관리자 PIN 번호</label>
         <div style="position:relative; display:flex; align-items:center;">
           <input type="password" id="adminPinInput" class="admin-input-text"
             style="margin-bottom:0; letter-spacing:6px; font-size:20px; text-align:center; padding-right:42px;"
-            maxlength="10" inputmode="numeric" placeholder="••••" onkeydown="if(event.key==='Enter') checkAdminPin()">
+            maxlength="10" inputmode="numeric" placeholder="••••••••"
+            onkeydown="if(event.key==='Enter') checkAdminPin()">
           <button type="button" onclick="togglePinVisibility('adminPinInput', this)"
             style="position:absolute; right:12px; background:none; border:none; font-size:18px; cursor:pointer; padding:4px; line-height:1;"
             title="비밀번호 표시/숨김">👁️</button>
@@ -373,7 +374,7 @@
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <span style="font-size:13px; font-weight:700; color:var(--text-main);">🔐 관리자 비밀번호 (PIN)</span>
           <span style="font-size:12px; font-weight:700; color:var(--kiost-accent);" id="currentPinDisplay">현재:
-            1234</span>
+            00000000</span>
         </div>
         <div
           style="background:var(--card-sub); padding:14px; border-radius:16px; border:1px solid var(--border-color);">
@@ -406,14 +407,15 @@
       </div>
       <p style="font-size:13px; color:var(--text-sub); margin-bottom:16px; font-weight:600; line-height:1.4;">
         텔레그램 봇 토큰 및 채널 설정을 변경하려면 <strong>마스터 PIN</strong>을 입력해 주세요.<br>
-        <span style="font-size:11.5px; color:var(--kiost-accent); font-weight:700;">(초기 기본 마스터 PIN: 9999)</span>
+        <span style="font-size:11.5px; color:var(--kiost-accent); font-weight:700;">(초기 기본 마스터 PIN: 316497)</span>
       </p>
       <div class="form-group">
         <label class="form-label" for="masterPinInput">마스터 PIN 번호</label>
         <div style="position:relative; display:flex; align-items:center;">
           <input type="password" id="masterPinInput" class="admin-input-text"
             style="margin-bottom:0; letter-spacing:6px; font-size:20px; text-align:center; padding-right:42px;"
-            maxlength="10" inputmode="numeric" placeholder="••••" onkeydown="if(event.key==='Enter') checkMasterPin()">
+            maxlength="10" inputmode="numeric" placeholder="••••••"
+            onkeydown="if(event.key==='Enter') checkMasterPin()">
           <button type="button" onclick="togglePinVisibility('masterPinInput', this)"
             style="position:absolute; right:12px; background:none; border:none; font-size:18px; cursor:pointer; padding:4px; line-height:1;"
             title="비밀번호 표시/숨김">👁️</button>
