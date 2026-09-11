@@ -95,18 +95,24 @@ body {
   margin: 0 auto;
 }
 
-/* 1. 상단 헤더 */
+/* 헤더 전체 줄바꿈 방지 및 배치 고정 */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-top: env(safe-area-inset-top, 4px);
+  flex-wrap: nowrap;
+  /* 절대 다음 줄로 밀리지 않도록 고정 */
+  gap: 8px;
+  width: 100%;
 }
 
+/* 좌측 타이틀 영역 */
 .header-left-title {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  flex-shrink: 1;
+  min-width: 0;
+  /* 긴 텍스트 축소 대응 */
 }
 
 .header-tag {
@@ -118,38 +124,38 @@ body {
   margin-bottom: 2px;
 }
 
+/* 소담터 카페 알리미 제목 크기 및 줄바꿈 차단 */
 .header-title {
-  font-family: 'Gaegu', 'Pretendard', cursive, sans-serif;
-  font-size: 27px;
-  font-weight: 700;
-  color: var(--text-main);
-  line-height: 1.15;
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  font-size: 1.15rem;
+  /* 모바일에서 한 줄에 딱 맞도록 크기 미세 조정 */
+  font-weight: 800;
+  white-space: nowrap;
+  /* 줄바꿈 금지 */
+  letter-spacing: -0.5px;
+  margin: 0;
 }
 
+/* 우측 액션 버튼 묶음 */
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  /* 버튼 사이 간격 축소 */
+  flex-shrink: 0;
+  /* 버튼 영역이 찌그러지지 않게 보호 */
 }
 
+/* 테마 토글 버튼(해/달 + 텍스트) 여백 슬림화 */
 .theme-toggle-btn {
-  background: var(--card-bg);
-  border: 1.5px solid var(--border-color);
-  color: var(--text-main);
-  border-radius: 22px;
-  min-height: 40px;
-  padding: 0 14px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  box-shadow: var(--shadow-xs);
-  transition: all 0.15s ease;
+  gap: 4px;
+  padding: 6px 10px;
+  /* 패딩 축소 */
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  border-radius: 20px;
 }
 
 .theme-toggle-btn:active {
@@ -157,19 +163,17 @@ body {
   background: var(--card-sub);
 }
 
+/* 관리자/텔레그램 원형 버튼 크기 */
+.admin-toggle-btn,
 .telegram-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--card-bg);
-  border: 1.5px solid var(--border-color);
+  width: 32px;
+  height: 32px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-decoration: none;
-  font-size: 18px;
-  box-shadow: var(--shadow-xs);
-  transition: all 0.15s ease;
+  font-size: 15px;
+  flex-shrink: 0;
 }
 
 .telegram-btn:active {
@@ -237,10 +241,12 @@ body {
     opacity: 0;
     transform: translateY(0) scaleY(0.7);
   }
+
   50% {
     opacity: 0.8;
     transform: translateY(-5px) scaleY(1);
   }
+
   100% {
     opacity: 0;
     transform: translateY(-12px) scaleY(1.2);
@@ -379,9 +385,17 @@ body {
   line-height: 1.1;
 }
 
-.bg-red { background: #EF4444; }
-.bg-green { background: #10B981; }
-.bg-blue { background: #0284C7; }
+.bg-red {
+  background: #EF4444;
+}
+
+.bg-green {
+  background: #10B981;
+}
+
+.bg-blue {
+  background: #0284C7;
+}
 
 .quick-icon {
   font-size: 32px;
@@ -634,8 +648,15 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .calc-alert-badge {
