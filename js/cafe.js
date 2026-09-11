@@ -1,6 +1,6 @@
 /**
  * js/cafe.js
- * 소담터 알리미 - Firebase Cloud Firestore 실시간 동기화 연동
+ * 소담터 카페 알리미 - Firebase Cloud Firestore 실시간 동기화 연동
  */
 
 // 1. Firebase 설정 및 초기화
@@ -140,7 +140,7 @@ function updateButtonsUI(activeMode) {
   const selectedBtn = document.getElementById(`opt-${activeMode}`);
   if (selectedBtn) {
     selectedBtn.classList.add("active");
-    selectedBtn.style.border = "2px solid var(--kiost-accent)";
+    selectedBtn.style.border = "2px solid var(--accent-color, #0284c7)";
     selectedBtn.style.boxShadow = "0 0 8px rgba(0, 150, 255, 0.4)";
   }
 }
@@ -203,7 +203,6 @@ function listenFirestore() {
       currentNotice = data.notice || "";
       refreshCafeStatus();
     } else {
-      // 초기 문서 생성
       db.collection("cafe").doc("status").set({
         mode: "auto",
         notice: "",
@@ -241,7 +240,6 @@ function checkAdminPin() {
   const errMsg = document.getElementById("pinErrorMsg");
   const entered = input.value.trim();
 
-  // 클라우드 PIN 또는 로컬 기본 PIN 확인
   if (entered === serverAdminPin || entered === DEFAULT_ADMIN_PIN) {
     if (errMsg) errMsg.style.display = "none";
     closeModal("adminAuthModal");
@@ -257,7 +255,6 @@ function checkAdminPin() {
   }
 }
 
-// 관리자가 상태를 눌렀을 때 -> Firestore에 기록 (모든 접속자 화면에 즉각 전파)
 function selectAdminStatus(statusKey) {
   currentMode = statusKey;
   updateButtonsUI(statusKey);
@@ -288,7 +285,7 @@ function saveNoticeOnly() {
   }
 
   sendTelegramCafeStatus(currentMode, val);
-  alert("한 줄 공지가 전 직원 화면에 저장되었습니다.");
+  alert("한 줄 공지가 전 사용자 화면에 저장되었습니다.");
 }
 
 function changeAdminPin() {
@@ -403,7 +400,7 @@ function sendTelegramCafeStatus(statusKey, noticeText) {
     const statusName = statusLabelMap[statusKey] || "상태 알 수 없음";
     const timeStr = new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
 
-    let text = `[KIOST 소담터 알리미] ☕\n\n`;
+    let text = `[소담터 카페 알리미] ☕\n\n`;
     text += `⏰ 현재 상태: ${statusName}\n`;
     text += `🕒 갱신 시각: ${timeStr}\n`;
     if (noticeText) text += `📢 전달 사항: ${noticeText}\n`;

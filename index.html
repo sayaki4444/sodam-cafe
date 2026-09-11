@@ -6,7 +6,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>소담터 - KIOST 사내 카페</title>
+  <title>소담터 카페 알리미</title>
 
   <!-- 2. PWA 메타태그 및 매니페스트 -->
   <link rel="manifest" href="manifest.json" />
@@ -16,7 +16,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="소담터" />
+  <meta name="apple-mobile-web-app-title" content="소담터 카페 알리미" />
 
   <!-- iOS & 모바일 홈 화면 아이콘 -->
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -43,8 +43,7 @@
     <!-- 1. 상단 일체형 헤더 -->
     <header class="header">
       <div class="header-left-title">
-        <span class="header-tag">KIOST 사내 카페</span>
-        <h1 class="header-title">소담터 알리미 ☕</h1>
+        <h1 class="header-title">소담터 카페 알리미 ☕</h1>
       </div>
       <div class="header-actions">
         <button class="theme-toggle-btn" id="themeBtn" onclick="toggleTheme()" aria-label="테마 전환">
@@ -89,7 +88,7 @@
 
     <!-- 3. 편의 서비스 그리드 -->
     <div class="section-title">
-      <span>KIOST 편의 서비스</span>
+      <span>편의 서비스</span>
       <span class="section-subtitle">원클릭 메뉴</span>
     </div>
 
@@ -104,10 +103,10 @@
         <div class="quick-icon">🍽️</div>
         <div class="quick-label">근처 맛집</div>
       </button>
-      <button class="quick-item" onclick="openModal('dietModal')" aria-label="구내식당 식단표 열기">
+      <button class="quick-item" onclick="openModal('dietModal')" aria-label="오늘의 메뉴 식단표 열기">
         <span class="quick-badge bg-blue">오늘</span>
         <div class="quick-icon">🍱</div>
-        <div class="quick-label">구내 식당</div>
+        <div class="quick-label">오늘의 메뉴</div>
       </button>
     </div>
   </div>
@@ -131,7 +130,7 @@
       <div class="form-group">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
           <label class="form-label" for="prevHours" style="margin-bottom:0;">⏱️ 현재까지 누적 근무시간</label>
-          <span style="font-size:11px; color:var(--kiost-accent); font-weight:700;">근태 프로그램 기준</span>
+          <span style="font-size:11px; color:var(--accent-color, #0284c7); font-weight:700;">근태 프로그램 기준</span>
         </div>
         <div class="form-row">
           <div class="input-wrapper">
@@ -159,7 +158,7 @@
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
           <label class="form-label" for="startTime" style="margin-bottom:0;">⏰ 기준시간 (오늘 출근 / 시작 시각)</label>
           <button type="button" onclick="setNowAsStartTime()"
-            style="background:none; border:none; color:var(--kiost-accent); font-size:11.5px; font-weight:800; cursor:pointer;">🕒
+            style="background:none; border:none; color:var(--accent-color, #0284c7); font-size:11.5px; font-weight:800; cursor:pointer;">🕒
             현재 시각</button>
         </div>
         <input type="time" class="time-input" id="startTime" value="09:00" min="07:00" max="22:00"
@@ -173,7 +172,7 @@
         </div>
         <div style="font-size:13.5px; font-weight:800; color:var(--text-main); margin-top:6px;">오늘 칼퇴 가능 시각</div>
         <div
-          style="font-size:34px; font-weight:900; color:var(--kiost-accent); margin:4px 0 6px; letter-spacing:-0.5px;"
+          style="font-size:34px; font-weight:900; color:var(--accent-color, #0284c7); margin:4px 0 6px; letter-spacing:-0.5px;"
           id="leaveTimeResult">18:00</div>
         <div id="ruleNoticeBox" style="margin: 8px 0;"></div>
         <div style="font-size:12px; color:var(--text-sub); font-weight:600; margin-top:6px;" id="remainCountdownText">
@@ -190,9 +189,9 @@
       </div>
       <div class="sheet-header">
         <div>
-          <div class="sheet-title">🍽️ KIOST 영도 본원 맛집</div>
-          <div style="font-size:11.5px; font-weight:700; color:var(--kiost-accent); margin-top:2px;">⭐ 네이버 평점 3.5+ 엄선
-            (반경 3.5km 이내)</div>
+          <div class="sheet-title">🍽️ 주변 맛집 추천</div>
+          <div style="font-size:11.5px; font-weight:700; color:var(--accent-color, #0284c7); margin-top:2px;">⭐ 네이버 평점
+            3.5+ 엄선 (반경 3.5km 이내)</div>
         </div>
         <button class="sheet-close-btn" onclick="closeModal('resModal')" aria-label="닫기">✕</button>
       </div>
@@ -200,15 +199,15 @@
       <div style="margin-bottom: 12px; display:flex; flex-direction:column; gap:8px;">
         <div
           style="display:flex; justify-content:space-between; align-items:center; background:var(--card-sub); padding:9px 12px; border-radius:12px; border:1px solid var(--border-color);">
-          <span style="font-size:12px; font-weight:700; color:var(--text-sub);" id="gpsStatusText">📍 기준: 부산 영도구 해양로 385
-            (KIOST 본원)</span>
+          <span style="font-size:12px; font-weight:700; color:var(--text-sub);" id="gpsStatusText">📍 기준: 부산 영도구 해양로
+            385</span>
           <span
-            style="font-size:11px; font-weight:800; color:var(--kiost-accent); background:var(--tray-main-bg); padding:2px 7px; border-radius:8px;">반경
+            style="font-size:11px; font-weight:800; color:var(--accent-color, #0284c7); background:var(--tray-main-bg); padding:2px 7px; border-radius:8px;">반경
             3.5km 고정</span>
         </div>
         <a href="https://m.map.naver.com/search2/search.naver?query=%EB%B6%80%EC%82%B0+%EC%98%81%EB%8F%84%EA%B5%AC+%ED%95%B4%EC%96%91%EB%A1%9C+385+%EB%A7%9B%EC%A7%91&sm=clk"
           target="_blank" rel="noopener noreferrer" style="text-decoration:none;" class="naver-search-btn">
-          <span>🟢 네이버 지도에서 KIOST 주변 맛집 검색 ↗</span>
+          <span>🟢 네이버 지도에서 주변 맛집 검색 ↗</span>
         </a>
       </div>
 
@@ -228,7 +227,7 @@
     </div>
   </div>
 
-  <!-- 3) 구내식당 식판 바텀시트 -->
+  <!-- 3) 오늘의 메뉴 바텀시트 -->
   <div class="modal-overlay" id="dietModal" onclick="closeOnBackdrop(event, 'dietModal')">
     <div class="bottom-sheet">
       <div class="sheet-handle-area" onclick="closeModal('dietModal')">
@@ -236,7 +235,7 @@
       </div>
       <div class="sheet-header">
         <div>
-          <div class="sheet-title">🍱 KIOST 구내식당 식단</div>
+          <div class="sheet-title">🍱 오늘의 메뉴</div>
           <div style="font-size:12px; font-weight:700; color:var(--text-sub); margin-top:2px;" id="dietDateText">중식 운영
             11:30 ~ 13:00</div>
         </div>
@@ -244,8 +243,8 @@
       </div>
 
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding:0 2px;">
-        <span style="font-size:11.5px; font-weight:700; color:var(--kiost-accent);" id="sheetSyncStatus">● 구글 스프레드시트 실시간
-          연동됨</span>
+        <span style="font-size:11.5px; font-weight:700; color:var(--accent-color, #0284c7);" id="sheetSyncStatus">● 구글
+          스프레드시트 실시간 연동됨</span>
         <button type="button" onclick="loadDietFromGoogleSheet(true)"
           style="background:var(--card-sub); border:1px solid var(--border-color); border-radius:10px; padding:4px 8px; font-size:11px; font-weight:700; color:var(--text-sub); cursor:pointer;">🔄
           식단 새로고침</button>
@@ -283,7 +282,7 @@
 
       <div class="diet-calories">
         <span id="dietMenuDescText">🔥 중식 11:30~13:00 운영</span>
-        <span style="color:var(--kiost-accent);">식권 5,500원</span>
+        <span style="color:var(--accent-color, #0284c7);">식권 5,500원</span>
       </div>
     </div>
   </div>
@@ -331,7 +330,7 @@
         <button class="sheet-close-btn" onclick="closeModal('adminModal')" aria-label="닫기">✕</button>
       </div>
       <p style="font-size:13px; color:var(--text-sub); margin-bottom:16px; font-weight:600; line-height:1.4;">
-        상태를 터치하면 <strong style="color:var(--kiost-accent);">전체 사용자 화면에 실시간 적용</strong>됩니다.
+        상태를 터치하면 <strong style="color:var(--accent-color, #0284c7);">전체 사용자 화면에 실시간 적용</strong>됩니다.
       </p>
       <div class="form-group">
         <label class="form-label" style="margin-bottom:8px;">운영 상태 선택</label>
@@ -359,14 +358,14 @@
           <input type="text" class="admin-input-text" id="adminNoticeInput" placeholder="예: 시원한 콜드브루와 딸기라떼 주문 가능! ☕"
             maxlength="50" style="margin-bottom:0;">
           <button type="button" class="preset-btn"
-            style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--kiost-accent); color:#FFF; border:none;"
+            style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--accent-color, #0284c7); color:#FFF; border:none;"
             onclick="saveNoticeOnly()">공지 저장</button>
         </div>
       </div>
       <div
         style="margin: 14px 0 16px; border-top: 1px solid var(--border-color); padding-top: 12px; display:flex; justify-content:space-between; align-items:center;">
         <div style="display:flex; align-items:center; gap:6px;">
-          <span style="font-size:12.5px; font-weight:700; color:var(--kiost-accent);">✈️ KIOST 텔레그램 연동</span>
+          <span style="font-size:12.5px; font-weight:700; color:var(--accent-color, #0284c7);">✈️ 텔레그램 공지 연동</span>
         </div>
         <button type="button" onclick="openMasterAuthModal()"
           style="background:none; border:none; color:var(--text-muted); font-size:11.5px; cursor:pointer; text-decoration:underline; padding:4px;">🔒
@@ -386,7 +385,7 @@
               style="position:absolute; right:82px; background:none; border:none; font-size:16px; cursor:pointer; padding:4px; line-height:1;"
               title="비밀번호 표시/숨김">👁️</button>
             <button type="button" class="preset-btn"
-              style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--kiost-accent); color:#FFF; border:none;"
+              style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--accent-color, #0284c7); color:#FFF; border:none;"
               onclick="changeAdminPin()">즉시변경</button>
           </div>
         </div>
@@ -460,7 +459,7 @@
             style="position:absolute; right:82px; background:none; border:none; font-size:16px; cursor:pointer; padding:4px; line-height:1;"
             title="비밀번호 표시/숨김">👁️</button>
           <button type="button" class="preset-btn"
-            style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--kiost-accent); color:#FFF; border:none;"
+            style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--accent-color, #0284c7); color:#FFF; border:none;"
             onclick="changeMasterPin()">PIN 변경</button>
         </div>
       </div>
