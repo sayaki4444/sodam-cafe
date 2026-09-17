@@ -251,30 +251,42 @@ body {
 
 .steam-path {
   stroke: var(--cup-steam);
-  stroke-width: 3.5;
+  stroke-width: 4;
   stroke-linecap: round;
   fill: none;
-  animation: steamAnim 2.8s infinite ease-in-out;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  will-change: transform, opacity;
+  animation: steamFloat 2.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
-.steam-2 {
-  animation-delay: 1.2s;
+#steam1 {
+  animation-delay: 0s;
 }
 
-@keyframes steamAnim {
+#steam2 {
+  animation-delay: 1.3s;
+}
+
+@keyframes steamFloat {
   0% {
     opacity: 0;
-    transform: translateY(0) scaleY(0.7);
+    transform: translateY(4px) scaleY(0.7) scaleX(0.9);
   }
 
-  50% {
-    opacity: 0.8;
-    transform: translateY(-5px) scaleY(1);
+  30% {
+    opacity: 0.85;
+  }
+
+  65% {
+    opacity: 0.5;
+    transform: translateY(-8px) scaleY(1.05) scaleX(1.05);
   }
 
   100% {
     opacity: 0;
-    transform: translateY(-12px) scaleY(1.2);
+    transform: translateY(-16px) scaleY(1.25) scaleX(1.15);
   }
 }
 
@@ -316,6 +328,76 @@ body {
   border-radius: 50%;
   background: currentColor;
   box-shadow: 0 0 8px currentColor;
+  position: relative;
+  flex-shrink: 0;
+  will-change: transform, box-shadow;
+}
+
+/* 🟢 주문 가능 상태: 2초 주기의 잔잔한 물결 펄스 애니메이션 */
+.badge-green .badge-dot {
+  animation: pulseGreen 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulseGreen {
+  0% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.65), 0 0 6px rgba(22, 163, 74, 0.8);
+    transform: scale(0.95);
+  }
+
+  50% {
+    box-shadow: 0 0 0 6px rgba(22, 163, 74, 0), 0 0 10px rgba(22, 163, 74, 0.35);
+    transform: scale(1.08);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0), 0 0 6px rgba(22, 163, 74, 0.8);
+    transform: scale(0.95);
+  }
+}
+
+[data-theme="dark"] .badge-green .badge-dot {
+  animation: pulseGreenDark 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulseGreenDark {
+  0% {
+    box-shadow: 0 0 0 0 rgba(134, 239, 172, 0.7), 0 0 8px rgba(134, 239, 172, 0.9);
+    transform: scale(0.95);
+  }
+
+  50% {
+    box-shadow: 0 0 0 7px rgba(134, 239, 172, 0), 0 0 12px rgba(134, 239, 172, 0.4);
+    transform: scale(1.08);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(134, 239, 172, 0), 0 0 8px rgba(134, 239, 172, 0.9);
+    transform: scale(0.95);
+  }
+}
+
+/* 🟡 혼잡 상태: 부드러운 완만한 깜빡임 */
+.badge-yellow .badge-dot {
+  animation: pulseYellow 2.5s ease-in-out infinite;
+}
+
+@keyframes pulseYellow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(202, 138, 4, 0.5), 0 0 6px currentColor;
+    opacity: 0.85;
+  }
+
+  50% {
+    box-shadow: 0 0 0 4px rgba(202, 138, 4, 0), 0 0 8px currentColor;
+    opacity: 1;
+  }
+}
+
+/* 🔴 마감 / 🟠 준비중 / ⚪ 기타 상태: 펄스 정지 */
+.badge-red .badge-dot,
+.badge-orange .badge-dot,
+.badge-gray .badge-dot {
+  animation: none;
 }
 
 .badge-green {
@@ -510,6 +592,12 @@ body {
   cursor: grabbing;
 }
 
+/* 자동 스크롤 중에는 CSS 스냅 충돌을 해제하여 부드러운 60fps/120fps 연속 이동 */
+.menu-carousel.is-autoscrolling {
+  scroll-snap-type: none;
+  scroll-behavior: auto;
+}
+
 .menu-carousel::-webkit-scrollbar {
   display: none;
 }
@@ -527,8 +615,11 @@ body {
   align-items: center;
   text-align: center;
   box-shadow: none;
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  will-change: transform;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 [data-theme="dark"] .menu-card {
@@ -537,41 +628,79 @@ body {
   box-shadow: none;
 }
 
-.menu-card:hover {
+/* 3. 메뉴 카드 호버 & 터치 인터랙션: 4px 부유 탄성 효과 */
+.menu-card:hover,
+.menu-card:focus-visible {
   transform: translateY(-4px);
 }
 
-/* 카드 내 원형 사진 프레임 */
+.menu-card:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+/* 4. 카테고리 탭 전환 시 부드러운 카드 순차 등장 (Stagger Fade-In) */
+.menu-card.card-fade-enter {
+  animation: cardFadeIn 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--stagger-delay, 0s);
+  will-change: transform, opacity;
+}
+
+@keyframes cardFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 카드 내 원형 사진 프레임 (overflow: hidden 유지) */
 .menu-circle-frame {
   width: 106px;
   height: 106px;
   border-radius: 50%;
   overflow: hidden;
   border: 4px solid #FFFFFF;
-  box-shadow: 0 8px 22px rgba(45, 67, 51, 0.16);
+  box-shadow: 0 6px 18px rgba(45, 67, 51, 0.12);
   margin-bottom: 12px;
   background: #E8EFE5;
   flex-shrink: 0;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  will-change: transform, box-shadow;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 [data-theme="dark"] .menu-circle-frame {
   border-color: #2D3E30;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
-.menu-card:hover .menu-circle-frame {
-  transform: scale(1.06);
-  box-shadow: 0 12px 28px rgba(45, 67, 51, 0.22);
+.menu-card:hover .menu-circle-frame,
+.menu-card:focus-visible .menu-circle-frame {
+  box-shadow: 0 14px 28px rgba(45, 67, 51, 0.22);
 }
 
+[data-theme="dark"] .menu-card:hover .menu-circle-frame,
+[data-theme="dark"] .menu-card:focus-visible .menu-circle-frame {
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.6);
+}
+
+/* 썸네일 줌 인터랙션 (scale 1.07) */
 .menu-card-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.3s ease;
   pointer-events: none;
+  will-change: transform;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.menu-card:hover .menu-card-img,
+.menu-card:active .menu-card-img {
+  transform: scale(1.07);
 }
 
 /* 카드 본문 텍스트 */

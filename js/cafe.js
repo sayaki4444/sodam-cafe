@@ -535,59 +535,100 @@ function lockConvenienceService() {
   }
 }
 
-// 8-2. 소담터 카페 메뉴 캐러셀 및 카테고리 필터 제어
-function scrollMenuCarousel(direction) {
+// 8-2. 소담터 카페 메뉴 캐러셀 및 무한 루프(Infinite Seamless Loop) 제어
+let originalMenuCards = [];
+let singleSetWidth = 0;
+
+function setupMenuCards() {
   const carousel = document.getElementById("menuCarousel");
   if (!carousel) return;
-  const cardWidth = 164;
+  if (originalMenuCards.length === 0) {
+    originalMenuCards = Array.from(carousel.querySelectorAll(".menu-card")).map(card => card.cloneNode(true));
+  }
+}
+
+function scrollMenuCarousel(direction) {
+  pauseAutoScrollTemporarily(4000);
+  const carousel = document.getElementById("menuCarousel");
+  if (!carousel) return;
+  const cardWidth = 160;
   carousel.scrollBy({ left: direction * cardWidth * 1.5, behavior: "smooth" });
 }
 
 function filterMenuCategory(category, tabBtn) {
+  pauseAutoScrollTemporarily(4000);
   const tabs = document.querySelectorAll(".cat-tab-btn");
   tabs.forEach(btn => btn.classList.remove("active"));
   if (tabBtn) tabBtn.classList.add("active");
 
-  const cards = document.querySelectorAll("#menuCarousel .menu-card");
-  cards.forEach(card => {
-    if (category === "all" || card.dataset.category === category) {
-      card.style.display = "flex";
-    } else {
-      card.style.display = "none";
-    }
+  const carousel = document.getElementById("menuCarousel");
+  if (!carousel) return;
+
+  setupMenuCards();
+
+  // 해당 카테고리에 맞는 원본 카드 필터링
+  const matchingCards = originalMenuCards.filter(card => {
+    return category === "all" || card.dataset.category === category;
   });
 
-  const carousel = document.getElementById("menuCarousel");
-  if (carousel) {
-    carousel.scrollTo({ left: 0, behavior: "smooth" });
+  // 캐러셀 내용 비우고 무한 루프를 위해 복제 세트 구성 (총 3세트: 끊김 없는 양방향 루프)
+  carousel.innerHTML = "";
+
+  for (let setIdx = 0; setIdx < 3; setIdx++) {
+    matchingCards.forEach((cardTpl, cardIdx) => {
+      const card = cardTpl.cloneNode(true);
+      card.style.display = "flex";
+      card.dataset.setIndex = setIdx;
+      card.dataset.itemIndex = cardIdx;
+
+      // 첫 번째 세트에만 초기 스태거 애니메이션 적용
+      if (setIdx === 0) {
+        card.style.setProperty("--stagger-delay", `${cardIdx * 0.045}s`);
+        card.classList.add("card-fade-enter");
+        card.addEventListener("animationend", () => {
+          card.classList.remove("card-fade-enter");
+        }, { once: true });
+      }
+
+      carousel.appendChild(card);
+    });
   }
 
-  updateMenuDots();
+  // singleSetWidth 계산: 두 번째 세트 첫 카드 offsetLeft - 첫 번째 세트 첫 카드 offsetLeft
+  requestAnimationFrame(() => {
+    const allRendered = carousel.querySelectorAll(".menu-card");
+    const count = matchingCards.length;
+    if (allRendered.length >= count * 2 && count > 0) {
+      singleSetWidth = allRendered[count].offsetLeft - allRendered[0].offsetLeft;
+    } else {
+      singleSetWidth = carousel.scrollWidth / 3;
+    }
+    carousel.scrollLeft = 0;
+    updateMenuDots(matchingCards.length);
+  });
 }
 
-function updateMenuDots() {
-  const carousel = document.getElementById("menuCarousel");
+function updateMenuDots(uniqueCount) {
   const dotsContainer = document.getElementById("menuDots");
-  if (!carousel || !dotsContainer) return;
-
-  const visibleCards = Array.from(carousel.querySelectorAll(".menu-card")).filter(
-    card => card.style.display !== "none"
-  );
+  if (!dotsContainer) return;
 
   dotsContainer.innerHTML = "";
-  if (visibleCards.length <= 1) return;
+  if (!uniqueCount || uniqueCount <= 1) return;
 
-  visibleCards.forEach((_, idx) => {
+  for (let idx = 0; idx < uniqueCount; idx++) {
     const dot = document.createElement("span");
     dot.className = "menu-dot" + (idx === 0 ? " active" : "");
     dot.onclick = () => {
-      const targetCard = visibleCards[idx];
+      pauseAutoScrollTemporarily(4000);
+      const carousel = document.getElementById("menuCarousel");
+      if (!carousel) return;
+      const targetCard = carousel.querySelector(`.menu-card[data-set-index="0"][data-item-index="${idx}"]`);
       if (targetCard) {
         targetCard.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
       }
     };
     dotsContainer.appendChild(dot);
-  });
+  }
 }
 
 function syncActiveDot() {
@@ -596,30 +637,129 @@ function syncActiveDot() {
   if (!carousel || !dotsContainer) return;
 
   const dots = dotsContainer.querySelectorAll(".menu-dot");
-  if (dots.length === 0) return;
+  if (dots.length === 0 || singleSetWidth <= 0) return;
 
-  const maxScroll = carousel.scrollWidth - carousel.clientWidth;
-  if (maxScroll <= 0) return;
-
-  const scrollRatio = carousel.scrollLeft / maxScroll;
-  const activeIndex = Math.min(
-    dots.length - 1,
-    Math.max(0, Math.round(scrollRatio * (dots.length - 1)))
-  );
+  const normalizedScroll = ((carousel.scrollLeft % singleSetWidth) + singleSetWidth) % singleSetWidth;
+  const cardWidth = singleSetWidth / dots.length;
+  const activeIndex = Math.min(dots.length - 1, Math.max(0, Math.floor((normalizedScroll + cardWidth * 0.4) / cardWidth)));
 
   dots.forEach((dot, idx) => {
     dot.classList.toggle("active", idx === activeIndex);
   });
 }
 
+// 8-3. 메뉴 캐러셀 마우스/터치 전 부드러운 자동 스크롤 엔진 (끊김 없는 무한 롤링 루프)
+let autoScrollRafId = null;
+let isUserInteracting = false;
+let resumeTimer = null;
+const AUTO_SCROLL_SPEED = 0.55; // 60fps 기준 약 33px/초의 차분하고 감성적인 속도
+
+function startAutoScroll() {
+  stopAutoScroll();
+  const carousel = document.getElementById("menuCarousel");
+  if (!carousel) return;
+
+  // Reduced motion 선호 사용자 고려
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  carousel.classList.add("is-autoscrolling");
+
+  function step() {
+    if (isUserInteracting) return;
+
+    if (singleSetWidth <= 10) {
+      const allRendered = carousel.querySelectorAll(".menu-card");
+      if (allRendered.length >= 6) {
+        const count = allRendered.length / 3;
+        singleSetWidth = allRendered[count].offsetLeft - allRendered[0].offsetLeft;
+      }
+    }
+
+    carousel.scrollLeft += AUTO_SCROLL_SPEED;
+
+    // 한 바퀴(singleSetWidth)를 돌면 위치를 정확히 보정하여 눈속임 없는 완전 연속 무한 스크롤 구현
+    if (singleSetWidth > 0 && carousel.scrollLeft >= singleSetWidth) {
+      carousel.scrollLeft -= singleSetWidth;
+    }
+
+    autoScrollRafId = requestAnimationFrame(step);
+  }
+
+  autoScrollRafId = requestAnimationFrame(step);
+}
+
+function stopAutoScroll() {
+  if (autoScrollRafId) {
+    cancelAnimationFrame(autoScrollRafId);
+    autoScrollRafId = null;
+  }
+  const carousel = document.getElementById("menuCarousel");
+  if (carousel) {
+    carousel.classList.remove("is-autoscrolling");
+  }
+}
+
+function pauseAutoScrollTemporarily(delay = 3500) {
+  isUserInteracting = true;
+  stopAutoScroll();
+
+  if (resumeTimer) {
+    clearTimeout(resumeTimer);
+  }
+
+  resumeTimer = setTimeout(() => {
+    isUserInteracting = false;
+    startAutoScroll();
+  }, delay);
+}
+
 function initMenuCarousel() {
   const carousel = document.getElementById("menuCarousel");
   if (!carousel) return;
 
-  updateMenuDots();
+  setupMenuCards();
+  filterMenuCategory("all", document.querySelector(".cat-tab-btn.active"));
 
   carousel.addEventListener("scroll", () => {
+    if (singleSetWidth > 0) {
+      // 수동 스크롤 시에도 양방향 무한 루프 유지
+      if (carousel.scrollLeft >= singleSetWidth * 2) {
+        carousel.scrollLeft -= singleSetWidth;
+      } else if (carousel.scrollLeft <= 0) {
+        carousel.scrollLeft += singleSetWidth;
+      }
+    }
     window.requestAnimationFrame(syncActiveDot);
+  }, { passive: true });
+
+  // 마우스 호버 및 터치 시 자동 스크롤 일시정지 & 재개 바인딩
+  carousel.addEventListener("mouseenter", () => {
+    isUserInteracting = true;
+    stopAutoScroll();
+  });
+
+  carousel.addEventListener("mouseleave", () => {
+    isUserInteracting = false;
+    pauseAutoScrollTemporarily(2000);
+  });
+
+  carousel.addEventListener("touchstart", () => {
+    isUserInteracting = true;
+    stopAutoScroll();
+  }, { passive: true });
+
+  carousel.addEventListener("touchend", () => {
+    isUserInteracting = false;
+    pauseAutoScrollTemporarily(3500);
+  }, { passive: true });
+
+  carousel.addEventListener("touchcancel", () => {
+    isUserInteracting = false;
+    pauseAutoScrollTemporarily(3000);
+  }, { passive: true });
+
+  carousel.addEventListener("wheel", () => {
+    pauseAutoScrollTemporarily(3000);
   }, { passive: true });
 
   // 마우스 드래그 스크롤 지원 (PC 환경)
@@ -628,17 +768,17 @@ function initMenuCarousel() {
   let scrollLeft = 0;
 
   carousel.addEventListener("mousedown", (e) => {
+    isUserInteracting = true;
+    stopAutoScroll();
     isDown = true;
     startX = e.pageX - carousel.offsetLeft;
     scrollLeft = carousel.scrollLeft;
   });
 
-  carousel.addEventListener("mouseleave", () => {
-    isDown = false;
-  });
-
   carousel.addEventListener("mouseup", () => {
     isDown = false;
+    isUserInteracting = false;
+    pauseAutoScrollTemporarily(3500);
   });
 
   carousel.addEventListener("mousemove", (e) => {
@@ -647,6 +787,31 @@ function initMenuCarousel() {
     const x = e.pageX - carousel.offsetLeft;
     const walk = (x - startX) * 1.5;
     carousel.scrollLeft = scrollLeft - walk;
+  });
+
+  // 뷰포트 벗어남 감지 (모바일 배터리 및 GPU 절약)
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !isUserInteracting) {
+          startAutoScroll();
+        } else {
+          stopAutoScroll();
+        }
+      });
+    }, { threshold: 0.15 });
+    observer.observe(carousel);
+  } else {
+    startAutoScroll();
+  }
+
+  // 브라우저 탭 비활성화 시 자동 일시정지
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      stopAutoScroll();
+    } else if (!isUserInteracting) {
+      startAutoScroll();
+    }
   });
 }
 
