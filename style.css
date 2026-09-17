@@ -324,7 +324,104 @@ body {
   margin-top: 10px;
 }
 
+/* 2-1. 소담터 커피 하단 시크릿 이스터에그 로고 트리거 버튼 */
+.secret-trigger-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: -10px auto 22px;
+  position: relative;
+  z-index: 5;
+}
+
+.secret-logo-btn {
+  background: var(--card-bg);
+  border: 1.5px solid var(--border-color);
+  border-radius: 20px;
+  padding: 6px 14px;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  outline: none;
+}
+
+.secret-logo-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: var(--shadow-md);
+  border-color: var(--kiost-light-blue);
+}
+
+.secret-logo-btn:active {
+  transform: scale(0.94);
+}
+
+.secret-logo-img {
+  width: 56px;
+  height: auto;
+  max-height: 48px;
+  object-fit: contain;
+  display: block;
+  border-radius: 6px;
+  pointer-events: none;
+}
+
 /* 3. 편의 서비스 영역 */
+.convenience-section {
+  margin-top: 4px;
+}
+
+.convenience-section.secret-revealed {
+  animation: revealSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes revealSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.secret-unlocked-badge {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #10B981;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 2px 7px;
+  border-radius: 8px;
+  letter-spacing: -0.2px;
+}
+
+.secret-lock-btn {
+  background: var(--card-sub);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.secret-lock-btn:hover {
+  background: var(--card-highlight);
+  color: var(--text-main);
+  border-color: var(--kiost-accent);
+}
+
+.secret-lock-btn:active {
+  transform: scale(0.94);
+}
+
 .section-title {
   font-size: 14.5px;
   font-weight: 800;

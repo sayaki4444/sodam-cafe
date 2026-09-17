@@ -27,6 +27,7 @@ try {
 // 2. 기본 PIN 설정 (클라우드 미등록 시 기본값)
 const DEFAULT_ADMIN_PIN = "00000000";
 const DEFAULT_MASTER_PIN = "316497";
+const DEFAULT_SECRET_PIN = "1234";
 
 // 메모리 캐시 상태값
 let currentMode = "auto";
@@ -412,6 +413,88 @@ function sendTelegramCafeStatus(statusKey, noticeText) {
     }).catch(e => console.warn("Telegram failed:", e));
   } catch (e) {
     console.warn("Telegram send failed safely:", e);
+  }
+}
+
+// 8-1. 시크릿 편의 서비스 이스터에그 제어 로직
+function handleSecretTrigger(event) {
+  if (event) event.stopPropagation();
+  const isUnlocked = sessionStorage.getItem("sodam_secret_unlocked") === "true";
+  const section = document.getElementById("convenienceSection");
+
+  if (isUnlocked && section) {
+    if (section.style.display === "none") {
+      unlockConvenienceService();
+    } else {
+      section.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  } else {
+    openSecretPinModal();
+  }
+}
+
+function openSecretPinModal() {
+  const input = document.getElementById("secretPinInput");
+  const errMsg = document.getElementById("secretPinErrorMsg");
+  if (input) input.value = "";
+  if (errMsg) errMsg.style.display = "none";
+  openModal("secretPinModal");
+  setTimeout(() => {
+    if (input) input.focus();
+  }, 250);
+}
+
+function checkSecretPin() {
+  const input = document.getElementById("secretPinInput");
+  const errMsg = document.getElementById("secretPinErrorMsg");
+  if (!input) return;
+
+  const entered = input.value.trim();
+  // 기본 비밀번호(1234), 또는 서버 관리자/마스터 PIN으로 유연하게 인증 지원
+  if (
+    entered === DEFAULT_SECRET_PIN ||
+    entered === serverAdminPin ||
+    entered === DEFAULT_ADMIN_PIN ||
+    entered === serverMasterPin ||
+    entered === DEFAULT_MASTER_PIN
+  ) {
+    if (errMsg) errMsg.style.display = "none";
+    input.value = "";
+    closeModal("secretPinModal");
+    unlockConvenienceService();
+  } else {
+    if (errMsg) {
+      errMsg.style.display = "block";
+      errMsg.textContent = "비밀번호가 일치하지 않습니다. (기본: 1234)";
+    }
+    input.value = "";
+    input.focus();
+  }
+}
+
+function unlockConvenienceService() {
+  sessionStorage.setItem("sodam_secret_unlocked", "true");
+  const section = document.getElementById("convenienceSection");
+  if (section) {
+    section.style.display = "block";
+    section.classList.remove("secret-revealed");
+    void section.offsetWidth; // 리플로우 트리거
+    section.classList.add("secret-revealed");
+    setTimeout(() => {
+      section.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 120);
+  }
+}
+
+function lockConvenienceService() {
+  sessionStorage.removeItem("sodam_secret_unlocked");
+  const section = document.getElementById("convenienceSection");
+  if (section) {
+    section.style.display = "none";
+  }
+  const btn = document.getElementById("secretTriggerBtn");
+  if (btn) {
+    btn.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 }
 

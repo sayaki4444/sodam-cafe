@@ -86,24 +86,36 @@
       <div class="status-desc" id="statusDescText">따뜻하고 시원한 커피로 힐링하세요!</div>
     </section>
 
-    <!-- 3. 편의 서비스 그리드 -->
-    <div class="section-title">
-      <span>편의 서비스</span>
-      <span class="section-subtitle">원클릭 메뉴</span>
+    <!-- 소담터 커피 이미지 하단: 시크릿 이스터에그 로고 트리거 -->
+    <div class="secret-trigger-area">
+      <button type="button" class="secret-logo-btn" id="secretTriggerBtn" onclick="handleSecretTrigger(event)" aria-label="시크릿 편의 서비스" title="참치 & 호두">
+        <img src="icons/logo.png" alt="참치 & 호두" class="secret-logo-img" />
+      </button>
     </div>
 
-    <div class="quick-grid">
-      <button class="quick-item" onclick="openModal('workModal')" aria-label="근무 시간 계산기 열기">
-        <span class="quick-badge bg-red">근무</span>
-        <div class="quick-icon">⏰</div>
-        <div class="quick-label">근무시간 계산</div>
-      </button>
-      <button class="quick-item" onclick="openModal('resModal')" aria-label="근처 맛집 목록 열기">
-        <span class="quick-badge bg-green">PICK</span>
-        <div class="quick-icon">🍽️</div>
-        <div class="quick-label">근처 맛집</div>
-      </button>
-    </div>
+    <!-- 3. 편의 서비스 그리드 (시크릿 모드: 기본 숨김) -->
+    <section class="convenience-section" id="convenienceSection" style="display: none;">
+      <div class="section-title">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span>편의 서비스</span>
+          <span class="secret-unlocked-badge">🔓 시크릿</span>
+        </div>
+        <button type="button" class="secret-lock-btn" onclick="lockConvenienceService()" title="편의 서비스 다시 숨기기">🔒 숨기기</button>
+      </div>
+
+      <div class="quick-grid">
+        <button class="quick-item" onclick="openModal('workModal')" aria-label="근무 시간 계산기 열기">
+          <span class="quick-badge bg-red">근무</span>
+          <div class="quick-icon">⏰</div>
+          <div class="quick-label">근무시간 계산</div>
+        </button>
+        <button class="quick-item" onclick="openModal('resModal')" aria-label="근처 맛집 목록 열기">
+          <span class="quick-badge bg-green">PICK</span>
+          <div class="quick-icon">🍽️</div>
+          <div class="quick-label">근처 맛집</div>
+        </button>
+      </div>
+    </section>
   </div>
 
   <!-- 4. 모달 바텀시트 영역 -->
@@ -211,6 +223,39 @@
       </div>
 
       <div id="restaurantList"></div>
+    </div>
+  </div>
+
+  <!-- 4-0) 시크릿 편의 서비스 비밀번호 확인 모달 -->
+  <div class="modal-overlay" id="secretPinModal" onclick="closeOnBackdrop(event, 'secretPinModal')">
+    <div class="bottom-sheet">
+      <div class="sheet-handle-area" onclick="closeModal('secretPinModal')">
+        <div class="sheet-handle"></div>
+      </div>
+      <div class="sheet-header">
+        <div class="sheet-title">🔐 편의 서비스 비밀번호 확인</div>
+        <button class="sheet-close-btn" onclick="closeModal('secretPinModal')" aria-label="닫기">✕</button>
+      </div>
+      <p style="font-size:13px; color:var(--text-sub); margin-bottom:16px; font-weight:600; line-height:1.4;">
+        사내 전용 편의 서비스(근무시간 계산, 근처 맛집)를 이용하시려면 비밀번호를 입력해 주세요.
+      </p>
+      <div class="form-group">
+        <label class="form-label" for="secretPinInput">비밀번호 (기본: 1234)</label>
+        <div style="position:relative; display:flex; align-items:center;">
+          <input type="password" id="secretPinInput" class="admin-input-text"
+            style="margin-bottom:0; letter-spacing:6px; font-size:20px; text-align:center; padding-right:42px;"
+            maxlength="10" inputmode="numeric" placeholder="••••"
+            onkeydown="if(event.key==='Enter') checkSecretPin()">
+          <button type="button" onclick="togglePinVisibility('secretPinInput', this)"
+            style="position:absolute; right:12px; background:none; border:none; font-size:18px; cursor:pointer; padding:4px; line-height:1;"
+            title="비밀번호 표시/숨김">👁️</button>
+        </div>
+        <div id="secretPinErrorMsg" style="color:#EF4444; font-size:12px; font-weight:700; margin-top:8px; display:none;">
+          비밀번호가 일치하지 않습니다.</div>
+      </div>
+      <button class="admin-save-btn" style="margin-top:12px;" onclick="checkSecretPin()">
+        <span>인증하고 서비스 열기 🔓</span>
+      </button>
     </div>
   </div>
 
