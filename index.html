@@ -35,7 +35,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
   <!-- 5. 분리된 외부 스타일시트 -->
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=20260917_4" />
 </head>
 
 <body>
@@ -445,17 +445,56 @@
     </div>
   </div>
 
-  <!-- 분리된 모듈형 자바스크립트 로드 -->
-  <script src="js/cafe.js"></script>
-  <script src="js/work.js"></script>
-  <script src="js/restaurants.js"></script>
+  <script>
+    // 시크릿 이스터에그 즉시 응답을 위한 사전 정의 (캐시/로딩 지연 방지)
+    function handleSecretTrigger(event) {
+      if (event) event.stopPropagation();
+      const isUnlocked = sessionStorage.getItem("sodam_secret_unlocked") === "true";
+      const section = document.getElementById("convenienceSection");
+
+      if (isUnlocked && section) {
+        if (section.style.display === "none") {
+          if (typeof window.unlockConvenienceService === 'function') {
+            window.unlockConvenienceService();
+          } else {
+            section.style.display = "block";
+          }
+        } else {
+          section.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+      } else {
+        if (typeof window.openSecretPinModal === 'function') {
+          window.openSecretPinModal();
+        } else {
+          const modal = document.getElementById("secretPinModal");
+          if (modal) {
+            modal.classList.add("active");
+            document.body.style.overflow = "hidden";
+            const input = document.getElementById("secretPinInput");
+            if (input) {
+              input.value = "";
+              setTimeout(() => input.focus(), 200);
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- 분리된 모듈형 자바스크립트 로드 (캐시 방지 쿼리 파라미터 적용) -->
+  <script src="js/cafe.js?v=20260917_4"></script>
+  <script src="js/work.js?v=20260917_4"></script>
+  <script src="js/restaurants.js?v=20260917_4"></script>
 
   <script>
-    // PWA 서비스 워커 등록
+    // PWA 서비스 워커 등록 및 강제 갱신 감지
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('PWA Service Worker registered:', reg.scope))
+          .then(reg => {
+            console.log('PWA Service Worker registered:', reg.scope);
+            reg.update();
+          })
           .catch(err => console.log('Service Worker registration failed:', err));
       });
     }

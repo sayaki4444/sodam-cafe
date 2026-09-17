@@ -1,9 +1,10 @@
-const CACHE_NAME = 'sodam-cafe-v1';
+const CACHE_NAME = 'sodam-cafe-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './style.css',
   './manifest.json',
+  './icons/logo.png',
   './js/cafe.js',
   './js/work.js',
   './js/restaurants.js',

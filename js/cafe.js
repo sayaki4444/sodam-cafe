@@ -498,10 +498,26 @@ function lockConvenienceService() {
   }
 }
 
+// 전역 window 바인딩 보장
+window.handleSecretTrigger = handleSecretTrigger;
+window.openSecretPinModal = openSecretPinModal;
+window.checkSecretPin = checkSecretPin;
+window.unlockConvenienceService = unlockConvenienceService;
+window.lockConvenienceService = lockConvenienceService;
+
 // 9. 초기화 실행
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
   listenFirestore();
   refreshCafeStatus();
   setInterval(refreshCafeStatus, 60000);
+
+  // 시크릿 트리거 버튼 이벤트 리스너 이중 바인딩
+  const btn = document.getElementById("secretTriggerBtn");
+  if (btn) {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      handleSecretTrigger(e);
+    });
+  }
 });
