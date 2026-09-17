@@ -1,10 +1,14 @@
-const CACHE_NAME = 'sodam-cafe-v8';
+const CACHE_NAME = 'sodam-cafe-v9';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './style.css',
   './manifest.json',
   './icons/logo.png',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './apple-touch-icon.png',
+  './favicon.png',
   './icons/menu/americano.jpg',
   './icons/menu/cafe_latte.jpg',
   './icons/menu/vanilla_latte.jpg',
