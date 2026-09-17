@@ -34,6 +34,7 @@ let currentMode = "auto";
 let currentNotice = "";
 let serverAdminPin = DEFAULT_ADMIN_PIN;
 let serverMasterPin = DEFAULT_MASTER_PIN;
+let serverSecretPin = localStorage.getItem("sodam_secret_pin") || DEFAULT_SECRET_PIN;
 
 // 3. 모달 공통 제어 함수
 function openModal(modalId) {
@@ -212,16 +213,21 @@ function listenFirestore() {
     }
   }, (err) => console.warn("Firestore status listener:", err));
 
-  // 관리자 및 마스터 PIN 실시간 동기화
+  // 관리자, 마스터 및 편의 서비스 비밀번호 실시간 동기화
   db.collection("cafe").doc("config").onSnapshot((doc) => {
     if (doc.exists) {
       const data = doc.data();
       serverAdminPin = data.adminPin || DEFAULT_ADMIN_PIN;
       serverMasterPin = data.masterPin || DEFAULT_MASTER_PIN;
+      if (data.secretPin) {
+        serverSecretPin = data.secretPin;
+        localStorage.setItem("sodam_secret_pin", data.secretPin);
+      }
     } else {
       db.collection("cafe").doc("config").set({
         adminPin: DEFAULT_ADMIN_PIN,
-        masterPin: DEFAULT_MASTER_PIN
+        masterPin: DEFAULT_MASTER_PIN,
+        secretPin: DEFAULT_SECRET_PIN
       });
     }
   }, (err) => console.warn("Firestore config listener:", err));
@@ -308,6 +314,36 @@ function changeAdminPin() {
     }).catch(err => alert("비밀번호 변경 실패: " + err.message));
   } else {
     alert("서버 연결에 실패하여 변경되지 않았습니다.");
+  }
+}
+
+function changeSecretPin() {
+  const newSecretPinInput = document.getElementById("newSecretPinInput");
+  if (!newSecretPinInput) return;
+  const newPin = newSecretPinInput.value.trim();
+
+  if (newPin.length < 4) {
+    alert("비밀번호는 4자리 이상 입력해 주세요.");
+    return;
+  }
+
+  serverSecretPin = newPin;
+  localStorage.setItem("sodam_secret_pin", newPin);
+
+  if (db) {
+    db.collection("cafe").doc("config").set({
+      secretPin: newPin
+    }, { merge: true }).then(() => {
+      alert("편의 서비스 비밀번호가 성공적으로 변경되었습니다.");
+      newSecretPinInput.value = "";
+    }).catch(err => {
+      console.warn("Firestore secretPin save error:", err);
+      alert("로컬에 비밀번호가 저장되었습니다.");
+      newSecretPinInput.value = "";
+    });
+  } else {
+    alert("편의 서비스 비밀번호가 로컬에 성공적으로 저장되었습니다.");
+    newSecretPinInput.value = "";
   }
 }
 
@@ -401,7 +437,7 @@ function sendTelegramCafeStatus(statusKey, noticeText) {
     const statusName = statusLabelMap[statusKey] || "상태 알 수 없음";
     const timeStr = new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
 
-    let text = `[소담터 카페 알리미] ☕\n\n`;
+    let text = `[카페 알리미] ☕\n\n`;
     text += `⏰ 현재 상태: ${statusName}\n`;
     text += `🕒 갱신 시각: ${timeStr}\n`;
     if (noticeText) text += `📢 전달 사항: ${noticeText}\n`;
@@ -450,8 +486,9 @@ function checkSecretPin() {
   if (!input) return;
 
   const entered = input.value.trim();
-  // 기본 비밀번호(1234), 또는 서버 관리자/마스터 PIN으로 유연하게 인증 지원
+  // 설정된 비밀번호, 기본 비밀번호(1234), 또는 서버 관리자/마스터 PIN으로 유연하게 인증 지원
   if (
+    entered === serverSecretPin ||
     entered === DEFAULT_SECRET_PIN ||
     entered === serverAdminPin ||
     entered === DEFAULT_ADMIN_PIN ||
@@ -465,7 +502,7 @@ function checkSecretPin() {
   } else {
     if (errMsg) {
       errMsg.style.display = "block";
-      errMsg.textContent = "비밀번호가 일치하지 않습니다. (기본: 1234)";
+      errMsg.textContent = "비밀번호가 일치하지 않습니다.";
     }
     input.value = "";
     input.focus();
@@ -498,12 +535,130 @@ function lockConvenienceService() {
   }
 }
 
+// 8-2. 소담터 카페 메뉴 캐러셀 및 카테고리 필터 제어
+function scrollMenuCarousel(direction) {
+  const carousel = document.getElementById("menuCarousel");
+  if (!carousel) return;
+  const cardWidth = 164;
+  carousel.scrollBy({ left: direction * cardWidth * 1.5, behavior: "smooth" });
+}
+
+function filterMenuCategory(category, tabBtn) {
+  const tabs = document.querySelectorAll(".cat-tab-btn");
+  tabs.forEach(btn => btn.classList.remove("active"));
+  if (tabBtn) tabBtn.classList.add("active");
+
+  const cards = document.querySelectorAll("#menuCarousel .menu-card");
+  cards.forEach(card => {
+    if (category === "all" || card.dataset.category === category) {
+      card.style.display = "flex";
+    } else {
+      card.style.display = "none";
+    }
+  });
+
+  const carousel = document.getElementById("menuCarousel");
+  if (carousel) {
+    carousel.scrollTo({ left: 0, behavior: "smooth" });
+  }
+
+  updateMenuDots();
+}
+
+function updateMenuDots() {
+  const carousel = document.getElementById("menuCarousel");
+  const dotsContainer = document.getElementById("menuDots");
+  if (!carousel || !dotsContainer) return;
+
+  const visibleCards = Array.from(carousel.querySelectorAll(".menu-card")).filter(
+    card => card.style.display !== "none"
+  );
+
+  dotsContainer.innerHTML = "";
+  if (visibleCards.length <= 1) return;
+
+  visibleCards.forEach((_, idx) => {
+    const dot = document.createElement("span");
+    dot.className = "menu-dot" + (idx === 0 ? " active" : "");
+    dot.onclick = () => {
+      const targetCard = visibleCards[idx];
+      if (targetCard) {
+        targetCard.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      }
+    };
+    dotsContainer.appendChild(dot);
+  });
+}
+
+function syncActiveDot() {
+  const carousel = document.getElementById("menuCarousel");
+  const dotsContainer = document.getElementById("menuDots");
+  if (!carousel || !dotsContainer) return;
+
+  const dots = dotsContainer.querySelectorAll(".menu-dot");
+  if (dots.length === 0) return;
+
+  const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+  if (maxScroll <= 0) return;
+
+  const scrollRatio = carousel.scrollLeft / maxScroll;
+  const activeIndex = Math.min(
+    dots.length - 1,
+    Math.max(0, Math.round(scrollRatio * (dots.length - 1)))
+  );
+
+  dots.forEach((dot, idx) => {
+    dot.classList.toggle("active", idx === activeIndex);
+  });
+}
+
+function initMenuCarousel() {
+  const carousel = document.getElementById("menuCarousel");
+  if (!carousel) return;
+
+  updateMenuDots();
+
+  carousel.addEventListener("scroll", () => {
+    window.requestAnimationFrame(syncActiveDot);
+  }, { passive: true });
+
+  // 마우스 드래그 스크롤 지원 (PC 환경)
+  let isDown = false;
+  let startX = 0;
+  let scrollLeft = 0;
+
+  carousel.addEventListener("mousedown", (e) => {
+    isDown = true;
+    startX = e.pageX - carousel.offsetLeft;
+    scrollLeft = carousel.scrollLeft;
+  });
+
+  carousel.addEventListener("mouseleave", () => {
+    isDown = false;
+  });
+
+  carousel.addEventListener("mouseup", () => {
+    isDown = false;
+  });
+
+  carousel.addEventListener("mousemove", (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - carousel.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    carousel.scrollLeft = scrollLeft - walk;
+  });
+}
+
 // 전역 window 바인딩 보장
 window.handleSecretTrigger = handleSecretTrigger;
 window.openSecretPinModal = openSecretPinModal;
 window.checkSecretPin = checkSecretPin;
+window.changeSecretPin = changeSecretPin;
 window.unlockConvenienceService = unlockConvenienceService;
 window.lockConvenienceService = lockConvenienceService;
+window.scrollMenuCarousel = scrollMenuCarousel;
+window.filterMenuCategory = filterMenuCategory;
 
 // 9. 초기화 실행
 document.addEventListener("DOMContentLoaded", () => {
@@ -511,6 +666,7 @@ document.addEventListener("DOMContentLoaded", () => {
   listenFirestore();
   refreshCafeStatus();
   setInterval(refreshCafeStatus, 60000);
+  initMenuCarousel();
 
   // 시크릿 트리거 버튼 이벤트 리스너 이중 바인딩
   const btn = document.getElementById("secretTriggerBtn");

@@ -1,66 +1,70 @@
 :root {
-  /* ☀️ 라이트 모드 (KIOST 오션 & 모던 클린 테마) */
-  --bg-app: #F3F6FA;
+  /* 🌿 웜 세이지 & 딥 포레스트 그린 테마 (감성 보타니컬 카페) */
+  --bg-app: #F5F7F2;
   --card-bg: #FFFFFF;
-  --card-sub: #F8FAFD;
-  --card-highlight: #EEF4FC;
-  --text-main: #0F172A;
-  --text-sub: #64748B;
-  --text-muted: #94A3B8;
-  --kiost-blue: #003876;
-  --kiost-light-blue: #0284C7;
-  --kiost-accent: #0284C7;
-  --border-color: #E2E8F0;
-  --border-light: #EDF2F7;
-  --modal-overlay: rgba(15, 23, 42, 0.55);
-  --shadow-xs: 0 1px 3px rgba(0, 56, 118, 0.05);
-  --shadow-sm: 0 4px 14px rgba(0, 56, 118, 0.07);
-  --shadow-md: 0 10px 28px rgba(0, 56, 118, 0.1);
-  --shadow-bottom-sheet: 0 -12px 36px rgba(15, 23, 42, 0.2);
-  --cup-stroke: #003876;
-  --cup-steam: rgba(2, 132, 199, 0.4);
-  --coffee-liquid: #795548;
+  --card-sub: #EEF3EB;
+  --card-highlight: #E2EBDD;
+  --text-main: #1F2E23;
+  --text-sub: #5D7262;
+  --text-muted: #8FA594;
+  --forest-header: #2D4333;
+  --sage-accent: #7E987D;
+  --kiost-blue: #2D4333;
+  --kiost-light-blue: #58785A;
+  --kiost-accent: #58785A;
+  --border-color: #DDE5DA;
+  --border-light: #E8EFE5;
+  --modal-overlay: rgba(25, 38, 28, 0.55);
+  --shadow-xs: 0 1px 3px rgba(45, 67, 51, 0.05);
+  --shadow-sm: 0 4px 14px rgba(45, 67, 51, 0.08);
+  --shadow-md: 0 10px 28px rgba(45, 67, 51, 0.12);
+  --shadow-bottom-sheet: 0 -12px 36px rgba(25, 38, 28, 0.2);
+  --cup-stroke: #2D4333;
+  --cup-steam: rgba(126, 152, 125, 0.45);
+  --coffee-liquid: #5D4037;
 
   /* 식판 색상 */
-  --tray-bg: #F8FAFD;
-  --tray-border: #E2E8F0;
-  --tray-main-bg: #EFF6FF;
-  --tray-main-border: #93C5FD;
-  --tray-main-text: #1D4ED8;
+  --tray-bg: #EEF3EB;
+  --tray-border: #DDE5DA;
+  --tray-main-bg: #EAF2E8;
+  --tray-main-border: #B8D6B5;
+  --tray-main-text: #2D5832;
   --tray-dessert-bg: #FFF7ED;
   --tray-dessert-border: #FDBA74;
   --tray-dessert-text: #C2410C;
 }
 
 [data-theme="dark"] {
-  /* 🌙 다크 모드 (심해 딥네이비 & 세련된 나이트 테마) */
-  --bg-app: #0A1120;
-  --card-bg: #131E32;
-  --card-sub: #1A2842;
-  --card-highlight: #213252;
-  --text-main: #F8FAFC;
-  --text-sub: #94A3B8;
-  --text-muted: #64748B;
-  --kiost-blue: #38BDF8;
-  --kiost-light-blue: #0EA5E9;
-  --kiost-accent: #38BDF8;
-  --border-color: #22344D;
-  --border-light: #1E2D44;
+  /* 🌙 다크 모드 (딥 모스 & 미드나잇 포레스트) */
+  --bg-app: #121A14;
+  --card-bg: #1B261D;
+  --card-sub: #223025;
+  --card-highlight: #2A3B2E;
+  --text-main: #F2F7F2;
+  --text-sub: #A3B8A7;
+  --text-muted: #728A76;
+  --forest-header: #17221A;
+  --sage-accent: #86EFAC;
+  --kiost-blue: #86EFAC;
+  --kiost-light-blue: #4ADE80;
+  --kiost-accent: #86EFAC;
+  --border-color: #2D3E30;
+  --border-light: #243327;
   --modal-overlay: rgba(0, 0, 0, 0.75);
   --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.3);
   --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.55);
   --shadow-bottom-sheet: 0 -12px 40px rgba(0, 0, 0, 0.7);
-  --cup-stroke: #38BDF8;
-  --cup-steam: rgba(56, 189, 248, 0.45);
-  --coffee-liquid: #A1887F;
+  --cup-stroke: #86EFAC;
+  --cup-steam: rgba(134, 239, 172, 0.4);
+  --coffee-liquid: #8D6E63;
 
-  /* 식판 색상 (다크 모드 눈부심 방지) */
-  --tray-bg: #1A2842;
-  --tray-border: #2B3D5E;
-  --tray-main-bg: rgba(56, 189, 248, 0.12);
-  --tray-main-border: rgba(56, 189, 248, 0.4);
-  --tray-main-text: #7DD3FC;
+  /* 식판 색상 (다크 모드) */
+  --tray-bg: #223025;
+  --tray-border: #2D3E30;
+  --tray-main-bg: rgba(134, 239, 172, 0.12);
+  --tray-main-border: rgba(134, 239, 172, 0.35);
+  --tray-main-text: #86EFAC;
   --tray-dessert-bg: rgba(249, 115, 22, 0.12);
   --tray-dessert-border: rgba(249, 115, 22, 0.4);
   --tray-dessert-text: #FB923C;
@@ -95,15 +99,20 @@ body {
   margin: 0 auto;
 }
 
-/* 헤더 전체 줄바꿈 방지 및 배치 고정 */
+/* 헤더 전체 줄바꿈 방지 및 배치 고정 (딥 포레스트 그린 배너) */
 .header {
+  background: var(--forest-header, #2D4333);
+  margin: -16px -20px 22px -20px;
+  padding: 16px 20px 20px;
+  border-radius: 0 0 26px 26px;
+  color: #FFFFFF;
+  box-shadow: 0 6px 20px rgba(45, 67, 51, 0.16);
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: nowrap;
-  /* 절대 다음 줄로 밀리지 않도록 고정 */
   gap: 8px;
-  width: 100%;
+  width: calc(100% + 40px);
 }
 
 /* 좌측 타이틀 영역 */
@@ -112,13 +121,12 @@ body {
   align-items: center;
   flex-shrink: 1;
   min-width: 0;
-  /* 긴 텍스트 축소 대응 */
 }
 
 .header-tag {
   font-size: 11px;
   font-weight: 800;
-  color: var(--kiost-accent);
+  color: #86EFAC;
   letter-spacing: 0.6px;
   text-transform: uppercase;
   margin-bottom: 2px;
@@ -127,12 +135,11 @@ body {
 /* 소담터 카페 알리미 제목 크기 및 줄바꿈 차단 */
 .header-title {
   font-size: 1.15rem;
-  /* 모바일에서 한 줄에 딱 맞도록 크기 미세 조정 */
   font-weight: 800;
   white-space: nowrap;
-  /* 줄바꿈 금지 */
   letter-spacing: -0.5px;
   margin: 0;
+  color: #FFFFFF;
 }
 
 /* 우측 액션 버튼 묶음 */
@@ -140,9 +147,7 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  /* 버튼 사이 간격 축소 */
   flex-shrink: 0;
-  /* 버튼 영역이 찌그러지지 않게 보호 */
 }
 
 /* 테마 토글 버튼(해/달 + 텍스트) 여백 슬림화 */
@@ -151,16 +156,24 @@ body {
   align-items: center;
   gap: 4px;
   padding: 6px 10px;
-  /* 패딩 축소 */
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
   border-radius: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .theme-toggle-btn:active {
   transform: scale(0.95);
-  background: var(--card-sub);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* 관리자/텔레그램 원형 버튼 크기 */
@@ -174,11 +187,23 @@ body {
   justify-content: center;
   font-size: 15px;
   flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
+.admin-toggle-btn:hover,
+.telegram-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.admin-toggle-btn:active,
 .telegram-btn:active {
   transform: scale(0.95);
-  background: var(--card-sub);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* 2. 커피잔 상태 카드 */
@@ -203,8 +228,8 @@ body {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #0284C7, #38BDF8, #003876);
-  opacity: 0.85;
+  background: linear-gradient(90deg, #2D4333, #58785A, #7E987D);
+  opacity: 0.9;
 }
 
 .status-card:active {
@@ -324,7 +349,401 @@ body {
   margin-top: 10px;
 }
 
-/* 2-1. 소담터 커피 하단 시크릿 이스터에그 로고 트리거 버튼 */
+/* 2-1. 소담터 카페 메뉴 안내 (좌우 스크롤 캐러셀) */
+.menu-showcase-section {
+  background: transparent;
+  border: none;
+  padding: 6px 0 16px;
+  margin-bottom: 20px;
+  box-shadow: none;
+  position: relative;
+}
+
+.menu-header {
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.menu-title-pill {
+  display: inline-block;
+  background: var(--sage-accent, #7E987D);
+  color: #FFFFFF;
+  font-size: 13.5px;
+  font-weight: 800;
+  padding: 5px 18px;
+  border-radius: 999px;
+  letter-spacing: -0.2px;
+  box-shadow: 0 2px 8px rgba(126, 152, 125, 0.3);
+}
+
+[data-theme="dark"] .menu-title-pill {
+  background: #3B5A3C;
+  color: #F0FDF4;
+  border: 1px solid #4ADE80;
+}
+
+.menu-subtitle {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-sub);
+  margin-top: 6px;
+}
+
+/* 카테고리 필터 탭 */
+.menu-category-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  padding: 2px 4px;
+  scrollbar-width: none;
+}
+
+.menu-category-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.cat-tab-btn {
+  background: #E5EDE2;
+  border: 1px solid #D2DFCF;
+  color: #5D7262;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+[data-theme="dark"] .cat-tab-btn {
+  background: #223025;
+  border-color: #2D3E30;
+  color: #A3B8A7;
+}
+
+.cat-tab-btn:hover {
+  background: #DCE7D9;
+  color: #1F2E23;
+}
+
+.cat-tab-btn.active {
+  background: var(--sage-accent, #7E987D);
+  color: #FFFFFF;
+  border-color: var(--sage-accent, #7E987D);
+  box-shadow: 0 2px 8px rgba(126, 152, 125, 0.3);
+}
+
+[data-theme="dark"] .cat-tab-btn.active {
+  background: #3E5E41;
+  color: #F0FDF4;
+  border-color: #86EFAC;
+}
+
+/* 캐러셀 래퍼 및 좌우 화살표 */
+.menu-carousel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 0 -4px;
+}
+
+.menu-nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--card-bg);
+  border: 1.5px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  opacity: 0.95;
+  outline: none;
+  user-select: none;
+}
+
+.menu-nav-arrow.prev-btn {
+  left: 2px;
+}
+
+.menu-nav-arrow.next-btn {
+  right: 2px;
+}
+
+.menu-nav-arrow:hover {
+  transform: translateY(-50%) scale(1.12);
+  background: var(--card-highlight);
+  border-color: var(--kiost-accent);
+}
+
+.menu-nav-arrow:active {
+  transform: translateY(-50%) scale(0.92);
+}
+
+/* 메뉴 스크롤 트랙 */
+.menu-carousel {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 8px 6px 12px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  cursor: grab;
+}
+
+.menu-carousel:active {
+  cursor: grabbing;
+}
+
+.menu-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+/* 메뉴 개별 카드 (스칸디나비안 보타니컬 세이지 & 포레스트 테마: 심플 프레임리스) */
+.menu-card {
+  flex: 0 0 148px;
+  scroll-snap-align: center;
+  background: transparent;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 6px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: none;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  user-select: none;
+}
+
+[data-theme="dark"] .menu-card {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.menu-card:hover {
+  transform: translateY(-4px);
+}
+
+/* 카드 내 원형 사진 프레임 */
+.menu-circle-frame {
+  width: 106px;
+  height: 106px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid #FFFFFF;
+  box-shadow: 0 8px 22px rgba(45, 67, 51, 0.16);
+  margin-bottom: 12px;
+  background: #E8EFE5;
+  flex-shrink: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="dark"] .menu-circle-frame {
+  border-color: #2D3E30;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+}
+
+.menu-card:hover .menu-circle-frame {
+  transform: scale(1.06);
+  box-shadow: 0 12px 28px rgba(45, 67, 51, 0.22);
+}
+
+.menu-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+  pointer-events: none;
+}
+
+/* 카드 본문 텍스트 */
+.menu-card-body {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.menu-drink-title {
+  color: var(--text-main, #1F2E23);
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0 0 8px;
+  letter-spacing: -0.3px;
+  text-shadow: none;
+}
+
+[data-theme="dark"] .menu-drink-title {
+  color: #F2F7F2;
+}
+
+.menu-option-chips {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.chip-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: -0.2px;
+}
+
+.chip-hot {
+  background: #FEE2E2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+}
+
+.chip-ice {
+  background: #E0F2FE;
+  color: #0284C7;
+  border: 1px solid #BAE6FD;
+}
+
+.chip-decaf {
+  background: #F3E8FF;
+  color: #9333EA;
+  border: 1px solid #E9D5FF;
+}
+
+.chip-sparkle {
+  background: #FFE4E6;
+  color: #E11D48;
+  border: 1px solid #FECDD3;
+}
+
+.chip-sweet {
+  background: #FEF3C7;
+  color: #D97706;
+  border: 1px solid #FDE68A;
+}
+
+.chip-relax {
+  background: #DCFCE7;
+  color: #16A34A;
+  border: 1px solid #BBF7D0;
+}
+
+.chip-fresh {
+  background: #CCFBF1;
+  color: #0D9488;
+  border: 1px solid #99F6E4;
+}
+
+[data-theme="dark"] .chip-hot {
+  background: rgba(239, 68, 68, 0.22);
+  color: #FCA5A5;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+[data-theme="dark"] .chip-ice {
+  background: rgba(56, 189, 248, 0.22);
+  color: #BAE6FD;
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+[data-theme="dark"] .chip-decaf {
+  background: rgba(168, 85, 247, 0.22);
+  color: #E9D5FF;
+  border-color: rgba(168, 85, 247, 0.4);
+}
+
+[data-theme="dark"] .chip-sparkle {
+  background: rgba(244, 63, 94, 0.22);
+  color: #FECDD3;
+  border-color: rgba(244, 63, 94, 0.4);
+}
+
+[data-theme="dark"] .chip-sweet {
+  background: rgba(245, 158, 11, 0.22);
+  color: #FDE68A;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+[data-theme="dark"] .chip-relax {
+  background: rgba(34, 197, 94, 0.22);
+  color: #BBF7D0;
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+[data-theme="dark"] .chip-fresh {
+  background: rgba(20, 184, 166, 0.22);
+  color: #99F6E4;
+  border-color: rgba(20, 184, 166, 0.4);
+}
+
+.menu-option-desc {
+  font-size: 10px;
+  color: var(--text-sub, #5D7262);
+  font-weight: 600;
+  line-height: 1.3;
+  word-break: keep-all;
+}
+
+[data-theme="dark"] .menu-option-desc {
+  color: #A3B8A7;
+}
+
+/* 하단 인디케이터 도트 */
+.menu-dots-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.menu-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #C4D3C2;
+  opacity: 0.6;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.menu-dot.active {
+  width: 20px;
+  border-radius: 4px;
+  background: #2D4333;
+  opacity: 1;
+}
+
+[data-theme="dark"] .menu-dot {
+  background: #3A4E3E;
+  opacity: 0.7;
+}
+
+[data-theme="dark"] .menu-dot.active {
+  background: #86EFAC;
+  opacity: 1;
+}
+
+/* 2-2. 소담터 커피 하단 시크릿 이스터에그 로고 트리거 버튼 */
 .secret-trigger-area {
   display: flex;
   justify-content: center;
@@ -358,9 +777,9 @@ body {
 }
 
 .secret-logo-img {
-  width: 28px;
+  width: 100px;
   height: auto;
-  max-height: 25px;
+  /* max-height: 32px; */
   object-fit: contain;
   display: block;
   pointer-events: none;
@@ -381,6 +800,7 @@ body {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

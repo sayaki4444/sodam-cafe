@@ -1,10 +1,18 @@
-const CACHE_NAME = 'sodam-cafe-v2';
+const CACHE_NAME = 'sodam-cafe-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './style.css',
   './manifest.json',
   './icons/logo.png',
+  './icons/menu/americano.jpg',
+  './icons/menu/cafe_latte.jpg',
+  './icons/menu/vanilla_latte.jpg',
+  './icons/menu/grapefruit_ade.jpg',
+  './icons/menu/mango_ade.jpg',
+  './icons/menu/chamomile_tea.jpg',
+  './icons/menu/peppermint_tea.jpg',
+  './icons/menu/yuja_tea.jpg',
   './js/cafe.js',
   './js/work.js',
   './js/restaurants.js',

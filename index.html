@@ -6,17 +6,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>소담터 카페 알리미</title>
+  <title>카페 알리미</title>
 
   <!-- 2. PWA 메타태그 및 매니페스트 -->
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#003876" />
+  <meta name="theme-color" content="#2D4333" />
 
   <!-- 모바일 전체화면 설정 (Android / iOS) -->
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="소담터 카페 알리미" />
+  <meta name="apple-mobile-web-app-title" content="카페 알리미" />
 
   <!-- iOS & 모바일 홈 화면 아이콘 -->
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -35,7 +35,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
   <!-- 5. 분리된 외부 스타일시트 -->
-  <link rel="stylesheet" href="style.css?v=20260917_4" />
+  <link rel="stylesheet" href="style.css?v=20260917_6" />
 </head>
 
 <body>
@@ -43,7 +43,7 @@
     <!-- 1. 상단 일체형 헤더 -->
     <header class="header">
       <div class="header-left-title">
-        <h1 class="header-title">소담터 카페 알리미 ☕</h1>
+        <h1 class="header-title">카페 알리미 ☕</h1>
       </div>
       <div class="header-actions">
         <button class="theme-toggle-btn" id="themeBtn" onclick="toggleTheme()" aria-label="테마 전환">
@@ -84,6 +84,160 @@
         <span id="stockBadgeText">주문 가능</span>
       </div>
       <div class="status-desc" id="statusDescText">따뜻하고 시원한 커피로 힐링하세요!</div>
+    </section>
+
+    <!-- 2-1. 소담터 카페 메뉴 안내 (좌우 스크롤 캐러셀) -->
+    <section class="menu-showcase-section" id="cafeMenuSection">
+      <div class="menu-header">
+        <div class="menu-title-pill">메뉴 안내</div>
+        <div class="menu-subtitle">소담터의 향긋하고 시원한 대표 음료 라인업 ☕</div>
+      </div>
+
+      <!-- 카테고리 필터 탭 -->
+      <div class="menu-category-tabs" id="menuCategoryTabs">
+        <button type="button" class="cat-tab-btn active" onclick="filterMenuCategory('all', this)">전체</button>
+        <button type="button" class="cat-tab-btn" onclick="filterMenuCategory('coffee', this)">커피 ☕</button>
+        <button type="button" class="cat-tab-btn" onclick="filterMenuCategory('ade', this)">에이드 🍹</button>
+        <button type="button" class="cat-tab-btn" onclick="filterMenuCategory('tea', this)">차 🍵</button>
+      </div>
+
+      <!-- 좌우 스크롤 캐러셀 래퍼 -->
+      <div class="menu-carousel-wrapper">
+        <button type="button" class="menu-nav-arrow prev-btn" id="menuPrevBtn" onclick="scrollMenuCarousel(-1)" aria-label="이전 메뉴">‹</button>
+
+        <div class="menu-carousel" id="menuCarousel">
+          <!-- 1. 아메리카노 -->
+          <div class="menu-card" data-category="coffee">
+            <div class="menu-circle-frame">
+              <img src="icons/menu/americano.jpg" alt="아메리카노" class="menu-card-img" loading="lazy" />
+            </div>
+            <div class="menu-card-body">
+              <h4 class="menu-drink-title">아메리카노</h4>
+              <div class="menu-option-chips">
+                <span class="chip-tag chip-hot">HOT</span>
+                <span class="chip-tag chip-ice">ICE</span>
+                <span class="chip-tag chip-decaf">디카페인</span>
+              </div>
+              <div class="menu-option-desc">[옵션 : HOT, ICE, 디카페인]</div>
+            </div>
+          </div>
+
+          <!-- 2. 카페라떼 -->
+          <div class="menu-card" data-category="coffee">
+            <div class="menu-circle-frame">
+              <img src="icons/menu/cafe_latte.jpg" alt="카페라떼" class="menu-card-img" loading="lazy" />
+            </div>
+            <div class="menu-card-body">
+              <h4 class="menu-drink-title">카페라떼</h4>
+              <div class="menu-option-chips">
+                <span class="chip-tag chip-hot">HOT</span>
+                <span class="chip-tag chip-ice">ICE</span>
+                <span class="chip-tag chip-decaf">디카페인</span>
+              </div>
+              <div class="menu-option-desc">[옵션 : HOT, ICE, 디카페인]</div>
+            </div>
+          </div>
+
+          <!-- 3. 바닐라라떼 -->
+          <div class="menu-card" data-category="coffee">
+            <div class="menu-circle-frame">
+              <img src="icons/menu/vanilla_latte.jpg" alt="바닐라라떼" class="menu-card-img" loading="lazy" />
+            </div>
+            <div class="menu-card-body">
+              <h4 class="menu-drink-title">바닐라라떼</h4>
+              <div class="menu-option-chips">
+                <span class="chip-tag chip-hot">HOT</span>
+                <span class="chip-tag chip-ice">ICE</span>
+                <span class="chip-tag chip-decaf">디카페인</span>
+              </div>
+              <div class="menu-option-desc">[옵션 : HOT, ICE, 디카페인]</div>
+            </div>
+          </div>
+
+          <!-- 4. 자몽에이드 -->
+          <div class="menu-card" data-category="ade">
+            <div class="menu-circle-frame">
+              <img src="icons/menu/grapefruit_ade.jpg" alt="자몽에이드" class="menu-card-img" loading="lazy" />
+            </div>
+            <div class="menu-card-body">
+              <h4 class="menu-drink-title">자몽에이드</h4>
+              <div class="menu-option-chips">
+                <span class="chip-tag chip-ice">ICE 전용</span>
+                <span class="chip-tag chip-sparkle">상큼톡톡</span>
+              </div>
+              <div class="menu-option-desc">생자몽의 쌉싸름 달콤한 청량감</div>
+            </div>
+          </div>
+
+          <!-- 5. 망고에이드 -->
+          <div class="menu-card" data-category="ade">
+            <div class="menu-circle-frame">
+              <img src="icons/menu/mango_ade.jpg" alt="망고에이드" class="menu-card-img" loading="lazy" />
+            </div>
+            <div class="menu-card-body">
+              <h4 class="menu-drink-title">망고에이드</h4>
+              <div class="menu-option-chips">
+                <span class="chip-tag chip-ice">ICE 전용</span>
+                <span class="chip-tag chip-sweet">달콤과육</span>
+              </div>
+              <div class="menu-option-desc">달콤한 망고 과육 가득 스파클링</div>
+            </div>
+          </div>
+
+          <!-- 6. 캐모마일 -->
+          <div class="menu-card" data-category="tea">
+            <div class="menu-circle-frame">
+              <img src="icons/menu/chamomile_tea.jpg" alt="캐모마일" class="menu-card-img" loading="lazy" />
+            </div>
+            <div class="menu-card-body">
+              <h4 class="menu-drink-title">캐모마일</h4>
+              <div class="menu-option-chips">
+                <span class="chip-tag chip-hot">HOT</span>
+                <span class="chip-tag chip-ice">ICE</span>
+                <span class="chip-tag chip-relax">릴렉싱</span>
+              </div>
+              <div class="menu-option-desc">은은한 사과향과 편안한 허브티</div>
+            </div>
+          </div>
+
+          <!-- 7. 페퍼민트 -->
+          <div class="menu-card" data-category="tea">
+            <div class="menu-circle-frame">
+              <img src="icons/menu/peppermint_tea.jpg" alt="페퍼민트" class="menu-card-img" loading="lazy" />
+            </div>
+            <div class="menu-card-body">
+              <h4 class="menu-drink-title">페퍼민트</h4>
+              <div class="menu-option-chips">
+                <span class="chip-tag chip-hot">HOT</span>
+                <span class="chip-tag chip-ice">ICE</span>
+                <span class="chip-tag chip-fresh">상쾌함</span>
+              </div>
+              <div class="menu-option-desc">입안 가득 시원하고 깔끔한 청량감</div>
+            </div>
+          </div>
+
+          <!-- 8. 유자차 -->
+          <div class="menu-card" data-category="tea">
+            <div class="menu-circle-frame">
+              <img src="icons/menu/yuja_tea.jpg" alt="유자차" class="menu-card-img" loading="lazy" />
+            </div>
+            <div class="menu-card-body">
+              <h4 class="menu-drink-title">유자차</h4>
+              <div class="menu-option-chips">
+                <span class="chip-tag chip-hot">HOT</span>
+                <span class="chip-tag chip-ice">ICE</span>
+                <span class="chip-tag chip-sweet">비타민C</span>
+              </div>
+              <div class="menu-option-desc">달콤쌉싸름한 꿀유자의 진한 풍미</div>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="menu-nav-arrow next-btn" id="menuNextBtn" onclick="scrollMenuCarousel(1)" aria-label="다음 메뉴">›</button>
+      </div>
+
+      <!-- 하단 인디케이터 도트 -->
+      <div class="menu-dots-container" id="menuDots"></div>
     </section>
 
     <!-- 소담터 커피 이미지 하단: 시크릿 이스터에그 로고 트리거 -->
@@ -236,11 +390,8 @@
         <div class="sheet-title">🔐 편의 서비스 비밀번호 확인</div>
         <button class="sheet-close-btn" onclick="closeModal('secretPinModal')" aria-label="닫기">✕</button>
       </div>
-      <p style="font-size:13px; color:var(--text-sub); margin-bottom:16px; font-weight:600; line-height:1.4;">
-        사내 전용 편의 서비스(근무시간 계산, 근처 맛집)를 이용하시려면 비밀번호를 입력해 주세요.
-      </p>
-      <div class="form-group">
-        <label class="form-label" for="secretPinInput">비밀번호 (기본: 1234)</label>
+      <div class="form-group" style="margin-top:10px;">
+        <label class="form-label" for="secretPinInput">비밀번호</label>
         <div style="position:relative; display:flex; align-items:center;">
           <input type="password" id="secretPinInput" class="admin-input-text"
             style="margin-bottom:0; letter-spacing:6px; font-size:20px; text-align:center; padding-right:42px;"
@@ -343,7 +494,28 @@
           style="background:none; border:none; color:var(--text-muted); font-size:11.5px; cursor:pointer; text-decoration:underline; padding:4px;">🔒
           봇 설정 변경</button>
       </div>
-      <div style="margin: 16px 0 20px; border-top: 1px solid var(--border-color); padding-top: 14px;">
+      <!-- 편의 서비스 비밀번호 설정 -->
+      <div style="margin: 16px 0 14px; border-top: 1px solid var(--border-color); padding-top: 14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-size:13px; font-weight:700; color:var(--text-main);">🔐 편의 서비스 비밀번호 설정</span>
+        </div>
+        <div
+          style="background:var(--card-sub); padding:14px; border-radius:16px; border:1px solid var(--border-color);">
+          <label class="form-label" for="newSecretPinInput" style="margin-bottom:6px;">새 비밀번호 (4자리 이상)</label>
+          <div style="display:flex; gap:8px; position:relative; align-items:center;">
+            <input type="password" id="newSecretPinInput" class="admin-input-text"
+              style="margin-bottom:0; padding-right:40px;" maxlength="10" inputmode="numeric" placeholder="새 비밀번호 입력">
+            <button type="button" onclick="togglePinVisibility('newSecretPinInput', this)"
+              style="position:absolute; right:82px; background:none; border:none; font-size:16px; cursor:pointer; padding:4px; line-height:1;"
+              title="비밀번호 표시/숨김">👁️</button>
+            <button type="button" class="preset-btn"
+              style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--accent-color, #0284c7); color:#FFF; border:none;"
+              onclick="changeSecretPin()">즉시변경</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin: 14px 0 20px; border-top: 1px solid var(--border-color); padding-top: 14px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <span style="font-size:13px; font-weight:700; color:var(--text-main);">🔐 관리자 비밀번호 변경</span>
         </div>
@@ -482,7 +654,7 @@
   </script>
 
   <!-- 분리된 모듈형 자바스크립트 로드 (캐시 방지 쿼리 파라미터 적용) -->
-  <script src="js/cafe.js?v=20260917_4"></script>
+  <script src="js/cafe.js?v=20260917_6"></script>
   <script src="js/work.js?v=20260917_4"></script>
   <script src="js/restaurants.js?v=20260917_4"></script>
 
