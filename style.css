@@ -580,22 +580,22 @@ body {
   display: flex;
   gap: 12px;
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: none;
   padding: 8px 6px 12px;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   width: 100%;
   cursor: grab;
+  scroll-behavior: auto;
 }
 
 .menu-carousel:active {
   cursor: grabbing;
 }
 
-/* 자동 스크롤 중에는 CSS 스냅 충돌을 해제하여 부드러운 60fps/120fps 연속 이동 */
-.menu-carousel.is-autoscrolling {
-  scroll-snap-type: none;
-  scroll-behavior: auto;
+/* 사용자가 수동 드래그/스와이프 중일 때만 스냅 적용 */
+.menu-carousel.is-snapping {
+  scroll-snap-type: x mandatory;
 }
 
 .menu-carousel::-webkit-scrollbar {
