@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sodam-cafe-v9';
+const CACHE_NAME = 'sodam-cafe-v10';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
