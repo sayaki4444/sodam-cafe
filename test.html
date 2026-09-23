@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+
+<head>
+  <!-- 1. 기본 인코딩 및 뷰포트 -->
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>카페 알리미 - 신규 비주얼 테스트</title>
+
+  <!-- 2. PWA 메타태그 및 매니페스트 -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#2D4333" />
+
+  <!-- 3. 웹 폰트 -->
+  <link rel="stylesheet" as="style" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@700&display=swap" rel="stylesheet">
+
+  <!-- 4. Firebase SDK 로드 -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- 5. 기본 스타일시트 -->
+  <link rel="stylesheet" href="style.css?v=20260923_1" />
+
+  <style>
+    /* ========================================================
+       🎨 비주얼 시뮬레이터 툴바 (테스트 확인용 상단 컨트롤러)
+       ======================================================== */
+    .preview-controller-bar {
+      position: sticky;
+      top: 0;
+      z-index: 9999;
+      background: rgba(23, 37, 84, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 2px solid #38BDF8;
+      padding: 10px 14px;
+      color: #F8FAFC;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+      margin-bottom: 12px;
+      border-radius: 0 0 16px 16px;
+    }
+
+    .preview-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .preview-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #38BDF8;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .preview-badge {
+      background: #0284C7;
+      color: #FFF;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+
+    .preview-btn-group {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .sim-btn {
+      padding: 8px 4px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #F1F5F9;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .sim-btn:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .sim-btn.active {
+      background: #0284C7;
+      border-color: #38BDF8;
+      color: #FFF;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .sim-btn .sim-time {
+      font-size: 9px;
+      opacity: 0.8;
+      font-weight: 500;
+    }
+
+    /* ========================================================
+       🪟 [핵심] 라이브 카페 윈도우 (Live Window) 스타일 시스템
+       ======================================================== */
+    .status-card.window-theme {
+      padding: 0;
+      overflow: hidden;
+      border-radius: 28px;
+      background: var(--card-bg);
+      border: 1.5px solid var(--border-color);
+      box-shadow: var(--shadow-md);
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* 상단 아치형 창가 씬 영역 */
+    .cafe-window-scene {
+      position: relative;
+      width: 100%;
+      height: 215px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      overflow: hidden;
+      padding-bottom: 12px;
+      transition: background 0.8s ease;
+    }
+
+    /* 아치형 창틀 프레임 */
+    .window-arch {
+      position: absolute;
+      top: 16px;
+      width: 200px;
+      height: 185px;
+      border-radius: 100px 100px 16px 16px;
+      overflow: hidden;
+      border: 5px solid rgba(255, 255, 255, 0.75);
+      box-shadow: inset 0 4px 18px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.12);
+      transition: all 0.8s ease;
+      z-index: 1;
+    }
+
+    [data-theme="dark"] .window-arch {
+      border-color: rgba(255, 255, 255, 0.22);
+      box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.5), 0 8px 26px rgba(0, 0, 0, 0.45);
+    }
+
+    /* 창밖 하늘 배경 (시간대별 그라데이션) */
+    .window-sky {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transition: all 0.8s ease;
+      z-index: 1;
+    }
+
+    /* 창틀 십자 격자 (Mullion 프레임) */
+    .window-mullion-v {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 3px;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.65);
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .window-mullion-h {
+      position: absolute;
+      top: 55%;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.65);
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    [data-theme="dark"] .window-mullion-v,
+    [data-theme="dark"] .window-mullion-h {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* 창턱 (Window Sill) */
+    .window-sill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 14px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(220, 225, 220, 0.95));
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+      z-index: 5;
+    }
+
+    [data-theme="dark"] .window-sill {
+      background: linear-gradient(180deg, #2D3E30, #1F2E23);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* 태양 / 달 천체 */
+    .sky-sun-moon {
+      position: absolute;
+      border-radius: 50%;
+      transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 2;
+    }
+
+    /* 별빛 (밤 시간대) */
+    .sky-stars {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .sky-stars .star {
+      position: absolute;
+      color: #FDE047;
+      font-size: 10px;
+      animation: starTwinkle 2s ease-in-out infinite alternate;
+    }
+
+    .sky-stars .s1 { top: 22px; left: 35px; animation-delay: 0.2s; }
+    .sky-stars .s2 { top: 48px; right: 40px; font-size: 14px; animation-delay: 0.7s; color: #FFF; }
+    .sky-stars .s3 { top: 75px; left: 65px; font-size: 8px; animation-delay: 1.2s; }
+    .sky-stars .s4 { top: 30px; right: 75px; font-size: 9px; animation-delay: 0.5s; }
+
+    @keyframes starTwinkle {
+      0% { opacity: 0.3; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1.2); text-shadow: 0 0 6px #FDE047; }
+    }
+
+    /* 뭉게구름 */
+    .sky-clouds {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.75);
+      border-radius: 20px;
+      filter: blur(1px);
+      animation: cloudDrift 16s linear infinite alternate;
+    }
+
+    .cloud.c1 { top: 36px; left: 15px; width: 55px; height: 18px; }
+    .cloud.c2 { top: 65px; right: 20px; width: 45px; height: 14px; opacity: 0.6; animation-duration: 22s; }
+
+    @keyframes cloudDrift {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(25px); }
+    }
+
+    /* 따사로운 햇살 레이어 (Sun Beam) */
+    .sun-beam {
+      position: absolute;
+      top: -30px;
+      left: -20px;
+      width: 140px;
+      height: 250px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 70%);
+      transform: rotate(-25deg);
+      pointer-events: none;
+      z-index: 3;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    /* 밤 시간대 CLOSED 네온사인 조명 */
+    .window-neon-sign {
+      position: absolute;
+      top: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 4px 12px;
+      border: 1.5px solid rgba(244, 63, 94, 0.85);
+      border-radius: 8px;
+      color: #FDA4AF;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.6s ease;
+      z-index: 4;
+      background: rgba(15, 23, 42, 0.7);
+    }
+
+    /* 커피잔 컨테이너 (창문 정중앙 앞에 자연스럽게 오버랩) */
+    .status-card.window-theme .mug-container {
+      position: relative;
+      z-index: 10;
+      margin: 0 auto;
+      transform: scale(0.96);
+      filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.18));
+      transition: transform 0.3s ease;
+    }
+
+    .status-card.window-theme:hover .mug-container {
+      transform: scale(1.02);
+    }
+
+    /* 하단 텍스트 및 정보 영역 */
+    .window-info-body {
+      padding: 16px 20px 22px;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border-light);
+      position: relative;
+      z-index: 10;
+      text-align: center;
+    }
+
+    /* ========================================================
+       🌅 4가지 시간대별 비주얼 테마 정의 (SCENE STATES)
+       ======================================================== */
+
+    /* 1) 아침 09:30~10:00 (오픈 준비) */
+    .scene-morning .cafe-window-scene {
+      background: radial-gradient(circle at 50% 30%, rgba(254, 240, 138, 0.25) 0%, transparent 70%);
+    }
+    .scene-morning .window-sky {
+      background: linear-gradient(180deg, #FDE68A 0%, #FEF08A 35%, #BAE6FD 100%);
+    }
+    .scene-morning .sky-sun-moon {
+      top: 60px;
+      left: 35px;
+      width: 38px;
+      height: 38px;
+      background: #F59E0B;
+      box-shadow: 0 0 24px rgba(245, 158, 11, 0.7);
+    }
+    .scene-morning .sun-beam {
+      opacity: 0.45;
+    }
+
+    /* 2) 낮 10:00~13:30 (주문 가능) */
+    .scene-day .cafe-window-scene {
+      background: radial-gradient(circle at 50% 20%, rgba(56, 189, 248, 0.18) 0%, transparent 70%);
+    }
+    .scene-day .window-sky {
+      background: linear-gradient(180deg, #38BDF8 0%, #7DD3FC 45%, #E0F2FE 100%);
+    }
+    .scene-day .sky-sun-moon {
+      top: 25px;
+      right: 45px;
+      width: 34px;
+      height: 34px;
+      background: #FEF08A;
+      box-shadow: 0 0 28px rgba(254, 240, 138, 0.9), 0 0 45px rgba(250, 204, 21, 0.45);
+    }
+    .scene-day .sun-beam {
+      opacity: 0.65;
+    }
+
+    /* 3) 오후 13:30~15:30 (잔여 수량 적음) */
+    .scene-sunset .cafe-window-scene {
+      background: radial-gradient(circle at 50% 40%, rgba(249, 115, 22, 0.22) 0%, transparent 75%);
+    }
+    .scene-sunset .window-sky {
+      background: linear-gradient(180deg, #EA580C 0%, #F97316 35%, #FB7185 70%, #A855F7 100%);
+    }
+    .scene-sunset .sky-sun-moon {
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 48px;
+      height: 48px;
+      background: #FDE047;
+      box-shadow: 0 0 35px rgba(253, 224, 71, 0.8), 0 0 60px rgba(249, 115, 22, 0.6);
+    }
+    .scene-sunset .cloud {
+      background: rgba(254, 205, 211, 0.65);
+    }
+
+    /* 4) 밤 15:30~ (영업 마감) */
+    .scene-night .cafe-window-scene {
+      background: radial-gradient(circle at 50% 30%, rgba(30, 27, 75, 0.45) 0%, transparent 70%);
+    }
+    .scene-night .window-sky {
+      background: linear-gradient(180deg, #090D16 0%, #0F172A 50%, #1E1B4B 100%);
+    }
+    .scene-night .sky-sun-moon {
+      top: 30px;
+      right: 40px;
+      width: 28px;
+      height: 28px;
+      background: transparent;
+      box-shadow: 6px 6px 0 0 #FEF08A, 0 0 16px rgba(254, 240, 138, 0.5);
+      border-radius: 50%;
+    }
+    .scene-night .sky-stars {
+      opacity: 1;
+    }
+    .scene-night .cloud {
+      opacity: 0.15;
+    }
+    .scene-night .window-neon-sign {
+      opacity: 1;
+      animation: neonGlow 2.5s infinite alternate;
+    }
+
+    @keyframes neonGlow {
+      0%, 100% {
+        box-shadow: 0 0 10px rgba(244, 63, 94, 0.6), inset 0 0 8px rgba(244, 63, 94, 0.4);
+        text-shadow: 0 0 8px #FB7185, 0 0 14px #E11D48;
+      }
+      50% {
+        box-shadow: 0 0 16px rgba(244, 63, 94, 0.85), inset 0 0 12px rgba(244, 63, 94, 0.6);
+        text-shadow: 0 0 12px #FB7185, 0 0 20px #E11D48;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- 🎨 [테스트 전용] 실시간 비주얼 시뮬레이터 툴바 -->
+    <div class="preview-controller-bar">
+      <div class="preview-header-row">
+        <div class="preview-title">
+          <span>🪟 라이브 윈도우 비주얼 컨트롤러</span>
+          <span class="preview-badge">TEST MODE</span>
+        </div>
+        <button type="button" onclick="toggleTheme()"
+          style="background:#334155; border:1px solid #64748B; color:#F8FAFC; border-radius:6px; font-size:11px; padding:3px 8px; cursor:pointer; font-weight:700;">
+          🌓 테마 전환
+        </button>
+      </div>
+      <div class="preview-btn-group">
+        <button type="button" class="sim-btn" id="sim-morning" onclick="setSimScene('morning')">
+          <span>🌅 오픈준비</span>
+          <span class="sim-time">09:30~</span>
+        </button>
+        <button type="button" class="sim-btn" id="sim-day" onclick="setSimScene('day')">
+          <span>☀️ 주문가능</span>
+          <span class="sim-time">10:00~</span>
+        </button>
+        <button type="button" class="sim-btn" id="sim-sunset" onclick="setSimScene('sunset')">
+          <span>🌇 잔여적음</span>
+          <span class="sim-time">13:30~</span>
+        </button>
+        <button type="button" class="sim-btn" id="sim-night" onclick="setSimScene('night')">
+          <span>🌙 영업마감</span>
+          <span class="sim-time">15:30~</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 1. 상단 일체형 헤더 -->
+    <header class="header">
+      <div class="header-left-title">
+        <h1 class="header-title">카페 알리미 ☕</h1>
+      </div>
+      <div class="header-actions">
+        <button class="theme-toggle-btn" id="themeBtn" onclick="toggleTheme()" aria-label="테마 전환">
+          <span id="themeIcon">🌙</span> <span id="themeText">다크</span>
+        </button>
+        <button class="admin-toggle-btn" onclick="openAdminModal()" title="카페 관리자 설정" aria-label="카페 관리자 설정">⚙️</button>
+      </div>
+    </header>
+
+    <!-- 2. [신규 비주얼] 라이브 윈도우 커피잔 카드 -->
+    <section class="status-card window-theme scene-day" id="statusCard">
+      <!-- 🪟 창밖 풍경 씬 (시간대별 애니메이션) -->
+      <div class="cafe-window-scene">
+        <div class="window-arch">
+          <!-- 하늘 배경 -->
+          <div class="window-sky">
+            <div class="sky-sun-moon"></div>
+            <!-- 별빛 (밤 시간대) -->
+            <div class="sky-stars">
+              <span class="star s1">✦</span>
+              <span class="star s2">★</span>
+              <span class="star s3">✦</span>
+              <span class="star s4">★</span>
+            </div>
+            <!-- 구름 -->
+            <div class="sky-clouds">
+              <div class="cloud c1"></div>
+              <div class="cloud c2"></div>
+            </div>
+            <!-- 햇살 레이어 -->
+            <div class="sun-beam"></div>
+          </div>
+          <!-- 창문 격자 프레임 -->
+          <div class="window-mullion-v"></div>
+          <div class="window-mullion-h"></div>
+          <!-- 마감 네온사인 -->
+          <div class="window-neon-sign">CLOSED</div>
+          <!-- 창턱 -->
+          <div class="window-sill"></div>
+        </div>
+
+        <!-- 창틀 앞에 놓인 커피잔 -->
+        <div class="mug-container">
+          <svg class="mug-svg" viewBox="0 0 160 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path id="steam1" class="steam-path" d="M60,32 C55,24 68,14 62,6" />
+            <path id="steam2" class="steam-path steam-2" d="M85,30 C80,20 93,12 88,4" />
+            <clipPath id="mugClip">
+              <path d="M25,40 L135,40 L127,132 Q127,140 119,140 L41,140 Q33,140 33,132 Z" />
+            </clipPath>
+            <rect id="coffeeFill" x="20" y="60" width="120" height="85" fill="var(--coffee-liquid)"
+              clip-path="url(#mugClip)" />
+            <ellipse cx="80" cy="62" rx="46" ry="6" fill="rgba(255,255,255,0.2)" clip-path="url(#mugClip)" />
+            <path d="M25,40 L135,40 L127,132 Q127,140 119,140 L41,140 Q33,140 33,132 Z" stroke="var(--cup-stroke)"
+              stroke-width="5" stroke-linejoin="round" />
+            <path d="M135,55 C165,55 165,105 135,105" stroke="var(--cup-stroke)" stroke-width="6"
+              stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- 하단 상태 정보 -->
+      <div class="window-info-body">
+        <div class="status-title">소담터</div>
+        <div class="status-hours">
+          <span>🕒 운영시간 10:00 - 15:30 (월~금)</span>
+        </div>
+
+        <div class="badge-pill badge-green" id="stockBadge">
+          <span class="badge-dot"></span>
+          <span id="stockBadgeText">주문 가능</span>
+        </div>
+        <div class="status-desc" id="statusDescText">따뜻하고 시원한 커피로 힐링하세요!</div>
+      </div>
+    </section>
+
+    <!-- 2-1. 소담터 카페 메뉴 안내 (좌우 스크롤 캐러셀 전체 8종) -->
+    <section class="menu-showcase-section" id="cafeMenuSection">
+      <div class="menu-header">
+        <div class="menu-title-pill">메뉴 안내</div>
+        <div class="menu-subtitle">소담터의 향긋하고 시원한 대표 음료 라인업 ☕</div>
+      </div>
+
+      <!-- 카테고리 필터 탭 -->
+      <div class="menu-category-tabs" id="menuCategoryTabs">
+        <button type="button" class="cat-tab-btn active" onclick="filterMenuCategory('all', this, true)">전체</button>
+        <button type="button" class="cat-tab-btn" onclick="filterMenuCategory('coffee', this, true)">커피 ☕</button>
+        <button type="button" class="cat-tab-btn" onclick="filterMenuCategory('ade', this, true)">에이드 🍹</button>
+        <button type="button" class="cat-tab-btn" onclick="filterMenuCategory('tea', this, true)">차 🍵</button>
+      </div>
+
+      <!-- 좌우 스크롤 캐러셀 래퍼 -->
+      <div class="menu-carousel-wrapper">
+        <button type="button" class="menu-nav-arrow prev-btn" id="menuPrevBtn" onclick="scrollMenuCarousel(-1)" aria-label="이전 메뉴">‹</button>
+
+        <div class="menu-carousel" id="menuCarousel">
+          <!-- 1. 아메리카노 -->
+          <div class="menu-card" data-category="coffee">
+            <div class="menu-circle-frame">
+              <img src="icons/menu/americano.jpg" alt="아메리카노" class="menu-card-img" loading="lazy" />
+            </div>
+            <div class="menu-card-body">
+              <h4 class="menu-drink-title">아메리카노</h4>
+              <div class="menu-option-chips">
+                <span class="chip-tag chip-hot">HOT</span>
+                <span class="chip-tag chip-ice">ICE</span>
+                <span class="chip-tag chip-decaf">디카페인</span>
+              </div>
+              <div class="menu-option-desc">[옵션 : HOT, ICE, 디카페인]</div>
+            </div>
+          </div>
+
+          <!-- 2. 카페라떼 -->
+          <div class="menu-card" data-category="coffee">
+            <div class="menu-circle-frame">
+              <img src="icons/menu/cafe_latte.jpg" alt="카페라떼" class="menu-card-img" loading="lazy" />
+            </div>
+            <div class="menu-card-body">
+              <h4 class="menu-drink-title">카페라떼</h4>
+              <div class="menu-option-chips">
+                <span class="chip-tag chip-hot">HOT</span>
+                <span class="chip-tag chip-ice">ICE</span>
+                <span class="chip-tag chip-decaf">디카페인</span>
+              </div>
+              <div class="menu-option-desc">[옵션 : HOT, ICE, 디카페인]</div>
+            </div>
+          </div>
+
+          <!-- 3. 바닐라라떼 -->
+          <div class="menu-card" data-category="coffee">
+            <div class="menu-circle-frame">
+              <img src="icons/menu/vanilla_latte.jpg" alt="바닐라라떼" class="menu-card-img" loading="lazy" />
+            </div>
+            <div class="menu-card-body">
+              <h4 class="menu-drink-title">바닐라라떼</h4>
+              <div class="menu-option-chips">
+                <span class="chip-tag chip-hot">HOT</span>
+                <span class="chip-tag chip-ice">ICE</span>
+                <span class="chip-tag chip-decaf">디카페인</span>
+              </div>
+              <div class="menu-option-desc">[옵션 : HOT, ICE, 디카페인]</div>
+            </div>
+          </div>
+
+          <!-- 4. 자몽에이드 -->
+          <div class="menu-card" data-category="ade">
+            <div class="menu-circle-frame">
+              <img src="icons/menu/grapefruit_ade.jpg" alt="자몽에이드" class="menu-card-img" loading="lazy" />
+            </div>
+            <div class="menu-card-body">
+              <h4 class="menu-drink-title">자몽에이드</h4>
+              <div class="menu-option-chips">
+                <span class="chip-tag chip-ice">ICE 전용</span>
+                <span class="chip-tag chip-sparkle">상큼톡톡</span>
+              </div>
+              <div class="menu-option-desc">생자몽의 쌉싸름 달콤한 청량감</div>
+            </div>
+          </div>
+
+          <!-- 5. 망고에이드 -->
+          <div class="menu-card" data-category="ade">
+            <div class="menu-circle-frame">
+              <img src="icons/menu/mango_ade.jpg" alt="망고에이드" class="menu-card-img" loading="lazy" />
+            </div>
+            <div class="menu-card-body">
+              <h4 class="menu-drink-title">망고에이드</h4>
+              <div class="menu-option-chips">
+                <span class="chip-tag chip-ice">ICE 전용</span>
+                <span class="chip-tag chip-sweet">달콤과육</span>
+              </div>
+              <div class="menu-option-desc">달콤한 망고 과육 가득 스파클링</div>
+            </div>
+          </div>
+
+          <!-- 6. 캐모마일 -->
+          <div class="menu-card" data-category="tea">
+            <div class="menu-circle-frame">
+              <img src="icons/menu/chamomile_tea.jpg" alt="캐모마일" class="menu-card-img" loading="lazy" />
+            </div>
+            <div class="menu-card-body">
+              <h4 class="menu-drink-title">캐모마일</h4>
+              <div class="menu-option-chips">
+                <span class="chip-tag chip-hot">HOT</span>
+                <span class="chip-tag chip-ice">ICE</span>
+                <span class="chip-tag chip-relax">릴렉싱</span>
+              </div>
+              <div class="menu-option-desc">은은한 사과향과 편안한 허브티</div>
+            </div>
+          </div>
+
+          <!-- 7. 페퍼민트 -->
+          <div class="menu-card" data-category="tea">
+            <div class="menu-circle-frame">
+              <img src="icons/menu/peppermint_tea.jpg" alt="페퍼민트" class="menu-card-img" loading="lazy" />
+            </div>
+            <div class="menu-card-body">
+              <h4 class="menu-drink-title">페퍼민트</h4>
+              <div class="menu-option-chips">
+                <span class="chip-tag chip-hot">HOT</span>
+                <span class="chip-tag chip-ice">ICE</span>
+                <span class="chip-tag chip-fresh">상쾌함</span>
+              </div>
+              <div class="menu-option-desc">입안 가득 시원하고 깔끔한 청량감</div>
+            </div>
+          </div>
+
+          <!-- 8. 유자차 -->
+          <div class="menu-card" data-category="tea">
+            <div class="menu-circle-frame">
+              <img src="icons/menu/yuja_tea.jpg" alt="유자차" class="menu-card-img" loading="lazy" />
+            </div>
+            <div class="menu-card-body">
+              <h4 class="menu-drink-title">유자차</h4>
+              <div class="menu-option-chips">
+                <span class="chip-tag chip-hot">HOT</span>
+                <span class="chip-tag chip-ice">ICE</span>
+                <span class="chip-tag chip-sweet">비타민C</span>
+              </div>
+              <div class="menu-option-desc">달콤쌉싸름한 꿀유자의 진한 풍미</div>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="menu-nav-arrow next-btn" id="menuNextBtn" onclick="scrollMenuCarousel(1)" aria-label="다음 메뉴">›</button>
+      </div>
+
+      <!-- 하단 인디케이터 도트 -->
+      <div class="menu-dots-container" id="menuDots"></div>
+    </section>
+
+    <!-- 소담터 커피 이미지 하단: 시크릿 이스터에그 로고 트리거 -->
+    <div class="secret-trigger-area">
+      <button type="button" class="secret-logo-btn" id="secretTriggerBtn" onclick="handleSecretTrigger(event)" aria-label="시크릿 편의 서비스" title="참치 & 호두">
+        <img src="icons/logo.png" alt="참치 & 호두" class="secret-logo-img" />
+      </button>
+    </div>
+
+    <!-- 3. 편의 서비스 그리드 (시크릿 모드: 기본 숨김) -->
+    <section class="convenience-section" id="convenienceSection" style="display: none;">
+      <div class="section-title">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span>편의 서비스</span>
+          <span class="secret-unlocked-badge">🔓 시크릿</span>
+        </div>
+        <button type="button" class="secret-lock-btn" onclick="lockConvenienceService()" title="편의 서비스 다시 숨기기">🔒 숨기기</button>
+      </div>
+
+      <div class="quick-grid">
+        <button class="quick-item" onclick="openModal('workModal')" aria-label="근무 시간 계산기 열기">
+          <span class="quick-badge bg-red">근무</span>
+          <div class="quick-icon">⏰</div>
+          <div class="quick-label">근무시간 계산</div>
+        </button>
+        <button class="quick-item" onclick="openModal('resModal')" aria-label="근처 맛집 목록 열기">
+          <span class="quick-badge bg-green">PICK</span>
+          <div class="quick-icon">🍽️</div>
+          <div class="quick-label">근처 맛집</div>
+        </button>
+        <button class="quick-item" onclick="openModal('dietModal')" aria-label="구내 식당 식단표 열기">
+          <span class="quick-badge bg-blue">식단</span>
+          <div class="quick-icon">🍱</div>
+          <div class="quick-label">주간 식단표</div>
+        </button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- 4. 모달 정의 (관리자 설정 및 인증) -->
+  <div class="modal-overlay" id="adminAuthModal" onclick="closeOnBackdrop(event, 'adminAuthModal')">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">🔐 관리자 인증</div>
+        <button class="modal-close-btn" onclick="closeModal('adminAuthModal')" aria-label="닫기">✕</button>
+      </div>
+      <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 16px;">
+        운영 상태를 변경하려면 관리자 비밀번호를 입력해 주세요.
+      </p>
+      <div class="form-group">
+        <label class="form-label" for="adminPinInput">관리자 비밀번호</label>
+        <div style="position:relative; display:flex; align-items:center;">
+          <input type="password" id="adminPinInput" class="admin-input-text" maxlength="20" placeholder="비밀번호 입력"
+            onkeydown="if(event.key === 'Enter') checkAdminPin()">
+          <button type="button" onclick="togglePinVisibility('adminPinInput', this)"
+            style="position:absolute; right:12px; background:none; border:none; font-size:16px; cursor:pointer; padding:4px; line-height:1;"
+            title="비밀번호 표시/숨김">👁️</button>
+        </div>
+        <div id="pinErrorMsg" style="display:none; color:#DC2626; font-size:12px; font-weight:700; margin-top:6px;">
+          비밀번호가 올바르지 않습니다.
+        </div>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <span style="font-size:11px; color:var(--text-sub); cursor:pointer; text-decoration:underline;"
+          onclick="toggleAdminEmailField()">계정 이메일 직접 입력</span>
+      </div>
+      <div class="form-group" id="adminEmailGroup" style="display:none;">
+        <label class="form-label" for="adminEmailInput">Firebase 관리자 이메일</label>
+        <input type="email" id="adminEmailInput" class="admin-input-text" placeholder="admin@sodam.cafe"
+          value="admin@sodam.cafe">
+      </div>
+      <button type="button" id="adminLoginBtn" class="primary-btn" onclick="checkAdminPin()">
+        <span>인증하고 관리자 모드 열기 🔓</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="adminModal" onclick="closeOnBackdrop(event, 'adminModal')">
+    <div class="bottom-sheet" style="position:relative; z-index:1001; pointer-events:auto;">
+      <div class="sheet-handle-area" onclick="closeModal('adminModal')">
+        <div class="sheet-handle"></div>
+      </div>
+      <div class="sheet-header">
+        <div class="sheet-title">⚙️ 카페 운영 상태 관리자</div>
+        <button class="sheet-close-btn" onclick="closeModal('adminModal')" aria-label="닫기">✕</button>
+      </div>
+      <div style="background:var(--card-sub); padding:10px 12px; border-radius:12px; margin-bottom:14px; font-size:12px; color:var(--text-sub); line-height:1.5; border:1px solid var(--border-color);">
+        <div style="font-weight:700; color:var(--text-main); margin-bottom:2px;">🕒 카페 자동 운영 시간표</div>
+        <div>• 09:30 오픈 준비중 ➔ 10:00 주문 가능 ➔ 13:30 잔여 수량 적음 ➔ 15:30 영업 마감</div>
+        <div style="margin-top:3px; font-size:11px; opacity:0.85;">※ 상태 버튼 터치 시 전체 사용자 화면에 즉시 수동 반영됩니다.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" style="margin-bottom:8px;">운영 상태 선택</label>
+        <div class="status-select-grid" style="position:relative; z-index:10; pointer-events:auto;">
+          <button type="button" class="status-opt-btn" id="opt-available" style="cursor:pointer;"
+            onclick="selectAdminStatus('available')"><span style="pointer-events:none;">🟢</span> <span
+              style="pointer-events:none;">주문 가능</span></button>
+          <button type="button" class="status-opt-btn" id="opt-low_stock" style="cursor:pointer;"
+            onclick="selectAdminStatus('low_stock')"><span style="pointer-events:none;">🧃</span> <span
+              style="pointer-events:none;">잔여 수량 적음</span></button>
+          <button type="button" class="status-opt-btn" id="opt-closed" style="grid-column: span 2; cursor:pointer;"
+            onclick="selectAdminStatus('closed')"><span style="pointer-events:none;">🔴</span> <span
+              style="pointer-events:none;">영업 마감</span></button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="adminNoticeInput">한 줄 알림 문구 (실시간 공지)</label>
+        <div style="display:flex; gap:8px;">
+          <input type="text" class="admin-input-text" id="adminNoticeInput" placeholder="예: 시원한 콜드브루와 딸기라떼 주문 가능! ☕"
+            maxlength="50" style="margin-bottom:0;">
+          <button type="button" class="preset-btn"
+            style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--accent-color, #0284c7); color:#FFF; border:none;"
+            onclick="saveNoticeOnly()">공지 저장</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 모듈형 자바스크립트 로드 -->
+  <script src="js/cafe.js?v=20260923_1"></script>
+  <script src="js/work.js?v=20260917_4"></script>
+  <script src="js/restaurants.js?v=20260917_4"></script>
+
+  <!-- 🎨 비주얼 시뮬레이터 인터랙션 스크립트 -->
+  <script>
+    const SCENE_DATA = {
+      morning: {
+        badgeCls: "badge-orange",
+        badgeTxt: "오픈 준비중",
+        desc: "원두와 음료 재료를 정성껏 준비하고 있습니다. 잠시만 기다려주세요!",
+        coffeeHeight: "30",
+        steam: false,
+        sign: ""
+      },
+      day: {
+        badgeCls: "badge-green",
+        badgeTxt: "주문 가능",
+        desc: "따뜻하고 시원한 커피로 힐링하세요!",
+        coffeeHeight: "85",
+        steam: true,
+        sign: "OPEN"
+      },
+      sunset: {
+        badgeCls: "badge-yellow",
+        badgeTxt: "잔여 수량 적음",
+        desc: "일부 음료 재료가 소진 임박입니다. 서둘러 주문해주세요!",
+        coffeeHeight: "45",
+        steam: true,
+        sign: "OPEN"
+      },
+      night: {
+        badgeCls: "badge-red",
+        badgeTxt: "영업 마감",
+        desc: "오늘 영업이 마감되었습니다. 다음 영업일에 만나요!",
+        coffeeHeight: "0",
+        steam: false,
+        sign: "CLOSED"
+      }
+    };
+
+    function setSimScene(sceneKey) {
+      const card = document.getElementById("statusCard");
+      if (!card) return;
+
+      // 씬 클래스 교체
+      card.className = "status-card window-theme scene-" + sceneKey;
+
+      // 툴바 버튼 활성화 상태 갱신
+      document.querySelectorAll(".sim-btn").forEach(btn => btn.classList.remove("active"));
+      const activeBtn = document.getElementById("sim-" + sceneKey);
+      if (activeBtn) activeBtn.classList.add("active");
+
+      // 상태 데이터 즉시 반영
+      const d = SCENE_DATA[sceneKey];
+      const badge = document.getElementById("stockBadge");
+      const badgeTxt = document.getElementById("stockBadgeText");
+      const desc = document.getElementById("statusDescText");
+      const coffeeFill = document.getElementById("coffeeFill");
+      const steam1 = document.getElementById("steam1");
+      const steam2 = document.getElementById("steam2");
+      const sign = document.querySelector(".window-neon-sign");
+
+      if (sign && d.sign) sign.textContent = d.sign;
+      if (badge) badge.className = "badge-pill " + d.badgeCls;
+      if (badgeTxt) badgeTxt.textContent = d.badgeTxt;
+      if (desc) desc.textContent = d.desc;
+      if (coffeeFill) coffeeFill.setAttribute("height", d.coffeeHeight);
+      if (steam1) steam1.style.display = d.steam ? "block" : "none";
+      if (steam2) steam2.style.display = d.steam ? "block" : "none";
+    }
+
+    // 초기 로딩 시 현재 시간에 맞는 씬으로 자동 선택
+    document.addEventListener("DOMContentLoaded", () => {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const timeVal = hours * 60 + minutes;
+
+      let initKey = "night";
+      if (timeVal >= 9 * 60 + 30 && timeVal < 10 * 60) initKey = "morning";
+      else if (timeVal >= 10 * 60 && timeVal < 13 * 60 + 30) initKey = "day";
+      else if (timeVal >= 13 * 60 + 30 && timeVal < 15 * 60 + 30) initKey = "sunset";
+
+      setSimScene(initKey);
+    });
+  </script>
+</body>
+
+</html>

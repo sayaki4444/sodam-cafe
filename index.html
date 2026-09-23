@@ -36,7 +36,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
   <!-- 5. 분리된 외부 스타일시트 -->
-  <link rel="stylesheet" href="style.css?v=20260922_1" />
+  <link rel="stylesheet" href="style.css?v=20260923_2" />
 </head>
 
 <body>
@@ -54,35 +54,70 @@
       </div>
     </header>
 
-    <!-- 2. 시그니처 커피잔 카드 -->
-    <section class="status-card" id="statusCard" onclick="refreshCafeStatus()">
-      <div class="mug-container">
-        <svg class="mug-svg" viewBox="0 0 160 170" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path id="steam1" class="steam-path" d="M60,32 C55,24 68,14 62,6" />
-          <path id="steam2" class="steam-path steam-2" d="M85,30 C80,20 93,12 88,4" />
-          <clipPath id="mugClip">
-            <path d="M25,40 L135,40 L127,132 Q127,140 119,140 L41,140 Q33,140 33,132 Z" />
-          </clipPath>
-          <rect id="coffeeFill" x="20" y="60" width="120" height="85" fill="var(--coffee-liquid)"
-            clip-path="url(#mugClip)" />
-          <ellipse cx="80" cy="62" rx="46" ry="6" fill="rgba(255,255,255,0.2)" clip-path="url(#mugClip)" />
-          <path d="M25,40 L135,40 L127,132 Q127,140 119,140 L41,140 Q33,140 33,132 Z" stroke="var(--cup-stroke)"
-            stroke-width="5" stroke-linejoin="round" />
-          <path d="M135,55 C165,55 165,105 135,105" stroke="var(--cup-stroke)" stroke-width="6"
-            stroke-linecap="round" />
-        </svg>
+    <!-- 2. [신규 비주얼] 라이브 윈도우 커피잔 카드 -->
+    <section class="status-card window-theme scene-day" id="statusCard" onclick="refreshCafeStatus()">
+      <!-- 🪟 창밖 풍경 씬 (시간대별 애니메이션) -->
+      <div class="cafe-window-scene">
+        <div class="window-arch">
+          <!-- 하늘 배경 -->
+          <div class="window-sky">
+            <div class="sky-sun-moon"></div>
+            <!-- 별빛 (밤 시간대) -->
+            <div class="sky-stars">
+              <span class="star s1">✦</span>
+              <span class="star s2">★</span>
+              <span class="star s3">✦</span>
+              <span class="star s4">★</span>
+            </div>
+            <!-- 구름 -->
+            <div class="sky-clouds">
+              <div class="cloud c1"></div>
+              <div class="cloud c2"></div>
+            </div>
+            <!-- 햇살 레이어 -->
+            <div class="sun-beam"></div>
+          </div>
+          <!-- 창문 격자 프레임 -->
+          <div class="window-mullion-v"></div>
+          <div class="window-mullion-h"></div>
+          <!-- 네온사인 (OPEN / CLOSED) -->
+          <div class="window-neon-sign" id="windowNeonSign">OPEN</div>
+          <!-- 창턱 -->
+          <div class="window-sill"></div>
+        </div>
+
+        <!-- 창틀 앞에 놓인 커피잔 -->
+        <div class="mug-container">
+          <svg class="mug-svg" viewBox="0 0 160 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path id="steam1" class="steam-path" d="M60,32 C55,24 68,14 62,6" />
+            <path id="steam2" class="steam-path steam-2" d="M85,30 C80,20 93,12 88,4" />
+            <clipPath id="mugClip">
+              <path d="M25,40 L135,40 L127,132 Q127,140 119,140 L41,140 Q33,140 33,132 Z" />
+            </clipPath>
+            <rect id="coffeeFill" x="20" y="60" width="120" height="85" fill="var(--coffee-liquid)"
+              clip-path="url(#mugClip)" />
+            <ellipse cx="80" cy="62" rx="46" ry="6" fill="rgba(255,255,255,0.2)" clip-path="url(#mugClip)" />
+            <path d="M25,40 L135,40 L127,132 Q127,140 119,140 L41,140 Q33,140 33,132 Z" stroke="var(--cup-stroke)"
+              stroke-width="5" stroke-linejoin="round" />
+            <path d="M135,55 C165,55 165,105 135,105" stroke="var(--cup-stroke)" stroke-width="6"
+              stroke-linecap="round" />
+          </svg>
+        </div>
       </div>
 
-      <div class="status-title">소담터</div>
-      <div class="status-hours">
-        <span>🕒 운영시간 10:00 - 15:30 (월~금)</span>
-      </div>
+      <!-- 하단 상태 정보 -->
+      <div class="window-info-body">
+        <div class="status-title">소담터</div>
+        <div class="status-hours">
+          <span>🕒 운영시간 10:00 - 15:30 (월~금)</span>
+        </div>
 
-      <div class="badge-pill badge-green" id="stockBadge">
-        <span class="badge-dot"></span>
-        <span id="stockBadgeText">주문 가능</span>
+        <div class="badge-pill badge-green" id="stockBadge">
+          <span class="badge-dot"></span>
+          <span id="stockBadgeText">주문 가능</span>
+        </div>
+        <div class="status-desc" id="statusDescText">따뜻하고 시원한 커피로 힐링하세요!</div>
       </div>
-      <div class="status-desc" id="statusDescText">따뜻하고 시원한 커피로 힐링하세요!</div>
     </section>
     <script>
       (function () {
@@ -91,20 +126,24 @@
           if (raw) {
             var data = JSON.parse(raw);
             var map = {
-              available: { cls: "badge-green", txt: "주문 가능", desc: "따뜻하고 시원한 커피로 힐링하세요!", h: "85", steam: true },
-              busy: { cls: "badge-yellow", txt: "혼잡 / 대기 발생", desc: "현재 주문이 밀려있습니다. 여유를 가지고 방문해주세요!", h: "65", steam: true },
-              preparing: { cls: "badge-orange", txt: "오픈 준비중", desc: "원두와 음료 재료를 정성껏 준비하고 있습니다. 잠시만 기다려주세요!", h: "30", steam: false },
-              low_stock: { cls: "badge-yellow", txt: "잔여 수량 적음", desc: "일부 음료 재료가 소진 임박입니다. 서둘러 주문해주세요!", h: "45", steam: true },
-              closed: { cls: "badge-red", txt: "영업 마감", desc: "오늘 영업이 마감되었습니다. 다음 영업일에 만나요!", h: "0", steam: false }
+              available: { cls: "badge-green", txt: "주문 가능", desc: "따뜻하고 시원한 커피로 힐링하세요!", h: "85", steam: true, scene: "scene-day", sign: "OPEN" },
+              busy: { cls: "badge-yellow", txt: "혼잡 / 대기 발생", desc: "현재 주문이 밀려있습니다. 여유를 가지고 방문해주세요!", h: "65", steam: true, scene: "scene-day", sign: "OPEN" },
+              preparing: { cls: "badge-orange", txt: "오픈 준비중", desc: "원두와 음료 재료를 정성껏 준비하고 있습니다. 잠시만 기다려주세요!", h: "30", steam: false, scene: "scene-morning", sign: "" },
+              low_stock: { cls: "badge-yellow", txt: "잔여 수량 적음", desc: "일부 음료 재료가 소진 임박입니다. 서둘러 주문해주세요!", h: "45", steam: true, scene: "scene-sunset", sign: "OPEN" },
+              closed: { cls: "badge-red", txt: "영업 마감", desc: "오늘 영업이 마감되었습니다. 다음 영업일에 만나요!", h: "0", steam: false, scene: "scene-night", sign: "CLOSED" }
             };
             var item = map[data.mode];
             if (item) {
+              var card = document.getElementById("statusCard");
               var b = document.getElementById("stockBadge");
               var bt = document.getElementById("stockBadgeText");
               var dt = document.getElementById("statusDescText");
               var cf = document.getElementById("coffeeFill");
               var s1 = document.getElementById("steam1");
               var s2 = document.getElementById("steam2");
+              var sign = document.getElementById("windowNeonSign");
+              if (card && item.scene) card.className = "status-card window-theme " + item.scene;
+              if (sign && item.sign) sign.textContent = item.sign;
               if (b) b.className = "badge-pill " + item.cls;
               if (bt) bt.textContent = item.txt;
               if (dt) dt.textContent = data.notice || item.desc;

@@ -227,10 +227,338 @@ body {
   height: 4px;
   background: linear-gradient(90deg, #2D4333, #58785A, #7E987D);
   opacity: 0.9;
+  z-index: 15;
 }
 
 .status-card:active {
   transform: scale(0.99);
+}
+
+/* ========================================================
+   🪟 라이브 카페 윈도우 (Live Window) 시스템
+   ======================================================== */
+.status-card.window-theme {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 28px;
+  background: var(--card-bg);
+  border: 1.5px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cafe-window-scene {
+  position: relative;
+  width: 100%;
+  height: 215px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  overflow: hidden;
+  padding-bottom: 12px;
+  transition: background 0.8s ease;
+}
+
+.window-arch {
+  position: absolute;
+  top: 16px;
+  width: 200px;
+  height: 185px;
+  border-radius: 100px 100px 16px 16px;
+  overflow: hidden;
+  border: 5px solid rgba(255, 255, 255, 0.75);
+  box-shadow: inset 0 4px 18px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.12);
+  transition: all 0.8s ease;
+  z-index: 1;
+}
+
+[data-theme="dark"] .window-arch {
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.5), 0 8px 26px rgba(0, 0, 0, 0.45);
+}
+
+.window-sky {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: all 0.8s ease;
+  z-index: 1;
+}
+
+.window-mullion-v {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 3px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.65);
+  z-index: 4;
+  pointer-events: none;
+}
+
+.window-mullion-h {
+  position: absolute;
+  top: 55%;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.65);
+  z-index: 4;
+  pointer-events: none;
+}
+
+[data-theme="dark"] .window-mullion-v,
+[data-theme="dark"] .window-mullion-h {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.window-sill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(220, 225, 220, 0.95));
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  z-index: 5;
+}
+
+[data-theme="dark"] .window-sill {
+  background: linear-gradient(180deg, #2D3E30, #1F2E23);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sky-sun-moon {
+  position: absolute;
+  border-radius: 50%;
+  transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
+}
+
+.sky-stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.sky-stars .star {
+  position: absolute;
+  color: #FDE047;
+  font-size: 10px;
+  animation: starTwinkle 2s ease-in-out infinite alternate;
+}
+
+.sky-stars .s1 { top: 22px; left: 35px; animation-delay: 0.2s; }
+.sky-stars .s2 { top: 48px; right: 40px; font-size: 14px; animation-delay: 0.7s; color: #FFF; }
+.sky-stars .s3 { top: 75px; left: 65px; font-size: 8px; animation-delay: 1.2s; }
+.sky-stars .s4 { top: 30px; right: 75px; font-size: 9px; animation-delay: 0.5s; }
+
+@keyframes starTwinkle {
+  0% { opacity: 0.3; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1.2); text-shadow: 0 0 6px #FDE047; }
+}
+
+.sky-clouds {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 20px;
+  filter: blur(1px);
+  animation: cloudDrift 16s linear infinite alternate;
+}
+
+.cloud.c1 { top: 36px; left: 15px; width: 55px; height: 18px; }
+.cloud.c2 { top: 65px; right: 20px; width: 45px; height: 14px; opacity: 0.6; animation-duration: 22s; }
+
+@keyframes cloudDrift {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(25px); }
+}
+
+.sun-beam {
+  position: absolute;
+  top: -30px;
+  left: -20px;
+  width: 140px;
+  height: 250px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 70%);
+  transform: rotate(-25deg);
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.window-neon-sign {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 12px;
+  border: 1.5px solid rgba(244, 63, 94, 0.85);
+  border-radius: 8px;
+  color: #FDA4AF;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.6s ease;
+  z-index: 4;
+  background: rgba(15, 23, 42, 0.7);
+}
+
+.status-card.window-theme .mug-container {
+  position: relative;
+  z-index: 10;
+  margin: 0 auto;
+  transform: scale(0.96);
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.18));
+  transition: transform 0.3s ease;
+}
+
+.status-card.window-theme:hover .mug-container {
+  transform: scale(1.02);
+}
+
+.window-info-body {
+  padding: 16px 20px 22px;
+  background: var(--card-bg);
+  border-top: 1px solid var(--border-light);
+  position: relative;
+  z-index: 10;
+  text-align: center;
+}
+
+/* --- 시간대별 씬 (Scene Themes) --- */
+.scene-morning .cafe-window-scene {
+  background: radial-gradient(circle at 50% 30%, rgba(254, 240, 138, 0.25) 0%, transparent 70%);
+}
+.scene-morning .window-sky {
+  background: linear-gradient(180deg, #FDE68A 0%, #FEF08A 35%, #BAE6FD 100%);
+}
+.scene-morning .sky-sun-moon {
+  top: 60px;
+  left: 35px;
+  width: 38px;
+  height: 38px;
+  background: #F59E0B;
+  box-shadow: 0 0 24px rgba(245, 158, 11, 0.7);
+}
+.scene-morning .sun-beam {
+  opacity: 0.45;
+}
+
+.scene-day .cafe-window-scene {
+  background: radial-gradient(circle at 50% 20%, rgba(56, 189, 248, 0.18) 0%, transparent 70%);
+}
+.scene-day .window-sky {
+  background: linear-gradient(180deg, #38BDF8 0%, #7DD3FC 45%, #E0F2FE 100%);
+}
+.scene-day .sky-sun-moon {
+  top: 25px;
+  right: 45px;
+  width: 34px;
+  height: 34px;
+  background: #FEF08A;
+  box-shadow: 0 0 28px rgba(254, 240, 138, 0.9), 0 0 45px rgba(250, 204, 21, 0.45);
+}
+.scene-day .sun-beam {
+  opacity: 0.65;
+}
+
+.scene-sunset .cafe-window-scene {
+  background: radial-gradient(circle at 50% 40%, rgba(249, 115, 22, 0.22) 0%, transparent 75%);
+}
+.scene-sunset .window-sky {
+  background: linear-gradient(180deg, #EA580C 0%, #F97316 35%, #FB7185 70%, #A855F7 100%);
+}
+.scene-sunset .sky-sun-moon {
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 48px;
+  background: #FDE047;
+  box-shadow: 0 0 35px rgba(253, 224, 71, 0.8), 0 0 60px rgba(249, 115, 22, 0.6);
+}
+.scene-sunset .cloud {
+  background: rgba(254, 205, 211, 0.65);
+}
+
+.scene-night .cafe-window-scene {
+  background: radial-gradient(circle at 50% 30%, rgba(30, 27, 75, 0.45) 0%, transparent 70%);
+}
+.scene-night .window-sky {
+  background: linear-gradient(180deg, #090D16 0%, #0F172A 50%, #1E1B4B 100%);
+}
+.scene-night .sky-sun-moon {
+  top: 30px;
+  right: 40px;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  box-shadow: 6px 6px 0 0 #FEF08A, 0 0 16px rgba(254, 240, 138, 0.5);
+  border-radius: 50%;
+}
+.scene-night .sky-stars {
+  opacity: 1;
+}
+.scene-night .cloud {
+  opacity: 0.15;
+}
+/* --- OPEN 네온사인 (10:00 오픈/주문가능 및 13:30 잔여적음) --- */
+.scene-day .window-neon-sign,
+.scene-sunset .window-neon-sign {
+  opacity: 1;
+  border-color: rgba(34, 197, 94, 0.9);
+  color: #86EFAC;
+  background: rgba(13, 40, 24, 0.7);
+  animation: neonOpenGlow 2.5s infinite alternate;
+}
+
+@keyframes neonOpenGlow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.6), inset 0 0 8px rgba(34, 197, 94, 0.4);
+    text-shadow: 0 0 8px #86EFAC, 0 0 14px #22C55E;
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(34, 197, 94, 0.85), inset 0 0 12px rgba(34, 197, 94, 0.6);
+    text-shadow: 0 0 12px #86EFAC, 0 0 20px #22C55E;
+  }
+}
+
+/* --- CLOSED 네온사인 (15:30 영업 마감) --- */
+.scene-night .window-neon-sign {
+  opacity: 1;
+  border-color: rgba(244, 63, 94, 0.85);
+  color: #FDA4AF;
+  background: rgba(15, 23, 42, 0.75);
+  animation: neonClosedGlow 2.5s infinite alternate;
+}
+
+@keyframes neonClosedGlow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(244, 63, 94, 0.6), inset 0 0 8px rgba(244, 63, 94, 0.4);
+    text-shadow: 0 0 8px #FB7185, 0 0 14px #E11D48;
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(244, 63, 94, 0.85), inset 0 0 12px rgba(244, 63, 94, 0.6);
+    text-shadow: 0 0 12px #FB7185, 0 0 20px #E11D48;
+  }
 }
 
 .mug-container {

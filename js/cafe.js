@@ -264,12 +264,31 @@ function refreshCafeStatus() {
 
 function renderStatus(statusKey, descText) {
   const data = STATUS_DATA[statusKey] || STATUS_DATA.closed;
+  const card = document.getElementById("statusCard");
   const badge = document.getElementById("stockBadge");
   const badgeText = document.getElementById("stockBadgeText");
   const desc = document.getElementById("statusDescText");
   const coffeeFill = document.getElementById("coffeeFill");
   const steam1 = document.getElementById("steam1");
   const steam2 = document.getElementById("steam2");
+  const sign = document.getElementById("windowNeonSign");
+
+  // 🪟 라이브 윈도우 씬 및 네온사인 (OPEN / CLOSED) 동기화
+  const sceneMap = {
+    preparing: { scene: "scene-morning", sign: "" },
+    available: { scene: "scene-day", sign: "OPEN" },
+    busy: { scene: "scene-day", sign: "OPEN" },
+    low_stock: { scene: "scene-sunset", sign: "OPEN" },
+    closed: { scene: "scene-night", sign: "CLOSED" }
+  };
+  const config = sceneMap[statusKey] || sceneMap.closed;
+
+  if (card) {
+    card.className = `status-card window-theme ${config.scene}`;
+  }
+  if (sign && config.sign) {
+    sign.textContent = config.sign;
+  }
 
   if (badge) badge.className = `badge-pill ${data.badgeClass}`;
   if (badgeText) badgeText.textContent = data.badgeText;
