@@ -50,7 +50,11 @@ sodam-cafe/
    - **주말(토/일)**: 종일 **영업 마감**
 
 2. **수동 조작 및 당일 마감 락(`manualDate`)**
-   - 관리자가 관리자 모달(`⚙️`)에서 버튼을 누르면 Firestore에 `mode`, `manualDate(YYYY-MM-DD)`, `manualTime`이 기록됩니다.
+   - 관리자 모달(`⚙️`)에는 핵심 3개 버튼만 배치:
+     - 🟢 **주문 가능** (`opt-available`)
+     - 🧃 **잔여 수량 적음** (`opt-low_stock`)
+     - 🔴 **영업 마감** (`opt-closed`)
+   - 관리자가 버튼을 누르면 Firestore에 `mode`, `manualDate(YYYY-MM-DD)`, `manualTime`이 즉시 기록됩니다.
    - 관리자가 **영업 마감**을 누르면 조기 마감 처리되어 당일(`todayStr === manualDate`) 동안 마감이 고정됩니다.
    - 익일 09:30이 되면 날짜가 달라지므로(`todayStr !== manualDate`) 어제의 수동 마감이 풀리고 새로운 날의 자동 스케줄로 자연스럽게 전환됩니다.
 
