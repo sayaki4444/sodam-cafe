@@ -850,7 +850,7 @@
         desc: "일부 음료 재료가 소진 임박입니다. 서둘러 주문해주세요!",
         coffeeHeight: "45",
         steam: true,
-        sign: "OPEN"
+        sign: ""
       },
       night: {
         badgeCls: "badge-red",
@@ -884,7 +884,7 @@
       const steam2 = document.getElementById("steam2");
       const sign = document.querySelector(".window-neon-sign");
 
-      if (sign && d.sign) sign.textContent = d.sign;
+      if (sign) sign.textContent = d.sign || "";
       if (badge) badge.className = "badge-pill " + d.badgeCls;
       if (badgeTxt) badgeTxt.textContent = d.badgeTxt;
       if (desc) desc.textContent = d.desc;

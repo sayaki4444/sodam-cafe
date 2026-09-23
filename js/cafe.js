@@ -278,7 +278,7 @@ function renderStatus(statusKey, descText) {
     preparing: { scene: "scene-morning", sign: "" },
     available: { scene: "scene-day", sign: "OPEN" },
     busy: { scene: "scene-day", sign: "OPEN" },
-    low_stock: { scene: "scene-sunset", sign: "OPEN" },
+    low_stock: { scene: "scene-sunset", sign: "" },
     closed: { scene: "scene-night", sign: "CLOSED" }
   };
   const config = sceneMap[statusKey] || sceneMap.closed;
@@ -286,8 +286,8 @@ function renderStatus(statusKey, descText) {
   if (card) {
     card.className = `status-card window-theme ${config.scene}`;
   }
-  if (sign && config.sign) {
-    sign.textContent = config.sign;
+  if (sign) {
+    sign.textContent = config.sign || "";
   }
 
   if (badge) badge.className = `badge-pill ${data.badgeClass}`;
