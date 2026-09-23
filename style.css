@@ -176,9 +176,8 @@ body {
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* 관리자/텔레그램 원형 버튼 크기 */
-.admin-toggle-btn,
-.telegram-btn {
+/* 관리자 원형 버튼 크기 */
+.admin-toggle-btn {
   width: 32px;
   height: 32px;
   padding: 0;
@@ -195,13 +194,11 @@ body {
   transition: all 0.2s ease;
 }
 
-.admin-toggle-btn:hover,
-.telegram-btn:hover {
+.admin-toggle-btn:hover {
   background: rgba(255, 255, 255, 0.25);
 }
 
-.admin-toggle-btn:active,
-.telegram-btn:active {
+.admin-toggle-btn:active {
   transform: scale(0.95);
   background: rgba(255, 255, 255, 0.3);
 }
@@ -410,6 +407,12 @@ body {
   background: rgba(234, 179, 8, 0.14);
   color: #CA8A04;
   border: 1.5px solid rgba(202, 138, 4, 0.4);
+}
+
+.badge-orange {
+  background: rgba(249, 115, 22, 0.14);
+  color: #EA580C;
+  border: 1.5px solid rgba(234, 88, 12, 0.4);
 }
 
 .badge-red {

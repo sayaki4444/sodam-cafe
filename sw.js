@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sodam-cafe-v10';
+const CACHE_NAME = 'sodam-cafe-v11';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -51,8 +51,8 @@ self.addEventListener('activate', (event) => {
 
 // 3. 네트워크 우선 (실시간 시트 및 텔레그램), 실패 시 캐시 반환
 self.addEventListener('fetch', (event) => {
-  // Google 스프레드시트 API나 텔레그램 API는 항상 네트워크 직접 호출
-  if (event.request.url.includes('google') || event.request.url.includes('telegram')) {
+  // Google 스프레드시트 등 외부 실시간 API는 항상 네트워크 직접 호출
+  if (event.request.url.includes('google') || event.request.url.includes('googleapis')) {
     return;
   }
 

@@ -15,26 +15,74 @@ const firebaseConfig = {
 };
 
 let db = null;
+let auth = null;
 try {
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
   }
   db = firebase.firestore();
+  auth = firebase.auth();
 } catch (e) {
   console.warn("Firebase 초기화 에러 (오프라인 모드로 동작):", e);
 }
 
-// 2. 기본 PIN 설정 (클라우드 미등록 시 기본값)
-const DEFAULT_ADMIN_PIN = "00000000";
-const DEFAULT_MASTER_PIN = "316497";
-const DEFAULT_SECRET_PIN = "1234";
+// 2. 보안 해시 유틸 및 메모리 캐시 상태값
+// SHA-256 단방향 암호화 (시크릿 편의 서비스 비밀번호 보안 검증용)
+async function hashText(text) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+}
 
-// 메모리 캐시 상태값
+// 편의 서비스 기본 비밀번호('1234')의 SHA-256 해시값
+const DEFAULT_SECRET_HASH = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
+
+// 메모리 및 로컬스토리지 캐시 상태값 (초기 로딩 2초 깜빡임 방지)
+const STATUS_CACHE_KEY = "sodam_cached_status";
 let currentMode = "auto";
 let currentNotice = "";
-let serverAdminPin = DEFAULT_ADMIN_PIN;
-let serverMasterPin = DEFAULT_MASTER_PIN;
-let serverSecretPin = localStorage.getItem("sodam_secret_pin") || DEFAULT_SECRET_PIN;
+let lastManualDate = "";
+let lastManualTime = 0;
+
+function getTodayString(d = new Date()) {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function loadStatusFromCache() {
+  try {
+    const raw = localStorage.getItem(STATUS_CACHE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed.mode) currentMode = parsed.mode;
+      if (parsed.notice !== undefined) currentNotice = parsed.notice;
+      if (parsed.manualDate) lastManualDate = parsed.manualDate;
+      if (parsed.manualTime) lastManualTime = parsed.manualTime;
+    }
+  } catch (e) {
+    console.warn("로컬 상태 캐시 로드 실패:", e);
+  }
+}
+
+function saveStatusToCache() {
+  try {
+    localStorage.setItem(STATUS_CACHE_KEY, JSON.stringify({
+      mode: currentMode,
+      notice: currentNotice,
+      manualDate: lastManualDate,
+      manualTime: lastManualTime
+    }));
+  } catch (e) {
+    console.warn("로컬 상태 캐시 저장 실패:", e);
+  }
+}
+
+// 스크립트 실행 즉시 캐시 선반영
+loadStatusFromCache();
 
 // 3. 모달 공통 제어 함수
 function openModal(modalId) {
@@ -117,19 +165,56 @@ const STATUS_DATA = {
   },
   preparing: {
     badgeClass: "badge-orange",
-    badgeText: "재료 준비중",
-    desc: "원두 및 재료를 준비하고 있습니다. 잠시만 기다려주세요!",
+    badgeText: "오픈 준비중",
+    desc: "원두와 음료 재료를 정성껏 준비하고 있습니다. 잠시만 기다려주세요!",
     coffeeHeight: "30",
     steam: false
+  },
+  low_stock: {
+    badgeClass: "badge-yellow",
+    badgeText: "잔여 수량 적음",
+    desc: "일부 음료 재료가 소진 임박입니다. 서둘러 주문해주세요!",
+    coffeeHeight: "45",
+    steam: true
   },
   closed: {
     badgeClass: "badge-red",
     badgeText: "영업 마감",
-    desc: "오늘 영업이 마감되었습니다. 내일 10시에 만나요!",
+    desc: "오늘 영업이 마감되었습니다. 다음 영업일에 만나요!",
     coffeeHeight: "0",
     steam: false
   }
 };
+
+// 자동 시간표 계산 함수 (평일 기준: 09:30 오픈 준비중, 10:00 주문 가능, 13:30 잔여 수량 적음, 15:30 영업 마감)
+function getScheduleStatus(date = new Date()) {
+  const day = date.getDay();
+  // 주말(토, 일) 마감
+  if (day === 0 || day === 6) {
+    return "closed";
+  }
+
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const timeVal = hours * 60 + minutes;
+
+  const t0930 = 9 * 60 + 30;   // 570: 오전 09:30
+  const t1000 = 10 * 60;       // 600: 오전 10:00
+  const t1330 = 13 * 60 + 30;  // 810: 오후 13:30
+  const t1530 = 15 * 60 + 30;  // 930: 오후 15:30
+
+  if (timeVal < t0930) {
+    return "closed";
+  } else if (timeVal < t1000) {
+    return "preparing";
+  } else if (timeVal < t1330) {
+    return "available";
+  } else if (timeVal < t1530) {
+    return "low_stock";
+  } else {
+    return "closed";
+  }
+}
 
 function updateButtonsUI(activeMode) {
   const allBtns = document.querySelectorAll(".status-opt-btn");
@@ -148,31 +233,33 @@ function updateButtonsUI(activeMode) {
 }
 
 function refreshCafeStatus() {
-  updateButtonsUI(currentMode);
-
-  if (currentMode !== "auto" && STATUS_DATA[currentMode]) {
-    renderStatus(currentMode, currentNotice || STATUS_DATA[currentMode].desc);
-    return;
-  }
-
-  // 자동 시간표 모드 (평일 10:00 ~ 15:30)
   const now = new Date();
-  const day = now.getDay();
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
-  const currentTimeVal = hours * 60 + minutes;
+  const todayStr = getTodayString(now);
 
-  const openTime = 10 * 60;
-  const closeTime = 15 * 60 + 30;
+  let effectiveStatus = "closed";
+  let defaultDesc = "";
 
-  let autoStatus = "closed";
-  if (day >= 1 && day <= 5) {
-    if (currentTimeVal >= openTime && currentTimeVal < closeTime) {
-      autoStatus = "available";
+  // 1) 당일 관리자가 수동으로 설정한 모드가 있는 경우
+  if (lastManualDate === todayStr && currentMode && currentMode !== "auto") {
+    effectiveStatus = currentMode;
+    defaultDesc = STATUS_DATA[effectiveStatus]?.desc || "";
+  } else {
+    // 2) 당일 수동 설정이 없거나 다음 날로 넘어간 경우 -> 시간표 기반 자동 스케줄
+    effectiveStatus = getScheduleStatus(now);
+
+    const day = now.getDay();
+    const isWeekday = day >= 1 && day <= 5;
+    const timeVal = now.getHours() * 60 + now.getMinutes();
+
+    if (effectiveStatus === "closed" && isWeekday && timeVal < 9 * 60 + 30) {
+      defaultDesc = "오전 10시 오픈 예정입니다. 잠시만 기다려주세요!";
+    } else {
+      defaultDesc = STATUS_DATA[effectiveStatus]?.desc || "";
     }
   }
 
-  renderStatus(autoStatus, currentNotice || STATUS_DATA[autoStatus].desc);
+  updateButtonsUI(effectiveStatus);
+  renderStatus(effectiveStatus, currentNotice || defaultDesc);
 }
 
 function renderStatus(statusKey, descText) {
@@ -203,121 +290,203 @@ function listenFirestore() {
       const data = doc.data();
       currentMode = data.mode || "auto";
       currentNotice = data.notice || "";
+      lastManualDate = data.manualDate || "";
+      lastManualTime = data.manualTime || 0;
+      saveStatusToCache();
       refreshCafeStatus();
-    } else {
-      db.collection("cafe").doc("status").set({
-        mode: "auto",
-        notice: "",
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
     }
   }, (err) => console.warn("Firestore status listener:", err));
-
-  // 관리자, 마스터 및 편의 서비스 비밀번호 실시간 동기화
-  db.collection("cafe").doc("config").onSnapshot((doc) => {
-    if (doc.exists) {
-      const data = doc.data();
-      serverAdminPin = data.adminPin || DEFAULT_ADMIN_PIN;
-      serverMasterPin = data.masterPin || DEFAULT_MASTER_PIN;
-      if (data.secretPin) {
-        serverSecretPin = data.secretPin;
-        localStorage.setItem("sodam_secret_pin", data.secretPin);
-      }
-    } else {
-      db.collection("cafe").doc("config").set({
-        adminPin: DEFAULT_ADMIN_PIN,
-        masterPin: DEFAULT_MASTER_PIN,
-        secretPin: DEFAULT_SECRET_PIN
-      });
-    }
-  }, (err) => console.warn("Firestore config listener:", err));
 }
 
-// 7. 관리자 인증 & 운영 상태 조작
+// 7. 관리자 인증 & 운영 상태 조작 (Firebase Auth 기반)
+function toggleAdminEmailField() {
+  const group = document.getElementById("adminEmailGroup");
+  if (group) {
+    group.style.display = group.style.display === "none" ? "block" : "none";
+  }
+}
+
 function openAdminModal() {
+  // 이미 Firebase Auth로 로그인되어 있는 경우 즉시 관리자 모달 오픈
+  if (auth && auth.currentUser) {
+    const noticeInput = document.getElementById("adminNoticeInput");
+    if (noticeInput) noticeInput.value = currentNotice;
+    refreshCafeStatus();
+    openModal("adminModal");
+    return;
+  }
+
+  // 비로그인 상태인 경우 관리자 인증 모달 오픈
   const input = document.getElementById("adminPinInput");
   const errMsg = document.getElementById("pinErrorMsg");
   if (input) input.value = "";
   if (errMsg) errMsg.style.display = "none";
   openModal("adminAuthModal");
+  setTimeout(() => {
+    if (input) input.focus();
+  }, 200);
 }
 
 function checkAdminPin() {
-  const input = document.getElementById("adminPinInput");
+  const pinInput = document.getElementById("adminPinInput");
+  const emailInput = document.getElementById("adminEmailInput");
   const errMsg = document.getElementById("pinErrorMsg");
-  const entered = input.value.trim();
+  const loginBtn = document.getElementById("adminLoginBtn");
 
-  if (entered === serverAdminPin || entered === DEFAULT_ADMIN_PIN) {
-    if (errMsg) errMsg.style.display = "none";
-    closeModal("adminAuthModal");
+  const password = pinInput ? pinInput.value.trim() : "";
+  const email = (emailInput && emailInput.value.trim()) ? emailInput.value.trim() : "admin@sodam.cafe";
 
-    const noticeInput = document.getElementById("adminNoticeInput");
-    if (noticeInput) noticeInput.value = currentNotice;
-
-    updateButtonsUI(currentMode);
-    openModal("adminModal");
-  } else {
-    if (errMsg) errMsg.style.display = "block";
-    input.focus();
+  if (!password) {
+    if (errMsg) {
+      errMsg.textContent = "비밀번호를 입력해 주세요.";
+      errMsg.style.display = "block";
+    }
+    return;
   }
+
+  if (!auth) {
+    alert("Firebase 인증 모듈이 준비되지 않았습니다. 인터넷 연결을 확인해 주세요.");
+    return;
+  }
+
+  if (loginBtn) {
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = "<span>인증 진행 중... ⏳</span>";
+  }
+
+  auth.signInWithEmailAndPassword(email, password)
+    .then(() => {
+      if (errMsg) errMsg.style.display = "none";
+      if (pinInput) pinInput.value = "";
+      closeModal("adminAuthModal");
+
+      const noticeInput = document.getElementById("adminNoticeInput");
+      if (noticeInput) noticeInput.value = currentNotice;
+      refreshCafeStatus();
+      openModal("adminModal");
+    })
+    .catch((error) => {
+      console.warn("관리자 인증 실패:", error.code, error.message);
+      if (errMsg) {
+        errMsg.style.display = "block";
+        if (error.code === "auth/invalid-credential" || error.code === "auth/wrong-password" || error.code === "auth/user-not-found") {
+          errMsg.textContent = "계정 정보 또는 비밀번호가 일치하지 않습니다.";
+        } else if (error.code === "auth/operation-not-allowed") {
+          errMsg.textContent = "Firebase 콘솔에서 이메일/비밀번호 로그인이 활성화되지 않았습니다.";
+        } else if (error.code === "auth/too-many-requests") {
+          errMsg.textContent = "로그인 시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.";
+        } else {
+          errMsg.textContent = `인증 실패: ${error.message}`;
+        }
+      }
+      if (pinInput) {
+        pinInput.focus();
+      }
+    })
+    .finally(() => {
+      if (loginBtn) {
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = "<span>인증하고 관리자 모드 열기 🔓</span>";
+      }
+    });
 }
 
 function selectAdminStatus(statusKey) {
+  if (!auth || !auth.currentUser) {
+    alert("관리자 로그인이 필요한 작업입니다.");
+    openAdminModal();
+    return;
+  }
+
+  const todayStr = getTodayString(new Date());
   currentMode = statusKey;
+  lastManualDate = todayStr;
+  lastManualTime = Date.now();
+
+  saveStatusToCache();
   updateButtonsUI(statusKey);
   refreshCafeStatus();
 
   if (db) {
     db.collection("cafe").doc("status").set({
       mode: statusKey,
+      manualDate: todayStr,
+      manualTime: lastManualTime,
       notice: currentNotice,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true }).catch(err => console.error("Firestore 상태 저장 에러:", err));
+    }, { merge: true }).catch(err => {
+      console.error("Firestore 상태 저장 에러:", err);
+      alert("상태 저장 실패 (권한 확인 필요): " + err.message);
+    });
   }
-
-  sendTelegramCafeStatus(statusKey, currentNotice);
 }
 
 function saveNoticeOnly() {
+  if (!auth || !auth.currentUser) {
+    alert("관리자 로그인이 필요한 작업입니다.");
+    openAdminModal();
+    return;
+  }
+
   const noticeInput = document.getElementById("adminNoticeInput");
   const val = noticeInput ? noticeInput.value.trim() : "";
   currentNotice = val;
+  saveStatusToCache();
   refreshCafeStatus();
 
   if (db) {
     db.collection("cafe").doc("status").set({
       notice: val,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true }).catch(err => console.error("Firestore 공지 저장 에러:", err));
+    }, { merge: true }).then(() => {
+      alert("한 줄 공지가 전 사용자 화면에 저장되었습니다.");
+    }).catch(err => {
+      console.error("Firestore 공지 저장 에러:", err);
+      alert("공지 저장 실패 (권한 확인 필요): " + err.message);
+    });
   }
-
-  sendTelegramCafeStatus(currentMode, val);
-  alert("한 줄 공지가 전 사용자 화면에 저장되었습니다.");
 }
 
-function changeAdminPin() {
-  const newPinInput = document.getElementById("newPinInput");
-  const newPin = newPinInput.value.trim();
-
-  if (newPin.length < 4) {
-    alert("비밀번호는 4자리 이상 입력해 주세요.");
+function changeAdminPassword() {
+  const user = auth ? auth.currentUser : null;
+  if (!user) {
+    alert("관리자 로그인이 필요합니다.");
     return;
   }
 
-  serverAdminPin = newPin;
-  if (db) {
-    db.collection("cafe").doc("config").set({
-      adminPin: newPin
-    }, { merge: true }).then(() => {
-      alert("관리자 비밀번호가 클라우드에 성공적으로 변경되었습니다.");
-      newPinInput.value = "";
-    }).catch(err => alert("비밀번호 변경 실패: " + err.message));
+  const newPinInput = document.getElementById("newPinInput");
+  if (!newPinInput) return;
+  const newPass = newPinInput.value.trim();
+
+  if (newPass.length < 6) {
+    alert("비밀번호는 최소 6자리 이상이어야 합니다.");
+    return;
+  }
+
+  user.updatePassword(newPass).then(() => {
+    alert("관리자 비밀번호가 안전하게 변경되었습니다.");
+    newPinInput.value = "";
+  }).catch(err => {
+    if (err.code === "auth/requires-recent-login") {
+      alert("보안을 위해 다시 로그인한 후 변경해 주세요.");
+    } else {
+      alert("비밀번호 변경 실패: " + err.message);
+    }
+  });
+}
+
+function adminLogout() {
+  if (auth && auth.currentUser) {
+    auth.signOut().then(() => {
+      closeModal("adminModal");
+      alert("관리자에서 안전하게 로그아웃되었습니다.");
+    }).catch(err => console.warn("Sign out error:", err));
   } else {
-    alert("서버 연결에 실패하여 변경되지 않았습니다.");
+    closeModal("adminModal");
   }
 }
 
-function changeSecretPin() {
+async function changeSecretPin() {
   const newSecretPinInput = document.getElementById("newSecretPinInput");
   if (!newSecretPinInput) return;
   const newPin = newSecretPinInput.value.trim();
@@ -327,128 +496,23 @@ function changeSecretPin() {
     return;
   }
 
-  serverSecretPin = newPin;
-  localStorage.setItem("sodam_secret_pin", newPin);
+  const hash = await hashText(newPin);
+  localStorage.setItem("sodam_secret_hash", hash);
 
-  if (db) {
+  if (db && auth && auth.currentUser) {
     db.collection("cafe").doc("config").set({
-      secretPin: newPin
+      secretPinHash: hash
     }, { merge: true }).then(() => {
-      alert("편의 서비스 비밀번호가 성공적으로 변경되었습니다.");
+      alert("편의 서비스 비밀번호가 안전하게 변경되었습니다.");
       newSecretPinInput.value = "";
     }).catch(err => {
-      console.warn("Firestore secretPin save error:", err);
-      alert("로컬에 비밀번호가 저장되었습니다.");
+      console.warn("Firestore secretPin save warning:", err);
+      alert("로컬에 비밀번호가 안전하게 저장되었습니다.");
       newSecretPinInput.value = "";
     });
   } else {
-    alert("편의 서비스 비밀번호가 로컬에 성공적으로 저장되었습니다.");
+    alert("편의 서비스 비밀번호가 로컬에 안전하게 저장되었습니다.");
     newSecretPinInput.value = "";
-  }
-}
-
-// 8. 마스터 관리자(봇 설정) 권한 제어
-function openMasterAuthModal() {
-  const input = document.getElementById("masterPinInput");
-  const errMsg = document.getElementById("masterPinErrorMsg");
-  if (input) input.value = "";
-  if (errMsg) errMsg.style.display = "none";
-  openModal("masterAuthModal");
-}
-
-function checkMasterPin() {
-  const input = document.getElementById("masterPinInput");
-  const errMsg = document.getElementById("masterPinErrorMsg");
-  const entered = input.value.trim();
-
-  if (entered === serverMasterPin || entered === DEFAULT_MASTER_PIN) {
-    if (errMsg) errMsg.style.display = "none";
-    closeModal("masterAuthModal");
-
-    const tokenInput = document.getElementById("teleBotTokenInput");
-    const chatIdInput = document.getElementById("teleChatIdInput");
-    if (tokenInput) tokenInput.value = localStorage.getItem("sodam_tele_token") || "";
-    if (chatIdInput) chatIdInput.value = localStorage.getItem("sodam_tele_chatid") || "";
-
-    openModal("masterConfigModal");
-  } else {
-    if (errMsg) errMsg.style.display = "block";
-    input.focus();
-  }
-}
-
-function changeMasterPin() {
-  const input = document.getElementById("newMasterPinInput");
-  const newPin = input.value.trim();
-
-  if (newPin.length < 4) {
-    alert("마스터 PIN은 최소 4자리 이상 입력해 주세요.");
-    return;
-  }
-
-  serverMasterPin = newPin;
-  if (db) {
-    db.collection("cafe").doc("config").set({
-      masterPin: newPin
-    }, { merge: true }).then(() => {
-      alert("최고 관리자 PIN이 클라우드에 성공적으로 변경되었습니다.");
-      input.value = "";
-    }).catch(err => alert("변경 실패: " + err.message));
-  }
-}
-
-function saveTelegramConfig() {
-  const tokenInput = document.getElementById("teleBotTokenInput");
-  const chatIdInput = document.getElementById("teleChatIdInput");
-
-  localStorage.setItem("sodam_tele_token", tokenInput ? tokenInput.value.trim() : "");
-  localStorage.setItem("sodam_tele_chatid", chatIdInput ? chatIdInput.value.trim() : "");
-
-  alert("텔레그램 봇 연동 설정이 저장되었습니다.");
-  closeModal("masterConfigModal");
-}
-
-function resetTelegramConfigDefault() {
-  if (confirm("텔레그램 설정을 초기화하시겠습니까?")) {
-    localStorage.removeItem("sodam_tele_token");
-    localStorage.removeItem("sodam_tele_chatid");
-    const tokenInput = document.getElementById("teleBotTokenInput");
-    const chatIdInput = document.getElementById("teleChatIdInput");
-    if (tokenInput) tokenInput.value = "";
-    if (chatIdInput) chatIdInput.value = "";
-    alert("초기화되었습니다.");
-  }
-}
-
-function sendTelegramCafeStatus(statusKey, noticeText) {
-  try {
-    const botToken = localStorage.getItem("sodam_tele_token") || "";
-    const chatId = localStorage.getItem("sodam_tele_chatid") || "";
-    if (!botToken || !chatId) return;
-
-    const statusLabelMap = {
-      available: "🟢 주문 가능 (여유)",
-      busy: "🟡 혼잡 / 대기 발생",
-      preparing: "🟠 재료 준비중",
-      closed: "🔴 영업 마감",
-      auto: "🔄 자동 시간표 모드 운영 중"
-    };
-
-    const statusName = statusLabelMap[statusKey] || "상태 알 수 없음";
-    const timeStr = new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
-
-    let text = `[카페 알리미] ☕\n\n`;
-    text += `⏰ 현재 상태: ${statusName}\n`;
-    text += `🕒 갱신 시각: ${timeStr}\n`;
-    if (noticeText) text += `📢 전달 사항: ${noticeText}\n`;
-
-    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: chatId, text: text })
-    }).catch(e => console.warn("Telegram failed:", e));
-  } catch (e) {
-    console.warn("Telegram send failed safely:", e);
   }
 }
 
@@ -480,21 +544,19 @@ function openSecretPinModal() {
   }, 250);
 }
 
-function checkSecretPin() {
+async function checkSecretPin() {
   const input = document.getElementById("secretPinInput");
   const errMsg = document.getElementById("secretPinErrorMsg");
   if (!input) return;
 
   const entered = input.value.trim();
-  // 설정된 비밀번호, 기본 비밀번호(1234), 또는 서버 관리자/마스터 PIN으로 유연하게 인증 지원
-  if (
-    entered === serverSecretPin ||
-    entered === DEFAULT_SECRET_PIN ||
-    entered === serverAdminPin ||
-    entered === DEFAULT_ADMIN_PIN ||
-    entered === serverMasterPin ||
-    entered === DEFAULT_MASTER_PIN
-  ) {
+  if (!entered) return;
+
+  const enteredHash = await hashText(entered);
+  const savedHash = localStorage.getItem("sodam_secret_hash") || DEFAULT_SECRET_HASH;
+
+  // SHA-256 해시 검증 (평문 비교 제거)
+  if (enteredHash === savedHash || enteredHash === DEFAULT_SECRET_HASH) {
     if (errMsg) errMsg.style.display = "none";
     input.value = "";
     closeModal("secretPinModal");
@@ -861,13 +923,18 @@ window.unlockConvenienceService = unlockConvenienceService;
 window.lockConvenienceService = lockConvenienceService;
 window.scrollMenuCarousel = scrollMenuCarousel;
 window.filterMenuCategory = filterMenuCategory;
+window.openAdminModal = openAdminModal;
+window.checkAdminPin = checkAdminPin;
+window.changeAdminPassword = changeAdminPassword;
+window.adminLogout = adminLogout;
+window.toggleAdminEmailField = toggleAdminEmailField;
 
 // 9. 초기화 실행
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
-  listenFirestore();
   refreshCafeStatus();
-  setInterval(refreshCafeStatus, 60000);
+  listenFirestore();
+  setInterval(refreshCafeStatus, 30000);
   initMenuCarousel();
 
   // 시크릿 트리거 버튼 이벤트 리스너 이중 바인딩

@@ -32,10 +32,11 @@
 
   <!-- 4. Firebase SDK 로드 -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
   <!-- 5. 분리된 외부 스타일시트 -->
-  <link rel="stylesheet" href="style.css?v=20260917_10" />
+  <link rel="stylesheet" href="style.css?v=20260922_1" />
 </head>
 
 <body>
@@ -83,6 +84,38 @@
       </div>
       <div class="status-desc" id="statusDescText">따뜻하고 시원한 커피로 힐링하세요!</div>
     </section>
+    <script>
+      (function () {
+        try {
+          var raw = localStorage.getItem("sodam_cached_status");
+          if (raw) {
+            var data = JSON.parse(raw);
+            var map = {
+              available: { cls: "badge-green", txt: "주문 가능", desc: "따뜻하고 시원한 커피로 힐링하세요!", h: "85", steam: true },
+              busy: { cls: "badge-yellow", txt: "혼잡 / 대기 발생", desc: "현재 주문이 밀려있습니다. 여유를 가지고 방문해주세요!", h: "65", steam: true },
+              preparing: { cls: "badge-orange", txt: "오픈 준비중", desc: "원두와 음료 재료를 정성껏 준비하고 있습니다. 잠시만 기다려주세요!", h: "30", steam: false },
+              low_stock: { cls: "badge-yellow", txt: "잔여 수량 적음", desc: "일부 음료 재료가 소진 임박입니다. 서둘러 주문해주세요!", h: "45", steam: true },
+              closed: { cls: "badge-red", txt: "영업 마감", desc: "오늘 영업이 마감되었습니다. 다음 영업일에 만나요!", h: "0", steam: false }
+            };
+            var item = map[data.mode];
+            if (item) {
+              var b = document.getElementById("stockBadge");
+              var bt = document.getElementById("stockBadgeText");
+              var dt = document.getElementById("statusDescText");
+              var cf = document.getElementById("coffeeFill");
+              var s1 = document.getElementById("steam1");
+              var s2 = document.getElementById("steam2");
+              if (b) b.className = "badge-pill " + item.cls;
+              if (bt) bt.textContent = item.txt;
+              if (dt) dt.textContent = data.notice || item.desc;
+              if (cf) cf.setAttribute("height", item.h);
+              if (s1) s1.style.display = item.steam ? "block" : "none";
+              if (s2) s2.style.display = item.steam ? "block" : "none";
+            }
+          }
+        } catch (e) { }
+      })();
+    </script>
 
     <!-- 2-1. 소담터 카페 메뉴 안내 (좌우 스크롤 캐러셀) -->
     <section class="menu-showcase-section" id="cafeMenuSection">
@@ -408,25 +441,32 @@
     </div>
   </div>
 
-  <!-- 4-1) 관리자 비밀번호 확인 모달 -->
+  <!-- 4-1) 카페 관리자 인증 모달 (Firebase Auth 연동) -->
   <div class="modal-overlay" id="adminAuthModal" onclick="closeOnBackdrop(event, 'adminAuthModal')">
     <div class="bottom-sheet">
       <div class="sheet-handle-area" onclick="closeModal('adminAuthModal')">
         <div class="sheet-handle"></div>
       </div>
       <div class="sheet-header">
-        <div class="sheet-title">🔒 관리자 비밀번호 확인</div>
+        <div class="sheet-title">🔒 카페 관리자 인증</div>
         <button class="sheet-close-btn" onclick="closeModal('adminAuthModal')" aria-label="닫기">✕</button>
       </div>
       <p style="font-size:13px; color:var(--text-sub); margin-bottom:16px; font-weight:600; line-height:1.4;">
         카페 관리자 권한을 인증하기 위해 비밀번호를 입력해 주세요.
       </p>
+      <div class="form-group" id="adminEmailGroup" style="display:none;">
+        <label class="form-label" for="adminEmailInput">관리자 계정 (이메일)</label>
+        <input type="email" id="adminEmailInput" class="admin-input-text" value="admin@sodam.cafe" placeholder="admin@sodam.cafe">
+      </div>
       <div class="form-group">
-        <label class="form-label" for="adminPinInput">관리자 PIN 번호</label>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <label class="form-label" for="adminPinInput" style="margin-bottom:0;">관리자 비밀번호</label>
+          <button type="button" onclick="toggleAdminEmailField()" style="background:none; border:none; color:var(--text-muted); font-size:11.5px; cursor:pointer; text-decoration:underline;">계정(이메일) 변경</button>
+        </div>
         <div style="position:relative; display:flex; align-items:center;">
           <input type="password" id="adminPinInput" class="admin-input-text"
-            style="margin-bottom:0; letter-spacing:6px; font-size:20px; text-align:center; padding-right:42px;"
-            maxlength="10" inputmode="numeric" placeholder="••••••••"
+            style="margin-bottom:0; font-size:16px; padding-right:42px;"
+            placeholder="비밀번호 입력"
             onkeydown="if(event.key==='Enter') checkAdminPin()">
           <button type="button" onclick="togglePinVisibility('adminPinInput', this)"
             style="position:absolute; right:12px; background:none; border:none; font-size:18px; cursor:pointer; padding:4px; line-height:1;"
@@ -435,7 +475,7 @@
         <div id="pinErrorMsg" style="color:#EF4444; font-size:12px; font-weight:700; margin-top:8px; display:none;">
           비밀번호가 일치하지 않습니다.</div>
       </div>
-      <button class="admin-save-btn" style="margin-top:12px;" onclick="checkAdminPin()"><span>인증하고 관리자 모드 열기
+      <button class="admin-save-btn" id="adminLoginBtn" style="margin-top:12px;" onclick="checkAdminPin()"><span>인증하고 관리자 모드 열기
           🔓</span></button>
     </div>
   </div>
@@ -450,9 +490,11 @@
         <div class="sheet-title">⚙️ 카페 운영 상태 관리자</div>
         <button class="sheet-close-btn" onclick="closeModal('adminModal')" aria-label="닫기">✕</button>
       </div>
-      <p style="font-size:13px; color:var(--text-sub); margin-bottom:16px; font-weight:600; line-height:1.4;">
-        상태를 터치하면 <strong style="color:var(--accent-color, #0284c7);">전체 사용자 화면에 실시간 적용</strong>됩니다.
-      </p>
+      <div style="background:var(--card-sub); padding:10px 12px; border-radius:12px; margin-bottom:14px; font-size:12px; color:var(--text-sub); line-height:1.5; border:1px solid var(--border-color);">
+        <div style="font-weight:700; color:var(--text-main); margin-bottom:2px;">🕒 카페 자동 운영 시간표</div>
+        <div>• 09:30 오픈 준비중 ➔ 10:00 주문 가능 ➔ 13:30 잔여 수량 적음 ➔ 15:30 영업 마감</div>
+        <div style="margin-top:3px; font-size:11px; opacity:0.85;">※ 상태 버튼 터치 시 전체 사용자 화면에 즉시 수동 반영됩니다.</div>
+      </div>
       <div class="form-group">
         <label class="form-label" style="margin-bottom:8px;">운영 상태 선택</label>
         <div class="status-select-grid" style="position:relative; z-index:10; pointer-events:auto;">
@@ -464,13 +506,13 @@
               style="pointer-events:none;">혼잡 / 대기 발생</span></button>
           <button type="button" class="status-opt-btn" id="opt-preparing" style="cursor:pointer;"
             onclick="selectAdminStatus('preparing')"><span style="pointer-events:none;">🟠</span> <span
-              style="pointer-events:none;">재료 준비중</span></button>
-          <button type="button" class="status-opt-btn" id="opt-closed" style="cursor:pointer;"
+              style="pointer-events:none;">오픈 / 재료 준비중</span></button>
+          <button type="button" class="status-opt-btn" id="opt-low_stock" style="cursor:pointer;"
+            onclick="selectAdminStatus('low_stock')"><span style="pointer-events:none;">🧃</span> <span
+              style="pointer-events:none;">잔여 수량 적음</span></button>
+          <button type="button" class="status-opt-btn" id="opt-closed" style="grid-column: span 2; cursor:pointer;"
             onclick="selectAdminStatus('closed')"><span style="pointer-events:none;">🔴</span> <span
               style="pointer-events:none;">영업 마감</span></button>
-          <button type="button" class="status-opt-btn" id="opt-auto" style="grid-column: span 2; cursor:pointer;"
-            onclick="selectAdminStatus('auto')"><span style="pointer-events:none;">🔄</span> <span
-              style="pointer-events:none;">자동 시간표 모드 (10:00~15:30)</span></button>
         </div>
       </div>
       <div class="form-group">
@@ -482,15 +524,6 @@
             style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--accent-color, #0284c7); color:#FFF; border:none;"
             onclick="saveNoticeOnly()">공지 저장</button>
         </div>
-      </div>
-      <div
-        style="margin: 14px 0 16px; border-top: 1px solid var(--border-color); padding-top: 12px; display:flex; justify-content:space-between; align-items:center;">
-        <div style="display:flex; align-items:center; gap:6px;">
-          <span style="font-size:12.5px; font-weight:700; color:var(--accent-color, #0284c7);">✈️ 텔레그램 공지 연동</span>
-        </div>
-        <button type="button" onclick="openMasterAuthModal()"
-          style="background:none; border:none; color:var(--text-muted); font-size:11.5px; cursor:pointer; text-decoration:underline; padding:4px;">🔒
-          봇 설정 변경</button>
       </div>
       <!-- 편의 서비스 비밀번호 설정 -->
       <div style="margin: 16px 0 14px; border-top: 1px solid var(--border-color); padding-top: 14px;">
@@ -519,98 +552,22 @@
         </div>
         <div
           style="background:var(--card-sub); padding:14px; border-radius:16px; border:1px solid var(--border-color);">
-          <label class="form-label" for="newPinInput" style="margin-bottom:6px;">새 비밀번호 (4자리 이상)</label>
+          <label class="form-label" for="newPinInput" style="margin-bottom:6px;">새 비밀번호 (6자리 이상)</label>
           <div style="display:flex; gap:8px; position:relative; align-items:center;">
             <input type="password" id="newPinInput" class="admin-input-text"
-              style="margin-bottom:0; padding-right:40px;" maxlength="10" inputmode="numeric" placeholder="새 비밀번호 입력">
+              style="margin-bottom:0; padding-right:40px;" maxlength="20" placeholder="새 비밀번호 입력">
             <button type="button" onclick="togglePinVisibility('newPinInput', this)"
               style="position:absolute; right:82px; background:none; border:none; font-size:16px; cursor:pointer; padding:4px; line-height:1;"
               title="비밀번호 표시/숨김">👁️</button>
             <button type="button" class="preset-btn"
               style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--accent-color, #0284c7); color:#FFF; border:none;"
-              onclick="changeAdminPin()">즉시변경</button>
+              onclick="changeAdminPassword()">즉시변경</button>
           </div>
         </div>
       </div>
-      <button class="admin-save-btn" onclick="closeModal('adminModal')"><span>관리자 모드 닫기 ✕</span></button>
-    </div>
-  </div>
-
-  <!-- 4-3) 최고 관리자(마스터) 비밀번호 확인 모달 -->
-  <div class="modal-overlay" id="masterAuthModal" onclick="closeOnBackdrop(event, 'masterAuthModal')">
-    <div class="bottom-sheet">
-      <div class="sheet-handle-area" onclick="closeModal('masterAuthModal')">
-        <div class="sheet-handle"></div>
-      </div>
-      <div class="sheet-header">
-        <div class="sheet-title">🔑 최고 관리자 권한 인증</div>
-        <button class="sheet-close-btn" onclick="closeModal('masterAuthModal')" aria-label="닫기">✕</button>
-      </div>
-      <p style="font-size:13px; color:var(--text-sub); margin-bottom:16px; font-weight:600; line-height:1.4;">
-        텔레그램 봇 토큰 및 채널 설정을 변경하려면 <strong>마스터 PIN</strong>을 입력해 주세요.
-      </p>
-      <div class="form-group">
-        <label class="form-label" for="masterPinInput">마스터 PIN 번호</label>
-        <div style="position:relative; display:flex; align-items:center;">
-          <input type="password" id="masterPinInput" class="admin-input-text"
-            style="margin-bottom:0; letter-spacing:6px; font-size:20px; text-align:center; padding-right:42px;"
-            maxlength="10" inputmode="numeric" placeholder="••••••"
-            onkeydown="if(event.key==='Enter') checkMasterPin()">
-          <button type="button" onclick="togglePinVisibility('masterPinInput', this)"
-            style="position:absolute; right:12px; background:none; border:none; font-size:18px; cursor:pointer; padding:4px; line-height:1;"
-            title="비밀번호 표시/숨김">👁️</button>
-        </div>
-        <div id="masterPinErrorMsg"
-          style="color:#EF4444; font-size:12px; font-weight:700; margin-top:8px; display:none;">마스터 비밀번호가 일치하지 않습니다.
-        </div>
-      </div>
-      <button class="admin-save-btn" style="margin-top:12px;" onclick="checkMasterPin()"><span>마스터 인증 및 설정 열기
-          🔓</span></button>
-    </div>
-  </div>
-
-  <!-- 4-4) 텔레그램 봇 고급 설정 모달 -->
-  <div class="modal-overlay" id="masterConfigModal" onclick="closeOnBackdrop(event, 'masterConfigModal')">
-    <div class="bottom-sheet">
-      <div class="sheet-handle-area" onclick="closeModal('masterConfigModal')">
-        <div class="sheet-handle"></div>
-      </div>
-      <div class="sheet-header">
-        <div class="sheet-title">⚙️ 텔레그램 봇 고급 연동 설정</div>
-        <button class="sheet-close-btn" onclick="closeModal('masterConfigModal')" aria-label="닫기">✕</button>
-      </div>
-      <p style="font-size:13px; color:var(--text-sub); margin-bottom:16px; font-weight:600; line-height:1.4;">
-        ⚠️ 주의: 봇 토큰이나 Chat ID를 임의로 변경하면 텔레그램 알림이 작동하지 않을 수 있습니다.
-      </p>
-      <div class="form-group">
-        <label class="form-label" for="teleBotTokenInput">텔레그램 Bot Token</label>
-        <input type="text" id="teleBotTokenInput" class="admin-input-text" style="font-size:12px;"
-          placeholder="예: 123456789:ABCdefGhI...">
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="teleChatIdInput">채널/채팅방 Chat ID</label>
-        <input type="text" id="teleChatIdInput" class="admin-input-text" style="font-size:12px;"
-          placeholder="예: -100123456789">
-      </div>
-      <div style="margin: 16px 0 16px; border-top: 1px solid var(--border-color); padding-top: 14px;">
-        <label class="form-label" for="newMasterPinInput">마스터 PIN 번호 변경 (4자리 이상)</label>
-        <div style="display:flex; gap:8px; position:relative; align-items:center;">
-          <input type="password" id="newMasterPinInput" class="admin-input-text"
-            style="margin-bottom:0; padding-right:40px;" maxlength="10" inputmode="numeric" placeholder="새 마스터 PIN 입력">
-          <button type="button" onclick="togglePinVisibility('newMasterPinInput', this)"
-            style="position:absolute; right:82px; background:none; border:none; font-size:16px; cursor:pointer; padding:4px; line-height:1;"
-            title="비밀번호 표시/숨김">👁️</button>
-          <button type="button" class="preset-btn"
-            style="white-space:nowrap; padding:0 14px; font-weight:800; background:var(--accent-color, #0284c7); color:#FFF; border:none;"
-            onclick="changeMasterPin()">PIN 변경</button>
-        </div>
-      </div>
-      <div style="display:flex; gap:8px; margin-top:16px;">
-        <button type="button" class="preset-btn"
-          style="flex:1; padding:12px; font-weight:700; background:var(--card-sub); border:1px solid var(--border-color); color:var(--text-sub);"
-          onclick="resetTelegramConfigDefault()">기본값 복원</button>
-        <button type="button" class="admin-save-btn" style="flex:2; margin:0;" onclick="saveTelegramConfig()"><span>설정
-            저장 💾</span></button>
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <button type="button" class="preset-btn" style="flex:1; padding:12px; font-weight:700; background:var(--card-sub); border:1px solid var(--border-color); color:#EF4444;" onclick="adminLogout()">로그아웃 🔒</button>
+        <button type="button" class="admin-save-btn" style="flex:2; margin:0;" onclick="closeModal('adminModal')"><span>닫기 ✕</span></button>
       </div>
     </div>
   </div>
@@ -652,7 +609,7 @@
   </script>
 
   <!-- 분리된 모듈형 자바스크립트 로드 (캐시 방지 쿼리 파라미터 적용) -->
-  <script src="js/cafe.js?v=20260917_10"></script>
+  <script src="js/cafe.js?v=20260923_1"></script>
   <script src="js/work.js?v=20260917_4"></script>
   <script src="js/restaurants.js?v=20260917_4"></script>
 

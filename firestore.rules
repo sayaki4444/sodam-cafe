@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. 카페 운영 상태 및 실시간 공지: 전 사용자 읽기 허용, 오직 admin@sodam.cafe 관리자만 수정 가능
+    match /cafe/status {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'admin@sodam.cafe';
+    }
+
+    // 2. 카페 설정 및 중요 정보: 오직 admin@sodam.cafe 관리자만 접근 가능 (일반 사용자 접근 차단)
+    match /cafe/config {
+      allow read, write: if request.auth != null && request.auth.token.email == 'admin@sodam.cafe';
+    }
+
+    // 3. 기타 모든 문서: 읽기 허용, 쓰기는 admin@sodam.cafe 관리자만 허용
+    match /{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'admin@sodam.cafe';
+    }
+  }
+}
