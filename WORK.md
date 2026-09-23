@@ -87,7 +87,11 @@ CLI(agy CLI)와 Antigravity Chat 모드를 교대로 사용할 때 다음 규칙
 
 1. **외과수술적 수정 (Surgical Edits)**:
    - 전체 파일을 덮어쓰지 말고, 변경이 필요한 특정 함수/블록만 정확하게 수정합니다.
-2. **캐시 방지 쿼리 파라미터**:
+2. **사전 검증 원칙 (`test.html` 우선 반영 후 배포)**:
+   - UI/비주얼 및 주요 기능 개선 사항이 있을 경우, **절대 프로덕션 파일(`index.html`)에 즉시 반영하거나 바로 배포하지 않습니다.**
+   - 반드시 **[test.html](file:///c:/Users/user/Desktop/workspace/sodam-cafe/test.html)에 먼저 반영**하여 사용자가 브라우저에서 직접 시각적/기능적 검증을 할 수 있도록 합니다.
+   - 사용자의 확인 및 명시적 승인이 완료된 후에 프로덕션 코드에 이식하고 Git 커밋/푸시 및 Firebase 배포를 진행합니다.
+3. **캐시 방지 쿼리 파라미터**:
    - `index.html`에서 JS/CSS를 불러올 때 브라우저 및 PWA 캐시 방지를 위해 버전 파라미터를 유지/갱신합니다. (예: `js/cafe.js?v=YYYYMMDD_N`)
    - `sw.js`의 `CACHE_NAME`도 주요 배포 시 함께 올립니다.
 
