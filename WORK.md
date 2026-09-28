@@ -123,3 +123,45 @@ firebase deploy --only firestore:rules
   - [index.html](file:///c:/Users/user/Desktop/workspace/sodam-cafe/index.html) 상태 카드 아래의 인라인 캐시 스크립트 및 [js/cafe.js](file:///c:/Users/user/Desktop/workspace/sodam-cafe/js/cafe.js)의 `STATUS_CACHE_KEY` 동기화 로직을 점검하세요.
 - **Q. 수동으로 마감했는데 다음 날에도 안 열려요.**
   - Firestore의 `cafe/status` 문서의 `manualDate`가 현재 날짜(`YYYY-MM-DD`)와 다르면 자동으로 시간표로 풀립니다. 기기 로컬 시간대 설정을 확인하세요.
+
+---
+
+### [2026-09-28 11:36] 낮/밤(시크릿 모드) 테마 토글 인터랙션 및 원형 마스크 전환 구현
+- **작업 목적:** 커피콩 ↔ 초승달 SVG 모핑 애니메이션과 View Transitions API 기반 원형 마스크 확장 화면 전환 및 시크릿 나이트 모드 테마 구현
+- **수정/생성된 파일:**
+  - `style.css`: 딥 에스프레소(#12100E) & 앰버 골든 테마 토큰, 토글 모핑 애니메이션 및 View Transitions 원형 마스크 CSS 추가
+  - `js/cafe.js`: 클릭 좌표 기반 View Transitions API 연동, Web Audio API 스위치 사운드, fallback 서클 트랜지션 함수 구현
+  - `test.html`: 커피콩 ↔ 초승달 모핑 토글 컴포넌트 마크업 반영 및 테스트 컨트롤러 연동, 캐시 방지 버전 파라미터 갱신
+- **주요 변경 사항:**
+  - `style.css`: `[data-theme="dark"]`에 딥 모디 에스프레소 톤(#12100E)과 앰버 네온(#FFB020) 앰비언트 변수 적용, `::view-transition-new(root)`에 0.6s `circle-expand` 애니메이션 구현
+  - `js/cafe.js`: `toggleTheme(event)`에서 클릭 좌표와 화면 대각선 최대 반지름을 계산하여 CSS 변수 세팅 후 `document.startViewTransition` 실행, `playThemeSwitchSound`로 햅틱 오디오 연출
+  - `test.html`: 사전 검증 원칙에 따라 프로덕션(`index.html`) 배포 전 `test.html`에 커피콩 ↔ 초승달 모핑 토글러 및 시크릿 닷 라벨 선반영
+- **테스트 및 검증 방법:**
+  - `node -c js/cafe.js` 문법 검사 확인
+  - 브라우저에서 `test.html` 접속 후 우측 상단 토글 버튼 클릭 시 커피콩이 회전하며 빛나는 초승달로 모핑되고, 클릭 지점을 중심으로 0.6s 동안 원형 마스크가 펼쳐지며 시크릿 톤으로 전환되는지 확인
+---
+
+### [2026-09-28 11:39] 테마 토글 버튼 표시 문구 변경 (낮/시크릿 → 라이트/다크)
+- **작업 목적:** 테마 토글 버튼 상태 표시 텍스트를 직관적인 '라이트 / 다크'로 변경
+- **수정/생성된 파일:**
+  - `js/cafe.js`: `applyTheme` 내 텍스트 매핑 및 접근성 `aria-label`을 '라이트 / 다크'로 수정
+  - `test.html`: 헤더 토글 버튼의 기본 텍스트를 '라이트'로 수정
+- **주요 변경 사항:**
+  - `theme === "dark"`일 때 `text.textContent = "다크"`, 아닐 때 `"라이트"`로 설정
+- **테스트 및 검증 방법:**
+  - `node -c js/cafe.js` 문법 검사 확인
+  - `test.html`에서 테마 토글 버튼 클릭 시 텍스트가 '라이트' ↔ '다크'로 정상 교체되는지 확인
+---
+
+### [2026-09-28 11:42] 낮/밤(시크릿 모드) 테마 토글 프로덕션 이식 및 배포
+- **작업 목적:** 사전 검증 완료된 커피콩 ↔ 초승달 모핑 토글 컴포넌트 및 View Transitions 원형 마스크 화면 전환 기능을 프로덕션(`index.html`)에 이식하고 배포
+- **수정/생성된 파일:**
+  - `index.html`: 헤더 토글 버튼 마크업을 커피콩/초승달 모핑 SVG로 교체, CSS/JS 캐시 방지 파라미터 갱신(`v=20260928_1`)
+  - `sw.js`: 서비스 워커 캐시 버전 갱신(`sodam-cafe-v12`)
+- **주요 변경 사항:**
+  - `index.html` 상단 헤더 액션에 커피콩 ↔ 초승달 모핑 SVG 및 '라이트/다크' 라벨 컴포넌트 이식 완료
+  - PWA 서비스 워커 및 정적 자산 캐시 버전 갱신으로 사용자 측 자동 업데이트 유도
+- **테스트 및 검증 방법:**
+  - `git add .` / `git commit` / `git push origin main`
+  - `firebase deploy --only hosting` 실행 결과 확인
+---

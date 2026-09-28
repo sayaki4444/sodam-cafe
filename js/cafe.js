@@ -127,23 +127,133 @@ function initTheme() {
   applyTheme(savedTheme);
 }
 
-function toggleTheme() {
+// ☕🌙 감성 스위치 오디오 효과 (Web Audio API - 외부 음원 불필요)
+function playThemeSwitchSound(isNight) {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const now = ctx.currentTime;
+
+    // 1. 아날로그 스위치 딸깍 타격음
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = isNight ? "triangle" : "sine";
+    osc.frequency.setValueAtTime(isNight ? 520 : 660, now);
+    osc.frequency.exponentialRampToValueAtTime(isNight ? 240 : 420, now + 0.07);
+
+    gain.gain.setValueAtTime(0.06, now); // 잔잔한 볼륨
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.08);
+
+    // 2. 부드러운 앰비언트 하모닉 릴레이 차임
+    const chime = ctx.createOscillator();
+    const chimeGain = ctx.createGain();
+    chime.type = "sine";
+    chime.frequency.setValueAtTime(isNight ? 880 : 1046.5, now + 0.015);
+    chimeGain.gain.setValueAtTime(0.025, now + 0.015);
+    chimeGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
+
+    chime.connect(chimeGain);
+    chimeGain.connect(ctx.destination);
+    chime.start(now + 0.015);
+    chime.stop(now + 0.25);
+  } catch (err) {
+    // 오디오 정책 차단 시 무시
+  }
+}
+
+function toggleTheme(event) {
   const current = document.documentElement.getAttribute("data-theme") || "light";
   const newTheme = current === "dark" ? "light" : "dark";
-  applyTheme(newTheme);
-  localStorage.setItem("sodam_theme", newTheme);
+
+  // 클릭 좌표 계산 (View Transitions 원형 마스크 확장 중심점)
+  let clickX = window.innerWidth * 0.9;
+  let clickY = 32;
+
+  if (event && typeof event.clientX === "number" && (event.clientX > 0 || event.clientY > 0)) {
+    clickX = event.clientX;
+    clickY = event.clientY;
+  } else {
+    const btn = document.getElementById("themeBtn");
+    if (btn) {
+      const rect = btn.getBoundingClientRect();
+      clickX = rect.left + rect.width / 2;
+      clickY = rect.top + rect.height / 2;
+    }
+  }
+
+  // 화면 가장자리까지의 최대 반지름 계산
+  const maxRadius = Math.hypot(
+    Math.max(clickX, window.innerWidth - clickX),
+    Math.max(clickY, window.innerHeight - clickY)
+  );
+
+  document.documentElement.style.setProperty("--click-x", `${clickX}px`);
+  document.documentElement.style.setProperty("--click-y", `${clickY}px`);
+  document.documentElement.style.setProperty("--max-radius", `${maxRadius}px`);
+
+  // 감성 오디오 재생
+  playThemeSwitchSound(newTheme === "dark");
+
+  // View Transitions API 지원 여부 확인
+  if (document.startViewTransition) {
+    const transition = document.startViewTransition(() => {
+      applyTheme(newTheme);
+    });
+    transition.finished.finally(() => {
+      localStorage.setItem("sodam_theme", newTheme);
+    });
+  } else {
+    // 구형 브라우저 fallback 원형 오버레이 애니메이션
+    runFallbackThemeTransition(newTheme, clickX, clickY, maxRadius);
+  }
+}
+
+function runFallbackThemeTransition(newTheme, x, y, radius) {
+  const fallback = document.createElement("div");
+  fallback.className = "theme-transition-fallback-circle";
+  fallback.style.left = `${x}px`;
+  fallback.style.top = `${y}px`;
+  fallback.style.width = `${radius * 2}px`;
+  fallback.style.height = `${radius * 2}px`;
+  fallback.style.background = newTheme === "dark" ? "#12100E" : "#F5F7F2";
+  fallback.style.opacity = "0.95";
+  document.body.appendChild(fallback);
+
+  requestAnimationFrame(() => {
+    fallback.style.transform = "translate(-50%, -50%) scale(1)";
+  });
+
+  setTimeout(() => {
+    applyTheme(newTheme);
+    localStorage.setItem("sodam_theme", newTheme);
+    fallback.style.opacity = "0";
+    setTimeout(() => fallback.remove(), 300);
+  }, 350);
 }
 
 function applyTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
-  const icon = document.getElementById("themeIcon");
   const text = document.getElementById("themeText");
+  const btn = document.getElementById("themeBtn");
+
   if (theme === "dark") {
-    if (icon) icon.textContent = "☀️";
-    if (text) text.textContent = "라이트";
-  } else {
-    if (icon) icon.textContent = "🌙";
     if (text) text.textContent = "다크";
+    if (btn) btn.setAttribute("aria-label", "라이트 모드로 전환 (현재: 다크 모드)");
+  } else {
+    if (text) text.textContent = "라이트";
+    if (btn) btn.setAttribute("aria-label", "다크 모드로 전환 (현재: 라이트 모드)");
+  }
+
+  // PWA 테마 메타태그 동기화
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  if (metaTheme) {
+    metaTheme.setAttribute("content", theme === "dark" ? "#12100E" : "#2D4333");
   }
 }
 
